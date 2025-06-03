@@ -23,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -34,17 +33,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -57,42 +51,52 @@ import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.ForgetPassword
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.SignIn
 import com.dipuguide.finslice.presentation.navigation.SignUp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.dipuguide.finslice.utils.Destination
 
 @Composable
 fun SignInScreen(
     viewModel: AuthViewModel,
     navController: NavController,
 ) {
-    val state by viewModel.authUiState.collectAsState()
-    val event by viewModel.authUiEvent.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val event by viewModel.uiEvent.collectAsState(AuthUiEvent.Idle)
     val userDetail = state.user
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(event) {
-        when (event) {
-            is AuthUiEvent.Success -> {
-                Toast.makeText(context, (event as AuthUiEvent.Success).message, Toast.LENGTH_SHORT)
-                    .show()
-                // navigate
-                navController.navigate(Home)
-                //reset here
-                viewModel.clearEvents()
-                //resetInputs
-                viewModel.resetNameEmailOrPass()
+
+    // Handle UI Events
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is AuthUiEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    viewModel.resetForm()
+                }
+
+                is AuthUiEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                else -> Unit
             }
+        }
+    }
 
-            is AuthUiEvent.Error -> {
-                Toast.makeText(context, (event as AuthUiEvent.Error).message, Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.clearEvents()
+    // Handle Navigation Events
+    LaunchedEffect(Unit) {
+        viewModel.navigation.collect { destination ->
+            when (destination) {
+                Destination.Home -> {
+                    navController.navigate(Home)
+                }
+                Destination.SignIn -> {
+                    navController.navigate(SignIn)
+                }
+                else -> {}
             }
-
-            else -> {}
-
         }
     }
 
@@ -259,7 +263,7 @@ fun SignInScreen(
             Button(
                 onClick = {
                     navController.navigate(SignUp)
-                    viewModel.resetNameEmailOrPass()
+                    viewModel.resetForm()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

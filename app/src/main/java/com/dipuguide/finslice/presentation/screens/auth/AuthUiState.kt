@@ -3,7 +3,7 @@ package com.dipuguide.finslice.presentation.screens.auth
 import com.dipuguide.finslice.utils.PasswordStrength
 
 data class AuthUiState(
-    val user: AuthUser = AuthUser(),
+    val user: AuthUserUi = AuthUserUi(),
     val isPasswordVisible: Boolean = false,
     val nameError: String? = null,
     val emailError: String? = null,
@@ -14,7 +14,8 @@ data class AuthUiState(
 )
 
 
-data class AuthUser(
+data class AuthUserUi(
+    val id: Int? = null,
     val name: String = "",
     val email: String = "",
     val password: String = "",

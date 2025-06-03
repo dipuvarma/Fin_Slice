@@ -1,9 +1,7 @@
 package com.dipuguide.finslice.presentation.screens.auth
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +52,6 @@ import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.component.PasswordStrengthMeter
 import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.SignIn
-import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(
@@ -64,32 +60,32 @@ fun SignUpScreen(
 ) {
 
     val context = LocalContext.current
-    val state by viewModel.authUiState.collectAsState()
-    val event by viewModel.authUiEvent.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val event by viewModel.uiEvent.collectAsState(AuthUiEvent.Idle)
+    val isFormValid by viewModel.isFormValid.collectAsState()
     val userDetail = state.user
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(event) {
-        when (event) {
-            is AuthUiEvent.Success -> {
-                Toast.makeText(context, (event as AuthUiEvent.Success).message, Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.resetPasswordStrengthMessage()
-                // navigate
-                navController.navigate(Home)
-                //reset here
-                viewModel.clearEvents()
-                //reset Inputs
-                viewModel.resetNameEmailOrPass()
-            }
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is AuthUiEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
+                        .show()
+                    viewModel.resetPasswordStrengthMessage()
+                    // navigate
+                    navController.navigate(Home)
+                    //reset Inputs
+                    viewModel.resetForm()
+                }
 
-            is AuthUiEvent.Error -> {
-                Toast.makeText(context, (event as AuthUiEvent.Error).message, Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.clearEvents()
-            }
+                is AuthUiEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
+                        .show()
+                }
 
-            else -> {}
+                else -> {}
+            }
         }
     }
 
@@ -257,7 +253,7 @@ fun SignUpScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                enabled = viewModel.isFormValid()
+                enabled = isFormValid
             ) {
                 AnimatedContent(
                     targetState = event is AuthUiEvent.Loading
@@ -292,7 +288,7 @@ fun SignUpScreen(
             Button(
                 onClick = {
                     navController.navigate(SignIn)
-                    viewModel.resetNameEmailOrPass()
+                    viewModel.resetForm()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

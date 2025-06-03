@@ -20,14 +20,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.RemoveRedEye
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -42,47 +38,42 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.SignIn
-import com.dipuguide.finslice.presentation.navigation.SignUp
 
 @Composable
 fun ForgetPasswordScreen(
     viewModel: AuthViewModel,
     navController: NavController,
 ) {
-    val state by viewModel.authUiState.collectAsState()
-    val event by viewModel.authUiEvent.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val event by viewModel.uiEvent.collectAsState(AuthUiEvent.Idle)
     val userDetail = state.user
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(event) {
-        when (event) {
-            is AuthUiEvent.Success -> {
-                Toast.makeText(context, (event as AuthUiEvent.Success).message, Toast.LENGTH_SHORT)
-                    .show()
-                // navigate
-                navController.navigate(SignIn)
-                //reset here
-                viewModel.clearEvents()
-                //resetInputs
-                viewModel.resetNameEmailOrPass()
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is AuthUiEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
+                        .show()
+                    // navigate
+                    navController.navigate(SignIn)
+                    //resetInputs
+                    viewModel.resetForm()
+                }
+
+                is AuthUiEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                else -> {}
+
             }
-
-            is AuthUiEvent.Error -> {
-                Toast.makeText(context, (event as AuthUiEvent.Error).message, Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.clearEvents()
-            }
-
-            else -> {}
-
         }
     }
 
@@ -148,7 +139,7 @@ fun ForgetPasswordScreen(
                     viewModel.forgetPassword(
                         email = userDetail.email,
                     )
-                    viewModel.resetNameEmailOrPass()
+                    viewModel.resetForm()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,7 +187,7 @@ fun ForgetPasswordScreen(
             Button(
                 onClick = {
                     navController.navigate(SignIn)
-                    viewModel.resetNameEmailOrPass()
+                    viewModel.resetForm()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

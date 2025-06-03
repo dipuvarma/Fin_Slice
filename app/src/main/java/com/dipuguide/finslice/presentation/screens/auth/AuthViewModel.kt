@@ -3,50 +3,97 @@ package com.dipuguide.finslice.presentation.screens.auth
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.FirebaseAuthRepository
+import com.dipuguide.finslice.utils.Destination
+import com.dipuguide.finslice.utils.PasswordStrength
 import com.dipuguide.finslice.utils.getPasswordStrength
 import com.dipuguide.finslice.utils.getValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
+    private val dataStoreRepo: DataStoreRepository,
 ) : ViewModel() {
 
-    private val _authUiEvent = MutableStateFlow<AuthUiEvent>(AuthUiEvent.Idle)
-    val authUiEvent = _authUiEvent.asStateFlow()
+    // UI State: exposed to UI to drive recomposition
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState = _uiState.asStateFlow()
 
-    private val _authUiState = MutableStateFlow(AuthUiState())
-    val authUiState = _authUiState.asStateFlow()
+    // UI Events: one-time signals for navigation, messages, etc.
+    private val _uiEvent = MutableSharedFlow<AuthUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    // Navigation events
+    private val _navigation = MutableSharedFlow<Destination>()
+    val navigation = _navigation.asSharedFlow()
+
+    // Login State
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn = _isLoggedIn.asStateFlow()
+
+    init {
+        checkLoggedInStatus()
+    }
+
+    fun checkLoggedInStatus() {
+        viewModelScope.launch {
+            val loggedIn = dataStoreRepo.isLoggedIn()
+            _isLoggedIn.value = loggedIn
+            _navigation.emit(
+                if (loggedIn) Destination.Home else Destination.SignIn
+            )
+        }
+    }
 
     fun signUp(name: String, email: String, password: String) {
         viewModelScope.launch {
-            _authUiEvent.value = AuthUiEvent.Loading
+            _uiEvent.emit(AuthUiEvent.Loading)
 
             val result = authRepository.signUp(name, email, password)
 
-            _authUiEvent.value = result.fold(
-                onSuccess = { AuthUiEvent.Success("Sign-up successful ✅") },
-                onFailure = { AuthUiEvent.Error("Sign-up failed ❌") }
+            result.fold(
+                onSuccess = {
+                    dataStoreRepo.onLoggedIn()
+                    _isLoggedIn.value = true
+                    _uiEvent.emit(AuthUiEvent.Success("Sign-up successful ✅"))
+                    _navigation.emit(Destination.Home)
+                },
+                onFailure = {
+                    _uiEvent.emit(AuthUiEvent.Error("Sign-up failed ❌"))
+                }
             )
         }
     }
 
     fun signIn(email: String, password: String) {
-
         viewModelScope.launch {
-            _authUiEvent.value = AuthUiEvent.Loading
+            _uiEvent.emit(AuthUiEvent.Loading)
 
             val result = authRepository.signIn(email, password)
 
-            _authUiEvent.value = result.fold(
-                onSuccess = { AuthUiEvent.Success("Sign-in successful ✅") },
-                onFailure = { AuthUiEvent.Error("Sign-in failed ❌") }
+            result.fold(
+                onSuccess = {
+                    dataStoreRepo.onLoggedIn()
+                    _isLoggedIn.value = true
+                    _uiEvent.emit(AuthUiEvent.Success("Sign-in successful ✅"))
+                    _navigation.emit(Destination.Home)
+                },
+                onFailure = {
+                    _uiEvent.emit(AuthUiEvent.Error("Sign-in failed ❌"))
+                }
             )
         }
     }
@@ -54,31 +101,44 @@ class AuthViewModel @Inject constructor(
     fun forgetPassword(email: String) {
         viewModelScope.launch {
             val result = authRepository.forgetPassword(email)
-            _authUiEvent.value = result.fold(
+            result.fold(
                 onSuccess = {
-                    AuthUiEvent.Success("Email Sent")
+                    _uiEvent.emit(AuthUiEvent.Success("Email sent to reset password 📧"))
                 },
-                onFailure = { AuthUiEvent.Error("Password Doesn't Match") }
+                onFailure = {
+                    _uiEvent.emit(AuthUiEvent.Error("Failed to send reset link ❌"))
+                }
             )
         }
     }
 
+    fun signOut() {
+        viewModelScope.launch {
+            authRepository.signOut()
+            dataStoreRepo.onLogout()
+            _isLoggedIn.value = false
+            _navigation.emit(Destination.SignIn)
+        }
+    }
+
     fun updateName(name: String) {
-        _authUiState.update {
+        _uiState.update {
             it.copy(
                 user = it.user.copy(name = name),
-                nameError = if (name.length < 2) "Name must be at least 2 characters" else if (name.length > 30) "Name must be max 30 characters" else null
+                nameError = when {
+                    name.length < 2 -> "Name must be at least 2 characters"
+                    name.length > 30 -> "Name must be max 30 characters"
+                    else -> null
+                }
             )
         }
     }
 
     fun updateEmail(email: String) {
         val isValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        _authUiState.update {
+        _uiState.update {
             it.copy(
-                user = it.user.copy(
-                    email = email,
-                ),
+                user = it.user.copy(email = email),
                 emailError = if (!isValid) "Invalid email format" else null
             )
         }
@@ -87,7 +147,7 @@ class AuthViewModel @Inject constructor(
     fun updatePassword(password: String) {
         val errors = getValidPassword(password)
         val strength = getPasswordStrength(password)
-        _authUiState.update {
+        _uiState.update {
             it.copy(
                 user = it.user.copy(password = password),
                 passwordErrors = errors,
@@ -98,38 +158,43 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun resetNameEmailOrPass() {
-        viewModelScope.launch {
-            _authUiState.value = authUiState.value.copy(
-                user = AuthUser(
-                    name = "",
-                    email = "",
-                    password = ""
-                )
+    fun resetForm() {
+        _uiState.update {
+            it.copy(
+                user = AuthUserUi(),
+                nameError = null,
+                emailError = null,
+                passwordErrors = emptyList(),
+                passwordStrength = PasswordStrength.WEAK,
+                showPasswordErrors = false,
+                showPasswordStrength = false
             )
         }
     }
 
     fun togglePasswordVisibility() {
-        _authUiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
+        _uiState.update {
+            it.copy(isPasswordVisible = !it.isPasswordVisible)
+        }
     }
 
-    fun isFormValid(): Boolean {
-        val state = _authUiState.value
-        return state.nameError == null &&
-                state.emailError == null &&
-                state.passwordErrors.isEmpty() &&
-                state.user.password.isNotEmpty()
-    }
+
+    val isFormValid = uiState.map {
+        it.nameError == null &&
+                it.emailError == null &&
+                it.passwordErrors.isEmpty() &&
+                it.user.password.isNotEmpty()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
 
     fun resetPasswordStrengthMessage() {
-        _authUiState.update { it.copy(showPasswordStrength = false) }
-    }
-
-    fun clearEvents() {
-        _authUiEvent.value = AuthUiEvent.Idle
+        _uiState.update {
+            it.copy(showPasswordStrength = false)
+        }
     }
 
 }
+
+
 
 

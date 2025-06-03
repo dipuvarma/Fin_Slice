@@ -1,15 +1,19 @@
 package com.dipuguide.finslice.data.repo
 
 import android.util.Log
+import com.dipuguide.finslice.data.model.AuthUser
 import com.dipuguide.finslice.ui.theme.backgroundDarkMediumContrast
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import javax.inject.Inject
 
 class FirebaseAuthRepository @Inject constructor(
@@ -23,18 +27,27 @@ class FirebaseAuthRepository @Inject constructor(
 
     suspend fun signUp(name: String, email: String, password: String): Result<Unit> =
         withContext(Dispatchers.IO) {
-
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
-                val userId =
-                    result.user?.uid ?: throw FirebaseAuthException("USER_NULL", "User ID is null")
+                val userId = result.user?.uid
+                    ?: throw FirebaseAuthException("USER_NULL", "User ID is null")
+
+                val user = AuthUser(
+                    id = userId,
+                    name = name,
+                    email = email,
+                    password = ""
+                )
 
                 val userMap = mapOf(
-                    "name" to name,
-                    "email" to email,
+                    "id" to user.id,
+                    "name" to user.name,
+                    "email" to user.email,
                     "createdAt" to FieldValue.serverTimestamp()
                 )
+
                 firestore.collection(USERS_COLLECTION).document(userId).set(userMap).await()
+
                 Log.d(TAG, "User sign-up successful: $userId")
                 Result.success(Unit)
             } catch (e: FirebaseAuthException) {
@@ -44,8 +57,8 @@ class FirebaseAuthRepository @Inject constructor(
                 Log.e(TAG, "Unknown exception during sign-up: ${e.message}", e)
                 Result.failure(e)
             }
-
         }
+
 
     suspend fun signIn(email: String, password: String): Result<Unit> =
         withContext(Dispatchers.IO) {
@@ -73,9 +86,19 @@ class FirebaseAuthRepository @Inject constructor(
         }
     }
 
+    suspend fun getUserWithEmail(email: String): AuthUser? {
+        return Firebase.firestore.collection(USERS_COLLECTION)
+            .whereEqualTo("email", email)
+            .get()
+            .await()
+            .toObjects(AuthUser::class.java)
+            .firstOrNull()
+    }
+
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
-    fun logout() {
+
+    fun signOut() {
         auth.signOut()
         Log.d(TAG, "User signed out")
     }
