@@ -1,13 +1,8 @@
 package com.dipuguide.finslice.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,8 +11,7 @@ import com.dipuguide.finslice.presentation.screens.auth.ForgetPasswordScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
 import com.dipuguide.finslice.presentation.screens.main.HomeScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionViewModel
 
 @Composable
 fun AppNavGraph() {
@@ -27,6 +21,8 @@ fun AppNavGraph() {
 
     //Auth Viewmodel
     val authViewModel = hiltViewModel<AuthViewModel>()
+
+    val transactionViewModel = hiltViewModel<IncomeTransactionViewModel>()
 
     val scope = rememberCoroutineScope()
 
@@ -57,7 +53,8 @@ fun AppNavGraph() {
         composable<Home> {
             HomeScreen(
                 viewModel = authViewModel,
-                navController = rootNavController
+                navController = rootNavController,
+                transactionViewModel = transactionViewModel
             )
         }
     }
