@@ -1,8 +1,10 @@
 package com.dipuguide.finslice.di
 
+import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepoImpl
-import com.dipuguide.finslice.data.repo.TransactionRepository
+import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,13 +25,15 @@ object TransactionModule {
         firebaseFireStore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
     ) =
-        TransactionRepository(firebaseFireStore, firebaseAuth)
+        ExpenseTransactionRepoImpl(firebaseFireStore, firebaseAuth)
 
 
     @Provides
     @Singleton
-    fun provideTransactionRepo(transactionRepository: TransactionRepository, incomeTransactionRepo: IncomeTransactionRepo) =
-        IncomeTransactionViewModel(transactionRepository, incomeTransactionRepo)
+    fun provideIncomeTransactionRepo(
+        incomeTransactionRepo: IncomeTransactionRepo,
+    ) =
+        IncomeTransactionViewModel(incomeTransactionRepo)
 
 
     @Provides
@@ -40,4 +44,22 @@ object TransactionModule {
     ): IncomeTransactionRepo {
         return IncomeTransactionRepoImpl(firebaseFireStore, firebaseAuth)
     }
+
+
+    @Provides
+    @Singleton
+    fun provideExpenseFireStoreAndAuth(
+        firebaseFireStore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+    ): ExpenseTransactionRepo {
+        return ExpenseTransactionRepoImpl(
+            firebaseFireStore,
+            firebaseAuth
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideExpenseTransactionRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
+        ExpenseTransactionViewModel(expenseTransactionRepo)
 }

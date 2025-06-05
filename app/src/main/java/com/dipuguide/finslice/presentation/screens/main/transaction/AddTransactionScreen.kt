@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -32,16 +35,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(
-    viewModel: IncomeTransactionViewModel,
-    navController: NavController
+fun AddTransactionScreen(
+    incomeViewModel: IncomeTransactionViewModel,
+    expenseViewModel: ExpenseTransactionViewModel,
+    navController: NavController,
 ) {
-    val uiState = viewModel.incomeUiState.collectAsState()
+    val uiState = incomeViewModel.incomeUiState.collectAsState()
 
     val tabTitles = listOf("Expense", "Income")
     val selectedTab = uiState.value.selectedTab
@@ -52,14 +58,19 @@ fun TransactionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
-            .padding(horizontal = 16.dp)
     ) {
+        TopAppBarComp(
+            title = "Add Transaction",
+            onClickNavigationIcon = {
+                navController.navigate(Home)
+            },
+            navigationIcon = Icons.Default.ArrowBack
+        )
         // 🔸 Custom Animated TabRow
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(top = 24.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             tabTitles.forEachIndexed { index, title ->
@@ -83,7 +94,7 @@ fun TransactionScreen(
                     tonalElevation = if (isSelected) 2.dp else 0.dp,
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
-                        .clickable { viewModel.onTabSelected(index) }
+                        .clickable { incomeViewModel.onTabSelected(index) }
                 ) {
                     Text(
                         text = title,
@@ -101,9 +112,13 @@ fun TransactionScreen(
         Spacer(modifier = Modifier.height(16.dp)) // optional padding
         // Show the selected screen
         when (uiState.value.selectedTab) {
-            0 -> AddExpenseScreen()
+            0 -> AddExpenseScreen(
+                expenseVM = expenseViewModel,
+                navController = navController
+            )
+
             1 -> AddIncomeScreen(
-                viewModel = viewModel,
+                viewModel = incomeViewModel,
                 navController = navController
             )
         }

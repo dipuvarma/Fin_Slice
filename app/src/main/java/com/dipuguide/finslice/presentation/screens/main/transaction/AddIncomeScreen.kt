@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowForwardIos
@@ -89,8 +92,8 @@ fun AddIncomeScreen(
                     // navigate
                     navController.navigate(Home)
                     //clear input
-                    viewModel.clearAmount()
-                    viewModel.clearNote()
+                    viewModel.clearForm()
+
                 }
 
                 is IncomeUiEvent.Error -> {
@@ -107,7 +110,8 @@ fun AddIncomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .verticalScroll(rememberScrollState())
+         .padding(horizontal = 32.dp),
         verticalArrangement = Arrangement.Top,
     ) {
 
@@ -134,7 +138,7 @@ fun AddIncomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Amount Field
         FormLabel(text = "Amount")
@@ -171,8 +175,7 @@ fun AddIncomeScreen(
             )
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
+        Spacer(modifier = Modifier.height(16.dp))
         // Note Field
         FormLabel(text = "Note (Optional)")
         OutlinedTextField(
@@ -201,8 +204,7 @@ fun AddIncomeScreen(
             colors = OutlinedTextFieldDefaults.colors()
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
+        Spacer(modifier = Modifier.height(16.dp))
         // Category Selector
         DropDownComp(
             menuName = "Category",
@@ -212,8 +214,7 @@ fun AddIncomeScreen(
             },
             selectedText = uiState.category,
         )
-        Spacer(modifier = Modifier.height(36.dp))
-
+        Spacer(modifier = Modifier.height(24.dp))
         // Save Button
         Button(
             onClick = {
@@ -227,8 +228,8 @@ fun AddIncomeScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .padding(horizontal = 80.dp),
+                .height(42.dp)
+                .padding(horizontal = 88.dp),
             shape = MaterialTheme.shapes.medium,
             enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty()
         ) {
@@ -244,7 +245,7 @@ fun AddIncomeScreen(
                 } else {
                     Text(
                         text = "Save",
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold
                         )
                     )

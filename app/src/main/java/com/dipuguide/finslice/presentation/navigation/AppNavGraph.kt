@@ -13,8 +13,9 @@ import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.HomeScreen
+import com.dipuguide.finslice.presentation.screens.main.transaction.AddTransactionScreen
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.TransactionScreen
 
 @Composable
 fun AppNavGraph() {
@@ -26,6 +27,7 @@ fun AppNavGraph() {
     val authViewModel = hiltViewModel<AuthViewModel>()
 
     val incomeViewModel = hiltViewModel<IncomeTransactionViewModel>()
+    val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
 
     val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
 
@@ -63,10 +65,11 @@ fun AppNavGraph() {
             )
         }
         composable<AddTransaction> {
-           TransactionScreen(
-               viewModel = incomeViewModel,
-               navController = rootNavController
-           )
+            AddTransactionScreen(
+                incomeViewModel = incomeViewModel,
+                expenseViewModel = expenseViewModel,
+                navController = rootNavController
+            )
         }
 
         composable<TransactionHistory> {

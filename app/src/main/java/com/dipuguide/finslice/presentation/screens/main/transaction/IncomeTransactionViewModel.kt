@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
-import com.dipuguide.finslice.data.repo.TransactionRepository
+import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class IncomeTransactionViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository,
     private val incomeTransactionRepo: IncomeTransactionRepo,
 ) : ViewModel() {
 
@@ -49,6 +48,15 @@ class IncomeTransactionViewModel @Inject constructor(
     )
 
 
+    fun clearForm() {
+        _incomeUi.update {
+            it.copy(
+                amount = "",
+                note = "",
+                category = ""
+            )
+        }
+    }
 
     fun clearAmount() {
         _incomeUi.update {

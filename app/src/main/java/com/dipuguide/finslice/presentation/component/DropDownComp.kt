@@ -44,7 +44,7 @@ fun DropDownComp(
         // Label
         Text(
             text = menuName,
-            style = MaterialTheme.typography.labelLarge.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             ),
