@@ -48,6 +48,8 @@ class IncomeTransactionViewModel @Inject constructor(
         "Others"
     )
 
+
+
     fun clearAmount() {
         _incomeUi.update {
             it.copy(

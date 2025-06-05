@@ -33,7 +33,7 @@ fun AppNavGraph() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = TransactionHistory
+        startDestination = AddTransaction
     ) {
 
         composable<SignIn> {
