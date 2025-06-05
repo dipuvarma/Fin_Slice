@@ -10,8 +10,11 @@ import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.auth.ForgetPasswordScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
+import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryScreen
+import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.HomeScreen
-import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.TransactionScreen
 
 @Composable
 fun AppNavGraph() {
@@ -22,13 +25,15 @@ fun AppNavGraph() {
     //Auth Viewmodel
     val authViewModel = hiltViewModel<AuthViewModel>()
 
-    val transactionViewModel = hiltViewModel<IncomeTransactionViewModel>()
+    val incomeViewModel = hiltViewModel<IncomeTransactionViewModel>()
+
+    val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
 
     val scope = rememberCoroutineScope()
 
     NavHost(
         navController = rootNavController,
-        startDestination = SignIn
+        startDestination = TransactionHistory
     ) {
 
         composable<SignIn> {
@@ -54,7 +59,20 @@ fun AppNavGraph() {
             HomeScreen(
                 viewModel = authViewModel,
                 navController = rootNavController,
-                transactionViewModel = transactionViewModel
+                incomeViewModel = incomeViewModel
+            )
+        }
+        composable<AddTransaction> {
+           TransactionScreen(
+               viewModel = incomeViewModel,
+               navController = rootNavController
+           )
+        }
+
+        composable<TransactionHistory> {
+            TransactionHistoryScreen(
+                historyViewModel = historyViewModel,
+                incomeViewModel = incomeViewModel
             )
         }
     }

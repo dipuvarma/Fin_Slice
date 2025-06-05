@@ -17,3 +17,9 @@ object ForgetPassword
 
 @Serializable
 object Home
+
+@Serializable
+object AddTransaction
+
+@Serializable
+object TransactionHistory

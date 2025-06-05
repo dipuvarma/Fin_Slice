@@ -1,15 +1,11 @@
 package com.dipuguide.finslice.data.repo
 
 import android.util.Log
-import androidx.compose.material3.InputChip
-import androidx.compose.runtime.mutableStateOf
 import com.dipuguide.finslice.data.model.IncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionUi
-import com.google.firebase.Timestamp
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose

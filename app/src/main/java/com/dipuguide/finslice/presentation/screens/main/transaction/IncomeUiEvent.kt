@@ -1,6 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.main
-
-import com.dipuguide.finslice.presentation.screens.auth.AuthUiEvent
+package com.dipuguide.finslice.presentation.screens.main.transaction
 
 sealed class IncomeUiEvent {
     object Idle : IncomeUiEvent()

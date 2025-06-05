@@ -1,21 +1,16 @@
-package com.dipuguide.finslice.presentation.screens.main
+package com.dipuguide.finslice.presentation.screens.main.transaction
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.data.model.IncomeTransaction
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.TransactionRepository
-import com.dipuguide.finslice.presentation.mapper.toIncomeTransaction
-import com.dipuguide.finslice.presentation.mapper.toIncomeTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,18 +21,59 @@ class IncomeTransactionViewModel @Inject constructor(
     private val incomeTransactionRepo: IncomeTransactionRepo,
 ) : ViewModel() {
 
-    private val _getIncomeUiState = MutableStateFlow(IncomeTransactionUiState())
-    val getIncomeUiState = _getIncomeUiState.asStateFlow()
-
-    private val _incomeUiState = MutableStateFlow(IncomeTransactionUi())
+    private val _incomeUiState = MutableStateFlow(IncomeTransactionUiState())
     val incomeUiState = _incomeUiState.asStateFlow()
+
+    private val _incomeUi = MutableStateFlow(IncomeTransactionUi())
+    val incomeUi = _incomeUi.asStateFlow()
 
     private val _incomeUiEvent = MutableSharedFlow<IncomeUiEvent>()
     val incomeUiEvent = _incomeUiEvent.asSharedFlow()
 
+    fun onTabSelected(index: Int) {
+        _incomeUiState.value = incomeUiState.value.copy(selectedTab = index)
+    }
+
+    val incomeCategories = listOf(
+        "Salary",
+        "Freelance",
+        "Investments",
+        "Rental Income",
+        "Gifts",
+        "Business",
+        "Interest",
+        "Dividends",
+        "Selling Assets",
+        "Refunds",
+        "Others"
+    )
+
+    fun clearAmount() {
+        _incomeUi.update {
+            it.copy(
+                amount = ""
+            )
+        }
+    }
+
+    fun clearNote() {
+        _incomeUi.update {
+            it.copy(
+                note = ""
+            )
+        }
+    }
+
+    fun setCategory(category: String) {
+        _incomeUi.update {
+            it.copy(
+                category = category
+            )
+        }
+    }
 
     fun updatedAmount(amount: String) {
-        _incomeUiState.update {
+        _incomeUi.update {
             it.copy(
                 amount = amount
             )
@@ -45,7 +81,7 @@ class IncomeTransactionViewModel @Inject constructor(
     }
 
     fun updatedNote(note: String) {
-        _incomeUiState.update {
+        _incomeUi.update {
             it.copy(
                 note = note
             )
@@ -53,7 +89,7 @@ class IncomeTransactionViewModel @Inject constructor(
     }
 
     fun updatedCategory(category: String) {
-        _incomeUiState.update {
+        _incomeUi.update {
             it.copy(
                 category = category
             )
@@ -76,6 +112,7 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
+
     fun getIncomeTransaction() {
         viewModelScope.launch {
 
@@ -83,7 +120,7 @@ class IncomeTransactionViewModel @Inject constructor(
 
             incomeTransactionRepo.getIncomeTransaction().collectLatest { listIncome ->
                 listIncome.onSuccess {
-                    _getIncomeUiState.value = getIncomeUiState.value.copy(
+                    _incomeUiState.value = incomeUiState.value.copy(
                         incomeTransactionList = it
                     )
                     _incomeUiEvent.emit(IncomeUiEvent.Success("Get All Income Transaction Successfully"))
@@ -95,12 +132,6 @@ class IncomeTransactionViewModel @Inject constructor(
 
             }
         }
-    }
-
-    init {
-      deleteIncomeTransaction(
-          id = "Xzkb1G9Ue2ZXm6HxBaxL"
-      )
     }
 
     fun editIncomeTransaction(incomeTransactionUi: IncomeTransactionUi) {

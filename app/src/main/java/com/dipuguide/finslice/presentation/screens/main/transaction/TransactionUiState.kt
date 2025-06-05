@@ -1,7 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.main
-
-import com.dipuguide.finslice.utils.Category
-import com.dipuguide.finslice.utils.Type
+package com.dipuguide.finslice.presentation.screens.main.transaction
 
 data class TransactionUiState(
     val totalIncome: Double = 0.0,
@@ -15,6 +12,7 @@ data class TransactionUiState(
 )
 
 data class IncomeTransactionUiState(
+    val selectedTab: Int = 0,
     val incomeTransactionList: List<IncomeTransactionUi> = emptyList(),
 )
 

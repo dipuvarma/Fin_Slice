@@ -1,7 +1,6 @@
 package com.dipuguide.finslice.data.repo
 
-import com.dipuguide.finslice.data.model.IncomeTransaction
-import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import kotlinx.coroutines.flow.Flow
 
 interface IncomeTransactionRepo {

@@ -3,7 +3,7 @@ package com.dipuguide.finslice.di
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepoImpl
 import com.dipuguide.finslice.data.repo.TransactionRepository
-import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module

@@ -1,7 +1,7 @@
 package com.dipuguide.finslice.presentation.mapper
 
 import com.dipuguide.finslice.data.model.IncomeTransaction
-import com.dipuguide.finslice.presentation.screens.main.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import com.dipuguide.finslice.utils.formatPrice
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 
