@@ -128,8 +128,8 @@ class IncomeTransactionViewModel @Inject constructor(
 
             _incomeUiEvent.emit(IncomeUiEvent.Loading)
 
-            incomeTransactionRepo.getIncomeTransaction().collectLatest { listIncome ->
-                listIncome.onSuccess {
+            incomeTransactionRepo.getIncomeTransaction().collectLatest { result ->
+                result.onSuccess {
                     _incomeUiState.value = incomeUiState.value.copy(
                         incomeTransactionList = it
                     )

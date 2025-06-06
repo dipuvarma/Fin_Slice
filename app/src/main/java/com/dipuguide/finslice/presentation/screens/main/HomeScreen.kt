@@ -31,12 +31,14 @@ import com.dipuguide.finslice.presentation.component.AnimatedNetBalance
 import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
 import com.dipuguide.finslice.presentation.component.TransactionInfoCard
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 @Composable
 fun HomeScreen(
     viewModel: AuthViewModel,
     incomeViewModel: IncomeTransactionViewModel,
+    expenseViewModel: ExpenseTransactionViewModel,
     navController: NavController,
 ) {
     Column {

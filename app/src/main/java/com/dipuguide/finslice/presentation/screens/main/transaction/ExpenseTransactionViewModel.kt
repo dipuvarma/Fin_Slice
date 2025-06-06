@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,11 +20,18 @@ class ExpenseTransactionViewModel @Inject constructor(
     private val expenseTransactionRepo: ExpenseTransactionRepo,
 ) : ViewModel() {
 
+    //for event
     private val _expenseUiEvent = MutableSharedFlow<ExpenseTransactionUiEvent>()
     val expenseEvent = _expenseUiEvent.asSharedFlow()
 
+    //expense TransactionUI
     private val _expenseUiState = MutableStateFlow(ExpenseTransactionUi())
     val expenseUiState = _expenseUiState.asStateFlow()
+
+    // All Expense Transaction
+    private val _allExpenseUiState = MutableStateFlow(AllExpenseUiState())
+    val allExpenseUiState = _expenseUiState.asStateFlow()
+
 
     val expenseCategories = listOf("Need", "Want", "Invest")
 
@@ -90,7 +98,7 @@ class ExpenseTransactionViewModel @Inject constructor(
                 note = "",
                 category = "",
                 tag = ""
-                )
+            )
         }
     }
 
@@ -137,6 +145,87 @@ class ExpenseTransactionViewModel @Inject constructor(
             }.onFailure {
                 Log.e("addExpenseTransaction ", "Add Expense Failed", it)
                 _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Add Expense Failed"))
+            }
+        }
+    }
+
+    fun getExpenseTransaction() {
+        viewModelScope.launch {
+            _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+            expenseTransactionRepo.getExpenseTransaction().collectLatest { result ->
+                result.onSuccess { expenseTransactionList ->
+                    _allExpenseUiState.update {
+                        it.copy(
+                            expenseTransactionList = expenseTransactionList
+                        )
+                    }
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Get All Expense Transaction Successfully"))
+                    Log.d(
+                        "getExpenseTransaction",
+                        "getExpenseTransaction: ${expenseTransactionList.size}"
+                    )
+                }
+                result.onFailure {
+                    Log.e("getExpenseTransaction", "getExpenseTransaction Failed", it)
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Get All Expense Transaction Failed"))
+                }
+            }
+        }
+    }
+
+    fun getAllExpensesByCategory(category: String) {
+        viewModelScope.launch {
+
+            _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+
+            expenseTransactionRepo.getAllExpensesByCategory(category).collectLatest { result ->
+                result.onSuccess { expenseTransactionList ->
+                    _allExpenseUiState.update {
+                        it.copy(
+                            expenseTransactionList = expenseTransactionList
+                        )
+                    }
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Get All Expense Transaction By Category Successfully"))
+                    Log.d(
+                        "getAllExpensesByCategory",
+                        "getAllExpensesByCategory: ${expenseTransactionList.size}"
+                    )
+                }
+                result.onFailure {
+                    Log.e("getAllExpensesByCategory", "getAllExpensesByCategory Failed", it)
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Get All Expense Transaction By Category Failed"))
+                }
+            }
+        }
+    }
+
+    fun editExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
+
+        viewModelScope.launch {
+            _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+
+            val result = expenseTransactionRepo.editExpenseTransaction(expenseTransactionUi)
+
+            result.onSuccess {
+                _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Edit Expense Successfully"))
+
+            }.onFailure {
+                _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Edit Expense Failed"))
+            }
+        }
+    }
+
+    fun deleteExpenseTransaction(id: String) {
+        viewModelScope.launch {
+            _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+
+            val result = expenseTransactionRepo.deleteExpenseTransaction(id)
+
+            result.onSuccess {
+                _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Delete Expense Successfully"))
+
+            }.onFailure {
+                _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Delete Expense Failed"))
             }
         }
     }

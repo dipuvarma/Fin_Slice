@@ -61,7 +61,8 @@ fun AppNavGraph() {
             HomeScreen(
                 viewModel = authViewModel,
                 navController = rootNavController,
-                incomeViewModel = incomeViewModel
+                incomeViewModel = incomeViewModel,
+                expenseViewModel = expenseViewModel
             )
         }
         composable<AddTransaction> {
