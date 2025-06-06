@@ -23,6 +23,9 @@ object Home
 object Categories
 
 @Serializable
+object Report
+
+@Serializable
 object TransactionHistory
 
 @Serializable

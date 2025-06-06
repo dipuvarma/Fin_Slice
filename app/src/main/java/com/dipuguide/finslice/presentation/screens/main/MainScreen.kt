@@ -34,11 +34,13 @@ import com.dipuguide.finslice.presentation.component.bottom.bottomNavItemList
 import com.dipuguide.finslice.presentation.navigation.AddTransaction
 import com.dipuguide.finslice.presentation.navigation.Categories
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.Report
 import com.dipuguide.finslice.presentation.navigation.Setting
 import com.dipuguide.finslice.presentation.navigation.TransactionHistory
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
+import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import kotlinx.coroutines.launch
@@ -94,6 +96,9 @@ fun MainScreen(
                 CategoriesScreen()
             }
 
+            composable <Report>{
+                ReportScreen()
+            }
 
             composable<TransactionHistory> {
                 TransactionHistoryScreen(
