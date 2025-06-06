@@ -9,6 +9,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.HomeWork
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,15 +40,14 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 
 @Composable
 fun IncomeHistoryScreen(
-    viewModel: IncomeTransactionViewModel,
+    incomeViewModel: IncomeTransactionViewModel,
+    historyViewModel: TransactionHistoryViewModel,
 ) {
 
     val textColor = MaterialTheme.colorScheme.onSurface
-    val uiState by viewModel.incomeUiState.collectAsState()
+    val uiState by incomeViewModel.incomeUiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getIncomeTransaction()
-    }
+
     LazyColumn {
         item {
             Row(
@@ -57,42 +72,12 @@ fun IncomeHistoryScreen(
             Spacer(modifier = Modifier.height(8.dp))
         }
         items(uiState.incomeTransactionList) { income ->
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 2.dp,
-                shadowElevation = 2.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column() {
-                        Text(
-                            text = income.category,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = textColor
-                        )
-                        if (!income.note.isNullOrEmpty()) {
-                            Text(
-                                text = income.note,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = textColor.copy(alpha = .5f)
-                            )
-                        }
-                    }
-                    Text(
-                        text = "₹ ${income.amount}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = textColor
-                    )
-                }
-            }
+            TransactionCardComp(
+                category = income.category,
+                note = income.note ?: "",
+                amount = income.amount,
+                selectedCategory = income.category
+            )
         }
     }
 

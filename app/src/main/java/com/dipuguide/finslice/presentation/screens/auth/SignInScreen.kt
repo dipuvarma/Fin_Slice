@@ -51,6 +51,7 @@ import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.ForgetPassword
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.navigation.SignIn
 import com.dipuguide.finslice.presentation.navigation.SignUp
 import com.dipuguide.finslice.utils.Destination
@@ -90,7 +91,7 @@ fun SignInScreen(
         viewModel.navigation.collect { destination ->
             when (destination) {
                 Destination.Home -> {
-                    navController.navigate(Home)
+                    navController.navigate(Main)
                 }
                 Destination.SignIn -> {
                     navController.navigate(SignIn)

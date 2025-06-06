@@ -36,13 +36,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.AddExpenseScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.AddIncomeScreen
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 @Composable
 fun TransactionHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,
-    incomeViewModel: IncomeTransactionViewModel
-
+    incomeViewModel: IncomeTransactionViewModel,
+    expenseViewModel: ExpenseTransactionViewModel,
 ) {
     val selectedTab = historyViewModel.selectedTab
     val tabTitles = listOf("Expense", "Income")
@@ -110,8 +111,11 @@ fun TransactionHistoryScreen(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             when (historyViewModel.selectedTab) {
-                "Expense" -> ExpenseHistoryScreen()
-                "Income" -> IncomeHistoryScreen(incomeViewModel)
+                "Expense" -> ExpenseHistoryScreen(expenseViewModel)
+                "Income" -> IncomeHistoryScreen(
+                    incomeViewModel,
+                    historyViewModel
+                )
             }
         }
     }

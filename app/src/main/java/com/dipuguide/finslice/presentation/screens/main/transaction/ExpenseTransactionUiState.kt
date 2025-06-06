@@ -4,7 +4,7 @@ package com.dipuguide.finslice.presentation.screens.main.transaction
 data class AllExpenseUiState(
     val expenseTransactionList: List<ExpenseTransactionUi> = emptyList(),
     val selectedTab: Int = 0,
-    )
+)
 
 
 data class ExpenseTransactionUi(
@@ -13,5 +13,5 @@ data class ExpenseTransactionUi(
     val note: String? = null,
     val category: String = "", // "need", "want", "invest"
     val tag: String? = null,       // e.g., "food", "rent", "entertainment"
-    val date: Long? = null,
+    val date: String? = null,
 )

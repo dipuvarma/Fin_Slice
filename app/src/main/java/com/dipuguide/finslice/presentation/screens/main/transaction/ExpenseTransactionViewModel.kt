@@ -30,8 +30,7 @@ class ExpenseTransactionViewModel @Inject constructor(
 
     // All Expense Transaction
     private val _allExpenseUiState = MutableStateFlow(AllExpenseUiState())
-    val allExpenseUiState = _expenseUiState.asStateFlow()
-
+    val allExpenseUiState = _allExpenseUiState.asStateFlow()
 
     val expenseCategories = listOf("Need", "Want", "Invest")
 
@@ -149,10 +148,15 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
+    init {
+        getExpenseTransaction()
+    }
     fun getExpenseTransaction() {
         viewModelScope.launch {
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+
             expenseTransactionRepo.getExpenseTransaction().collectLatest { result ->
+
                 result.onSuccess { expenseTransactionList ->
                     _allExpenseUiState.update {
                         it.copy(

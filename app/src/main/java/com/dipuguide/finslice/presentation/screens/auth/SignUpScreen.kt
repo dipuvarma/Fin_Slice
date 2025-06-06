@@ -51,6 +51,7 @@ import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.component.PasswordStrengthMeter
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.navigation.SignIn
 
 @Composable
@@ -74,7 +75,7 @@ fun SignUpScreen(
                         .show()
                     viewModel.resetPasswordStrengthMessage()
                     // navigate
-                    navController.navigate(Home)
+                    navController.navigate(Main)
                     //reset Inputs
                     viewModel.resetForm()
                 }

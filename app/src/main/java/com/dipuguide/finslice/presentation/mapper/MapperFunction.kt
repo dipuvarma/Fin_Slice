@@ -36,7 +36,7 @@ fun ExpenseTransactionUi.toExpenseTransaction(): ExpenseTransaction {
         note = note,
         category = category,
         tag = tag,
-        date = date
+        date = System.currentTimeMillis()
     )
 }
 
@@ -47,6 +47,6 @@ fun ExpenseTransaction.toExpenseTransactionUi(): ExpenseTransactionUi {
         note = note,
         category = category,
         tag = tag,
-        date = date
+        date = formatTimestampToDateTime(date!!)
     )
 }

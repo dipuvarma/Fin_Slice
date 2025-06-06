@@ -122,6 +122,9 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
+    init {
+        getIncomeTransaction()
+    }
 
     fun getIncomeTransaction() {
         viewModelScope.launch {
