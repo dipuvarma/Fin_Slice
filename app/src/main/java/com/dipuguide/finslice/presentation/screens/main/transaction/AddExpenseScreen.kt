@@ -58,6 +58,7 @@ import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.Main
 
 @Composable
 fun AddExpenseScreen(
@@ -76,7 +77,6 @@ fun AddExpenseScreen(
 
     val tags = expenseVM.expenseTagsByCategory[selectedCategory] ?: emptyList()
     LaunchedEffect(Unit) {
-
         //for request focus on amount textField
         focusRequester.requestFocus()
 
@@ -87,7 +87,7 @@ fun AddExpenseScreen(
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
                         .show()
                     // navigate
-                    navController.navigate(Home)
+                    navController.navigate(Main)
                     //clear input
                     expenseVM.clearForm()
                 }

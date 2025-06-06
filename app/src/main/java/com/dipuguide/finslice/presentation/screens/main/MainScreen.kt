@@ -1,10 +1,15 @@
 package com.dipuguide.finslice.presentation.screens.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,9 +27,11 @@ import androidx.navigation.compose.rememberNavController
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.FirebaseAuthRepository
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.presentation.component.CustomTopAppBar
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.component.bottom.BottomBarNavigation
 import com.dipuguide.finslice.presentation.component.bottom.bottomNavItemList
+import com.dipuguide.finslice.presentation.navigation.AddTransaction
 import com.dipuguide.finslice.presentation.navigation.Categories
 import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Setting
@@ -53,29 +60,25 @@ fun MainScreen(
     val currentDestination = currentBackStackEntry.value?.destination
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Fin Slice",
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-            )
-        },
         bottomBar = {
             BottomBarNavigation(
                 navController = tabNavController,
                 items = bottomNavItemList
             )
+        },
+        floatingActionButton = {
+            if (currentDestination?.route?.contains("Home") == true) {
+                FloatingActionButton(onClick = {
+                    rootNavController.navigate(AddTransaction)
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "")
+                }
+            }
         }
     ) { innerPadding ->
         NavHost(
             navController = tabNavController,
             startDestination = Home,
-            modifier = Modifier.padding(innerPadding)
         ) {
 
             composable<Home> {

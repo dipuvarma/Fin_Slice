@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -23,25 +24,13 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 
-class TransactionHistoryViewModel: ViewModel() {
+class TransactionHistoryViewModel : ViewModel() {
 
-    var selectedTab by mutableStateOf("Expense")
+    var selectedTab by mutableIntStateOf(0)
 
-    fun getIncomeCategoryIcon(category: String): ImageVector {
-        return when (category) {
-            "Salary" -> Icons.Default.AttachMoney
-            "Freelance" -> Icons.Default.Work
-            "Investments" -> Icons.Default.TrendingUp
-            "Rental Income" -> Icons.Default.HomeWork
-            "Gifts" -> Icons.Default.CardGiftcard
-            "Business" -> Icons.Default.Business
-            "Interest" -> Icons.Default.Savings
-            "Dividends" -> Icons.Default.ShowChart
-            "Selling Assets" -> Icons.Default.ShoppingCart
-            "Refunds" -> Icons.Default.ReceiptLong
-            "Others" -> Icons.Default.Receipt
-            else -> Icons.Default.Receipt
-        }
+    fun onTabSelected(index: Int) {
+        selectedTab = index
     }
+
 
 }

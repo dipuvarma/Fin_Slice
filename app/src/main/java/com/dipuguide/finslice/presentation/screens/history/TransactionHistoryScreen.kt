@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dipuguide.finslice.presentation.component.CustomTopAppBar
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.AddExpenseScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.AddIncomeScreen
@@ -45,8 +46,9 @@ fun TransactionHistoryScreen(
     incomeViewModel: IncomeTransactionViewModel,
     expenseViewModel: ExpenseTransactionViewModel,
 ) {
-    val selectedTab = historyViewModel.selectedTab
+
     val tabTitles = listOf("Expense", "Income")
+    val selectedTab = historyViewModel.selectedTab
 
     val containerColor = MaterialTheme.colorScheme.surface
     val borderColor = MaterialTheme.colorScheme.primary
@@ -60,11 +62,7 @@ fun TransactionHistoryScreen(
     ) {
         Column {
             TopAppBarComp(
-                title = "History",
-                onClickNavigationIcon = {
-
-                },
-                navigationIcon = Icons.Default.ArrowBack
+                title = "All Transaction",
             )
             // 🔸 Custom Animated TabRow
             Row(
@@ -73,8 +71,8 @@ fun TransactionHistoryScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                tabTitles.forEach { title ->
-                    val isSelected = selectedTab == title
+                tabTitles.forEachIndexed { index, title ->
+                    val isSelected = selectedTab == index
                     val animatedBgColor by animateColorAsState(
                         targetValue = if (isSelected) selectedColor else Color.Transparent,
                         animationSpec = tween(300),
@@ -93,7 +91,7 @@ fun TransactionHistoryScreen(
                         tonalElevation = if (isSelected) 2.dp else 0.dp,
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
-                            .clickable { historyViewModel.selectedTab = title }
+                            .clickable { historyViewModel.onTabSelected(index)}
                     ) {
                         Text(
                             text = title,
@@ -111,8 +109,8 @@ fun TransactionHistoryScreen(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             when (historyViewModel.selectedTab) {
-                "Expense" -> ExpenseHistoryScreen(expenseViewModel)
-                "Income" -> IncomeHistoryScreen(
+                0 -> ExpenseHistoryScreen(expenseViewModel)
+                1 -> IncomeHistoryScreen(
                     incomeViewModel,
                     historyViewModel
                 )

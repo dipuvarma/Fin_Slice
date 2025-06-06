@@ -151,6 +151,7 @@ class ExpenseTransactionViewModel @Inject constructor(
     init {
         getExpenseTransaction()
     }
+
     fun getExpenseTransaction() {
         viewModelScope.launch {
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
@@ -163,7 +164,6 @@ class ExpenseTransactionViewModel @Inject constructor(
                             expenseTransactionList = expenseTransactionList
                         )
                     }
-                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Get All Expense Transaction Successfully"))
                     Log.d(
                         "getExpenseTransaction",
                         "getExpenseTransaction: ${expenseTransactionList.size}"
@@ -171,7 +171,6 @@ class ExpenseTransactionViewModel @Inject constructor(
                 }
                 result.onFailure {
                     Log.e("getExpenseTransaction", "getExpenseTransaction Failed", it)
-                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Error("Get All Expense Transaction Failed"))
                 }
             }
         }

@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 
@@ -62,7 +63,7 @@ fun AddTransactionScreen(
         TopAppBarComp(
             title = "Add Transaction",
             onClickNavigationIcon = {
-                navController.navigate(Home)
+                navController.navigate(Main)
             },
             navigationIcon = Icons.Default.ArrowBack
         )
