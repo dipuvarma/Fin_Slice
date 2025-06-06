@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,44 +42,47 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 @Composable
 fun IncomeHistoryScreen(
     incomeViewModel: IncomeTransactionViewModel,
-    historyViewModel: TransactionHistoryViewModel,
 ) {
 
     val textColor = MaterialTheme.colorScheme.onSurface
     val uiState by incomeViewModel.incomeUiState.collectAsState()
 
-
-    LazyColumn {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Category",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "Amount",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        items(uiState.incomeTransactionList) { income ->
-            TransactionCardComp(
-                category = income.category,
-                note = income.note ?: "",
-                amount = income.amount,
-                selectedCategory = income.category
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Category",
+                style = MaterialTheme.typography.titleMedium,
+                color = textColor,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Amount",
+                style = MaterialTheme.typography.titleMedium,
+                color = textColor,
+                fontWeight = FontWeight.SemiBold
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+        ) {
+            items(uiState.incomeTransactionList, key = { it.id!! }) { income ->
+                TransactionCardComp(
+                    category = income.category,
+                    note = income.note ?: "",
+                    amount = income.amount,
+                    selectedCategory = income.category
+                )
+            }
+        }
+
     }
 
 }

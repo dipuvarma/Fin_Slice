@@ -8,12 +8,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -46,7 +48,6 @@ fun TransactionHistoryScreen(
     incomeViewModel: IncomeTransactionViewModel,
     expenseViewModel: ExpenseTransactionViewModel,
 ) {
-
     val tabTitles = listOf("Expense", "Income")
     val selectedTab = historyViewModel.selectedTab
 
@@ -54,17 +55,17 @@ fun TransactionHistoryScreen(
     val borderColor = MaterialTheme.colorScheme.primary
     val selectedColor = MaterialTheme.colorScheme.primaryContainer
 
-
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .background(containerColor),
     ) {
-        Column {
-            TopAppBarComp(
-                title = "All Transaction",
-            )
-            // 🔸 Custom Animated TabRow
+        // 🔥 Use Column + Modifier.weight(1f) to allow scrolling
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            TopAppBarComp(title = "All Transaction")
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +92,7 @@ fun TransactionHistoryScreen(
                         tonalElevation = if (isSelected) 2.dp else 0.dp,
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
-                            .clickable { historyViewModel.onTabSelected(index)}
+                            .clickable { historyViewModel.onTabSelected(index) }
                     ) {
                         Text(
                             text = title,
@@ -106,15 +107,22 @@ fun TransactionHistoryScreen(
                     }
                 }
             }
+
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
-            when (historyViewModel.selectedTab) {
-                0 -> ExpenseHistoryScreen(expenseViewModel)
-                1 -> IncomeHistoryScreen(
-                    incomeViewModel,
-                    historyViewModel
-                )
+
+            // 🚨 THIS IS CRUCIAL: Use Modifier.weight(1f) to give LazyColumn scroll space!
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)) {
+                when (selectedTab) {
+                    0 -> ExpenseHistoryScreen(expenseViewModel)
+                    1 -> IncomeHistoryScreen(incomeViewModel)
+                }
             }
+            Spacer(modifier = Modifier.height(72.dp))
+
         }
     }
 }
+

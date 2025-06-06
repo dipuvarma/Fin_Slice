@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -112,16 +113,17 @@ fun AddTransactionScreen(
         }
         Spacer(modifier = Modifier.height(16.dp)) // optional padding
         // Show the selected screen
-        when (uiState.value.selectedTab) {
-            0 -> AddExpenseScreen(
-                expenseVM = expenseViewModel,
-                navController = navController
-            )
-
-            1 -> AddIncomeScreen(
-                viewModel = incomeViewModel,
-                navController = navController
-            )
+        Box(modifier = Modifier.weight(1f)) {
+            when (uiState.value.selectedTab) {
+                0 -> AddExpenseScreen(
+                    expenseVM = expenseViewModel,
+                    navController = navController
+                )
+                1 -> AddIncomeScreen(
+                    viewModel = incomeViewModel,
+                    navController = navController
+                )
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,26 +61,11 @@ fun ExpenseHistoryScreen(
 
     val allUiState by expenseViewModel.allExpenseUiState.collectAsState()
 
-    val context = LocalContext.current
-
-//    LaunchedEffect(expenseViewModel.getExpenseTransaction()) {
-//        expenseViewModel.getExpenseTransaction()
-//    }
-    LaunchedEffect(Unit) {
-
-        expenseViewModel.expenseEvent.collect { event ->
-            when (event) {
-                is ExpenseTransactionUiEvent.Success -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
-                        .show()
-                }
-                else -> {}
-            }
-
-        }
-    }
-    LazyColumn {
-        items(allUiState.expenseTransactionList) { expense ->
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+    ) {
+        items(allUiState.expenseTransactionList, key = { it.id!! }) { expense ->
             TransactionCardComp(
                 category = expense.category,
                 note = expense.note ?: "",
@@ -88,7 +74,6 @@ fun ExpenseHistoryScreen(
             )
         }
     }
-
 }
 
 
@@ -174,7 +159,7 @@ fun TransactionCardComp(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-                    if (note.isNotEmpty()){
+                    if (note.isNotEmpty()) {
                         Text(
                             text = note,
                             style = MaterialTheme.typography.bodySmall.copy(
