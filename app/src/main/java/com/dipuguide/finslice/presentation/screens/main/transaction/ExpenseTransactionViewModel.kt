@@ -32,6 +32,9 @@ class ExpenseTransactionViewModel @Inject constructor(
     private val _allExpenseUiState = MutableStateFlow(AllExpenseUiState())
     val allExpenseUiState = _allExpenseUiState.asStateFlow()
 
+    private val _getExpenseByCategory = MutableStateFlow(AllExpenseUiState())
+    val getExpenseByCategory = _getExpenseByCategory.asStateFlow()
+
     val expenseCategories = listOf("Need", "Want", "Invest")
 
     val expenseTagsByCategory = mapOf(
@@ -176,6 +179,7 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
+
     fun getAllExpensesByCategory(category: String) {
         viewModelScope.launch {
 
@@ -183,12 +187,11 @@ class ExpenseTransactionViewModel @Inject constructor(
 
             expenseTransactionRepo.getAllExpensesByCategory(category).collectLatest { result ->
                 result.onSuccess { expenseTransactionList ->
-                    _allExpenseUiState.update {
+                    _getExpenseByCategory.update {
                         it.copy(
                             expenseTransactionList = expenseTransactionList
                         )
                     }
-                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Get All Expense Transaction By Category Successfully"))
                     Log.d(
                         "getAllExpensesByCategory",
                         "getAllExpensesByCategory: ${expenseTransactionList.size}"
