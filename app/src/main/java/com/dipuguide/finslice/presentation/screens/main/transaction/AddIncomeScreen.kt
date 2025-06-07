@@ -80,7 +80,6 @@ fun AddIncomeScreen(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-
         //for request focus on amount textField
         focusRequester.requestFocus()
 

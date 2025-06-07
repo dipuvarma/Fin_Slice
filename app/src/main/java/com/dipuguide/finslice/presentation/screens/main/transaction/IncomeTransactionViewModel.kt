@@ -4,10 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
-import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
+import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -23,15 +24,13 @@ class IncomeTransactionViewModel @Inject constructor(
     private val _incomeUiState = MutableStateFlow(IncomeTransactionUiState())
     val incomeUiState = _incomeUiState.asStateFlow()
 
+
     private val _incomeUi = MutableStateFlow(IncomeTransactionUi())
     val incomeUi = _incomeUi.asStateFlow()
 
     private val _incomeUiEvent = MutableSharedFlow<IncomeUiEvent>()
     val incomeUiEvent = _incomeUiEvent.asSharedFlow()
 
-    fun onTabSelected(index: Int) {
-        _incomeUiState.value = incomeUiState.value.copy(selectedTab = index)
-    }
 
     val incomeCategories = listOf(
         "Salary",
@@ -47,6 +46,79 @@ class IncomeTransactionViewModel @Inject constructor(
         "Others"
     )
 
+    fun onTabSelected(index: Int) {
+        _incomeUiState.value = incomeUiState.value.copy(selectedTab = index)
+    }
+
+
+    init {
+        getIncomeTransaction()
+        calculateNeedPercentageAmount()
+        calculateWantPercentageAmount()
+        calculateInvestPercentageAmount()
+        calculateTotalIncome()
+        calculateIncomeAverage()
+    }
+
+    fun calculateNeedPercentageAmount() {
+        val transactionList = incomeUiState.value.incomeTransactionList
+        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
+        val needPercentageAmount = totalIncome * 0.5
+        _incomeUiState.update {
+            it.copy(
+                needPercentageAmount = formatNumberToIndianStyle(needPercentageAmount)
+            )
+        }
+    }
+
+    fun calculateWantPercentageAmount() {
+        val transactionList = incomeUiState.value.incomeTransactionList
+        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
+        val wantPercentageAmount = totalIncome * 0.3
+        _incomeUiState.update {
+            it.copy(
+                wantPercentageAmount = formatNumberToIndianStyle(wantPercentageAmount)
+            )
+        }
+    }
+
+    fun calculateInvestPercentageAmount() {
+        val transactionList = incomeUiState.value.incomeTransactionList
+        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
+        val investPercentageAmount = totalIncome * 0.2
+        _incomeUiState.update {
+            it.copy(
+                investPercentageAmount = formatNumberToIndianStyle(investPercentageAmount)
+            )
+        }
+    }
+
+    fun calculateTotalIncome() {
+        val transactionList = incomeUiState.value.incomeTransactionList
+        Log.d("TAG", "Transaction List Size: ${transactionList.size}")
+
+        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
+        Log.d("TAG", "Calculated Total Income: $totalIncome")
+
+        _incomeUiState.update {
+            Log.d("TAG", "Old State: $it")
+            val newState = it.copy(totalIncome = formatNumberToIndianStyle(totalIncome))
+            Log.d("TAG", "New State: $newState")
+            newState
+        }
+    }
+
+
+    fun calculateIncomeAverage() {
+        val transactions = incomeUiState.value.incomeTransactionList
+        if (transactions.isNotEmpty()) {
+            val avg = transactions.sumOf { it.amount.toDouble() } / transactions.size
+            Log.d("TAG", "calculateIncomeAverage: $avg")
+            _incomeUiState.update {
+                it.copy(averageIncome = formatNumberToIndianStyle(avg))
+            }
+        }
+    }
 
     fun clearForm() {
         _incomeUi.update {
@@ -74,13 +146,6 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
-    fun setCategory(category: String) {
-        _incomeUi.update {
-            it.copy(
-                category = category
-            )
-        }
-    }
 
     fun updatedAmount(amount: String) {
         _incomeUi.update {
@@ -98,7 +163,7 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
-    fun updatedCategory(category: String) {
+    fun setCategory(category: String) {
         _incomeUi.update {
             it.copy(
                 category = category
@@ -122,9 +187,6 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
-    init {
-        getIncomeTransaction()
-    }
 
     fun getIncomeTransaction() {
         viewModelScope.launch {

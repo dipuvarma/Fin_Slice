@@ -2,8 +2,9 @@ package com.dipuguide.finslice.presentation.screens.main.transaction
 
 
 data class AllExpenseUiState(
-    val expenseTransactionList: List<ExpenseTransactionUi> = emptyList(),
     val selectedTab: Int = 0,
+    val expenseTransactionList: List<ExpenseTransactionUi> = emptyList(),
+
 )
 
 

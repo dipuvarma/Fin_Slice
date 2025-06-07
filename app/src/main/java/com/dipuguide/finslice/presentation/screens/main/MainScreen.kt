@@ -25,6 +25,7 @@ import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoriesScreen
+import com.dipuguide.finslice.presentation.screens.main.home.HomeScreen
 import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
