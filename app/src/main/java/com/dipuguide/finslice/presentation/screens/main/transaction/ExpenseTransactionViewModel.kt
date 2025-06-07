@@ -76,22 +76,21 @@ class ExpenseTransactionViewModel @Inject constructor(
             "SIP (Systematic Investment Plan)"
         )
     )
-    init {
-        getExpenseTransaction()
-        calculateTotalExpense()
-    }
+
 
     fun calculateTotalExpense() {
         val transactionList = allExpenseUiState.value.expenseTransactionList
-        if (transactionList.isNotEmpty()) {
-            val totalExpense = transactionList.sumOf { it.amount.toDouble() }
-            _getExpenseByCategory.update {
-                it.copy(
-                    totalExpense = formatNumberToIndianStyle(totalExpense)
-                )
-            }
+        Log.d("calculateTotalExpense", "${transactionList.size}")
+        val totalExpense = transactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+        Log.d("calculateTotalExpense", "$totalExpense")
+
+        _allExpenseUiState.update {
+            it.copy(
+                totalExpense = formatNumberToIndianStyle(totalExpense)
+            )
         }
     }
+
 
     fun clearAmount() {
         _expenseUiState.update {
@@ -167,6 +166,13 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
+    init {
+        getExpenseTransaction()
+        getAllExpensesByCategory("Need")
+        getAllExpensesByCategory("Want")
+        getAllExpensesByCategory("Invest")
+    }
+
 
     fun getExpenseTransaction() {
         viewModelScope.launch {
@@ -175,11 +181,14 @@ class ExpenseTransactionViewModel @Inject constructor(
             expenseTransactionRepo.getExpenseTransaction().collectLatest { result ->
 
                 result.onSuccess { expenseTransactionList ->
+                    Log.d("calculateTotalExpense", "${expenseTransactionList.size}")
+
                     _allExpenseUiState.update {
                         it.copy(
                             expenseTransactionList = expenseTransactionList
                         )
                     }
+                    calculateTotalExpense()
                     Log.d(
                         "getExpenseTransaction",
                         "getExpenseTransaction: ${expenseTransactionList.size}"
@@ -200,10 +209,38 @@ class ExpenseTransactionViewModel @Inject constructor(
 
             expenseTransactionRepo.getAllExpensesByCategory(category).collectLatest { result ->
                 result.onSuccess { expenseTransactionList ->
+                    val total = expenseTransactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+
                     _getExpenseByCategory.update {
                         it.copy(
-                            expenseTransactionList = expenseTransactionList
+                            expenseTransactionList = expenseTransactionList,
                         )
+                    }
+
+                    when (category) {
+                        "Need" -> {
+                            _getExpenseByCategory.update {
+                                it.copy(
+                                    needExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
+
+                        "Want" -> {
+                            _getExpenseByCategory.update {
+                                it.copy(
+                                    wantExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
+
+                        "Invest" -> {
+                            _getExpenseByCategory.update {
+                                it.copy(
+                                    investExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
                     }
                     Log.d(
                         "getAllExpensesByCategory",

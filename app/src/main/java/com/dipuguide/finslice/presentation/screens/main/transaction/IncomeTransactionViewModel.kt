@@ -51,53 +51,27 @@ class IncomeTransactionViewModel @Inject constructor(
     }
 
 
-    init {
-        getIncomeTransaction()
-        calculateNeedPercentageAmount()
-        calculateWantPercentageAmount()
-        calculateInvestPercentageAmount()
-        calculateTotalIncome()
-        calculateIncomeAverage()
-    }
+    fun calculatePercentageAmount(label: String, percentage: Double) {
+        val transactions = incomeUiState.value.incomeTransactionList
+        val total = transactions.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+        val amount = formatNumberToIndianStyle(total * percentage)
 
-    fun calculateNeedPercentageAmount() {
-        val transactionList = incomeUiState.value.incomeTransactionList
-        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
-        val needPercentageAmount = totalIncome * 0.5
         _incomeUiState.update {
-            it.copy(
-                needPercentageAmount = formatNumberToIndianStyle(needPercentageAmount)
-            )
+            when (label) {
+                "Need" -> it.copy(needPercentageAmount = amount)
+                "Want" -> it.copy(wantPercentageAmount = amount)
+                "Invest" -> it.copy(investPercentageAmount = amount)
+                else -> it
+            }
         }
     }
 
-    fun calculateWantPercentageAmount() {
-        val transactionList = incomeUiState.value.incomeTransactionList
-        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
-        val wantPercentageAmount = totalIncome * 0.3
-        _incomeUiState.update {
-            it.copy(
-                wantPercentageAmount = formatNumberToIndianStyle(wantPercentageAmount)
-            )
-        }
-    }
-
-    fun calculateInvestPercentageAmount() {
-        val transactionList = incomeUiState.value.incomeTransactionList
-        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
-        val investPercentageAmount = totalIncome * 0.2
-        _incomeUiState.update {
-            it.copy(
-                investPercentageAmount = formatNumberToIndianStyle(investPercentageAmount)
-            )
-        }
-    }
 
     fun calculateTotalIncome() {
         val transactionList = incomeUiState.value.incomeTransactionList
         Log.d("TAG", "Transaction List Size: ${transactionList.size}")
 
-        val totalIncome = transactionList.sumOf { it.amount.toDouble() }
+        val totalIncome = transactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
         Log.d("TAG", "Calculated Total Income: $totalIncome")
 
         _incomeUiState.update {
@@ -112,7 +86,7 @@ class IncomeTransactionViewModel @Inject constructor(
     fun calculateIncomeAverage() {
         val transactions = incomeUiState.value.incomeTransactionList
         if (transactions.isNotEmpty()) {
-            val avg = transactions.sumOf { it.amount.toDouble() } / transactions.size
+            val avg = transactions.sumOf { it.amount.toDoubleOrNull() ?: 0.0 } / transactions.size
             Log.d("TAG", "calculateIncomeAverage: $avg")
             _incomeUiState.update {
                 it.copy(averageIncome = formatNumberToIndianStyle(avg))
@@ -187,6 +161,9 @@ class IncomeTransactionViewModel @Inject constructor(
         }
     }
 
+    init {
+        getIncomeTransaction()
+    }
 
     fun getIncomeTransaction() {
         viewModelScope.launch {
@@ -194,12 +171,26 @@ class IncomeTransactionViewModel @Inject constructor(
             _incomeUiEvent.emit(IncomeUiEvent.Loading)
 
             incomeTransactionRepo.getIncomeTransaction().collectLatest { result ->
-                result.onSuccess {
-                    _incomeUiState.value = incomeUiState.value.copy(
-                        incomeTransactionList = it
+                result.onSuccess { newList ->
+                    _incomeUiState.update {
+                        it.copy(incomeTransactionList = newList)
+                    }
+                    calculateTotalIncome()
+                    calculateIncomeAverage()
+                    calculatePercentageAmount(
+                        "Need",
+                        0.5
                     )
-                    _incomeUiEvent.emit(IncomeUiEvent.Success("Get All Income Transaction Successfully"))
-                    Log.d("TAG", "getIncomeTransaction: ${it.size}")
+                    calculatePercentageAmount(
+                        "Want",
+                        0.3
+                    )
+                    calculatePercentageAmount(
+                        "Invest",
+                        0.2
+                    )
+
+                    Log.d("TAG", "getIncomeTransaction: ${newList.size}")
                 }.onFailure {
                     Log.d("TAG", "getIncomeTransaction: ${it.message}")
                     _incomeUiEvent.emit(IncomeUiEvent.Error("Get All Income Transaction Failed"))

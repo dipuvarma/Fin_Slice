@@ -1,6 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
+import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,58 +38,88 @@ import com.dipuguide.finslice.presentation.component.AnimatedNetBalance
 import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.component.TransactionInfoCard
+import com.dipuguide.finslice.presentation.navigation.Report
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
+import com.dipuguide.finslice.utils.formatNumberToIndianStyle
+
 
 @Composable
 fun HomeScreen(
-    viewModel: AuthViewModel,
     incomeViewModel: IncomeTransactionViewModel,
     expenseViewModel: ExpenseTransactionViewModel,
-    navController: NavController,
+    onOverViewClick:() -> Unit
 ) {
 
     val incomeUiState by incomeViewModel.incomeUiState.collectAsState()
+    val expenseUiState by expenseViewModel.allExpenseUiState.collectAsState()
+    val expenseByCategory by expenseViewModel.getExpenseByCategory.collectAsState()
 
-    Log.d("TAG", "needPercentageAmount: ${incomeUiState.needPercentageAmount}")
-    Log.d("TAG", "wantPercentageAmount: ${incomeUiState.wantPercentageAmount}")
-    Log.d("TAG", "investPercentageAmount: ${incomeUiState.investPercentageAmount}")
-    Log.d("TAG", "totalIncome: ${incomeUiState.totalIncome}")
-    Log.d("TAG", "averageIncome: ${incomeUiState.averageIncome}")
+    val incomeAmount = incomeUiState.totalIncome
+    val expenseAmount = expenseUiState.totalExpense
+
+    val incomeAmountRaw = incomeUiState.totalIncome.replace(",", "").toDoubleOrNull() ?: 0.0
+    val expenseAmountRaw = expenseUiState.totalExpense.replace(",", "").toDoubleOrNull() ?: 0.0
+
+    Log.d("netBalance", "Income: ${incomeUiState.totalIncome}")
+    Log.d("netBalance", "Expense: ${expenseUiState.totalExpense}")
+
+    val netBalance = incomeAmountRaw - expenseAmountRaw
+    val formattedNetBalance = formatNumberToIndianStyle(netBalance)
+
+    Log.d("netBalance", "Net: $netBalance")
+    Log.d("netBalance", "Formatted: $formattedNetBalance")
+
 
 
     Column() {
         TopAppBarComp(
             title = "Fin Slice"
         )
-        TransactionDashboard()
+
+        TransactionDashboard(
+            onOverViewClick = {
+                onOverViewClick()
+            },
+            netBalanceAmount = formattedNetBalance,
+            expenseAmount = expenseAmount,
+            incomeAmount = incomeAmount
+        )
         Column(modifier = Modifier.padding(16.dp)) {
+
             BudgetCategoryCard(
                 title = "Need",
-                spentAmount = "2000",
-                totalAmount = "10000",
+                spentAmount = expenseByCategory.needExpenseAmount,
+                totalAmount = incomeUiState.needPercentageAmount,
                 color = MaterialTheme.colorScheme.primary
             )
             BudgetCategoryCard(
                 title = "Want",
-                spentAmount = "1000",
-                totalAmount = "70000",
+                spentAmount = expenseByCategory.wantExpenseAmount,
+                totalAmount = incomeUiState.wantPercentageAmount,
                 color = MaterialTheme.colorScheme.tertiary
             )
             BudgetCategoryCard(
                 title = "Invest",
-                spentAmount = "1500",
-                totalAmount = "30000",
+                spentAmount = expenseByCategory.investExpenseAmount,
+                totalAmount = incomeUiState.investPercentageAmount,
                 color = MaterialTheme.colorScheme.secondary
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun TransactionDashboard(modifier: Modifier = Modifier) {
+fun TransactionDashboard(
+    onOverViewClick: () -> Unit,
+    netBalanceAmount: String,
+    expenseAmount: String,
+    incomeAmount: String,
+) {
     val gradient = Brush.linearGradient(
         listOf(
             MaterialTheme.colorScheme.primary,
@@ -94,7 +127,7 @@ fun TransactionDashboard(modifier: Modifier = Modifier) {
         )
     )
     Surface(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         shape = MaterialTheme.shapes.large,
@@ -107,14 +140,25 @@ fun TransactionDashboard(modifier: Modifier = Modifier) {
                 .background(brush = gradient, shape = MaterialTheme.shapes.large)
                 .padding(20.dp)
         ) {
-            TransactionDashboardContent()
+            TransactionDashboardContent(
+                onOverViewClick = onOverViewClick,
+                netBalanceAmount = netBalanceAmount,
+                expenseAmount = expenseAmount,
+                incomeAmount = incomeAmount
+            )
         }
     }
 }
 
 
 @Composable
-fun TransactionDashboardContent() {
+fun TransactionDashboardContent(
+    onOverViewClick: () -> Unit,
+    netBalanceAmount: String,
+    expenseAmount: String,
+    incomeAmount: String,
+
+    ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -132,7 +176,7 @@ fun TransactionDashboardContent() {
                 )
             )
             IconButton(
-                onClick = { /* Action */ },
+                onClick = { onOverViewClick() },
                 colors = IconButtonColors(
                     containerColor = MaterialTheme.colorScheme.onPrimary,
                     contentColor = MaterialTheme.colorScheme.primary,
@@ -154,9 +198,10 @@ fun TransactionDashboardContent() {
             contentAlignment = Alignment.Center
         ) {
             AnimatedNetBalance(
-                balance = "14,320"
+                balance = netBalanceAmount
             )
         }
+
         //Transaction
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -166,17 +211,16 @@ fun TransactionDashboardContent() {
                 icon = Icons.Default.TrendingDown,
                 iconColor = MaterialTheme.colorScheme.error,
                 label = "Expense",
-                amount = "1,000"
+                amount = expenseAmount
             )
             TransactionInfoCard(
                 icon = Icons.Default.TrendingUp,
                 iconColor = MaterialTheme.colorScheme.tertiary,
                 label = "Income",
-                amount = "10,300"
+                amount = incomeAmount
             )
         }
     }
-
 }
 
 

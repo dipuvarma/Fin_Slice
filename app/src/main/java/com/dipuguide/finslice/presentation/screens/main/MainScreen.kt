@@ -70,10 +70,11 @@ fun MainScreen(
 
             composable<Home> {
                 HomeScreen(
-                    viewModel = authViewModel,
-                    navController = rootNavController,
                     incomeViewModel = incomeViewModel,
-                    expenseViewModel = expenseViewModel
+                    expenseViewModel = expenseViewModel,
+                    onOverViewClick = {
+                        tabNavController.navigate(Report)
+                    }
                 )
             }
 
@@ -83,7 +84,7 @@ fun MainScreen(
                 )
             }
 
-            composable <Report>{
+            composable<Report> {
                 ReportScreen()
             }
 
