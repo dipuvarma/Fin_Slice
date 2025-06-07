@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.utils.Category
+import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,7 +76,22 @@ class ExpenseTransactionViewModel @Inject constructor(
             "SIP (Systematic Investment Plan)"
         )
     )
+    init {
+        getExpenseTransaction()
+        calculateTotalExpense()
+    }
 
+    fun calculateTotalExpense() {
+        val transactionList = allExpenseUiState.value.expenseTransactionList
+        if (transactionList.isNotEmpty()) {
+            val totalExpense = transactionList.sumOf { it.amount.toDouble() }
+            _getExpenseByCategory.update {
+                it.copy(
+                    totalExpense = formatNumberToIndianStyle(totalExpense)
+                )
+            }
+        }
+    }
 
     fun clearAmount() {
         _expenseUiState.update {
@@ -151,9 +167,6 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
-    init {
-        getExpenseTransaction()
-    }
 
     fun getExpenseTransaction() {
         viewModelScope.launch {
