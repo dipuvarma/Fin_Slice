@@ -3,6 +3,7 @@ package com.dipuguide.finslice.presentation.screens.auth
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.FirebaseAuthRepository
 import com.dipuguide.finslice.utils.Destination
@@ -53,8 +54,16 @@ class AuthViewModel @Inject constructor(
             val loggedIn = dataStoreRepo.isLoggedIn()
             _isLoggedIn.value = loggedIn
             _navigation.emit(
-                if (loggedIn) Destination.Home else Destination.SignIn
+                if (loggedIn) Destination.Main else Destination.GettingStart
             )
+        }
+    }
+
+
+    fun onLoggedIn() {
+        viewModelScope.launch {
+           dataStoreRepo.onLoggedIn()
+            _isLoggedIn.value = true
         }
     }
 
@@ -69,7 +78,7 @@ class AuthViewModel @Inject constructor(
                     dataStoreRepo.onLoggedIn()
                     _isLoggedIn.value = true
                     _uiEvent.emit(AuthUiEvent.Success("Sign-up successful ✅"))
-                    _navigation.emit(Destination.Home)
+                    _navigation.emit(Destination.Main)
                 },
                 onFailure = {
                     _uiEvent.emit(AuthUiEvent.Error("Sign-up failed ❌"))
@@ -89,7 +98,7 @@ class AuthViewModel @Inject constructor(
                     dataStoreRepo.onLoggedIn()
                     _isLoggedIn.value = true
                     _uiEvent.emit(AuthUiEvent.Success("Sign-in successful ✅"))
-                    _navigation.emit(Destination.Home)
+                    _navigation.emit(Destination.Main)
                 },
                 onFailure = {
                     _uiEvent.emit(AuthUiEvent.Error("Sign-in failed ❌"))
@@ -117,7 +126,7 @@ class AuthViewModel @Inject constructor(
             authRepository.signOut()
             dataStoreRepo.onLogout()
             _isLoggedIn.value = false
-            _navigation.emit(Destination.SignIn)
+            _navigation.emit(Destination.GettingStart)
         }
     }
 

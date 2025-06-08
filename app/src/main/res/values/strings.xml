@@ -1,7 +1,20 @@
 <resources>
     <string name="app_name">Fin Slice</string>
+
+
+
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
+
+    <string name="welcome">Welcome to</string>
+
     <string name="tagline_gs">*Inspired by Rich Dad Poor Dad.</string>
+    <string name="finance_control">Now your finances are in one place and always under control.</string>
+    <string name="explore_app">Explore the app</string>
+
+    <string name="split_income">Split your income the rich way — into </string>
+    <string name="need">Need</string>
+    <string name="want">Want</string>
+    <string name="invest">Invest</string>
 
 </resources>

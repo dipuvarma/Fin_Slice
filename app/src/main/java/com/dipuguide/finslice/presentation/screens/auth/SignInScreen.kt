@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,13 +46,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.ForgetPassword
-import com.dipuguide.finslice.presentation.navigation.Home
+import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.navigation.Main
-import com.dipuguide.finslice.presentation.navigation.SignIn
 import com.dipuguide.finslice.presentation.navigation.SignUp
 import com.dipuguide.finslice.utils.Destination
 
@@ -90,12 +90,14 @@ fun SignInScreen(
     LaunchedEffect(Unit) {
         viewModel.navigation.collect { destination ->
             when (destination) {
-                Destination.Home -> {
+                Destination.Main -> {
                     navController.navigate(Main)
                 }
-                Destination.SignIn -> {
-                    navController.navigate(SignIn)
+
+                Destination.GettingStart -> {
+                    navController.navigate(GettingStart)
                 }
+
                 else -> {}
             }
         }
@@ -116,9 +118,9 @@ fun SignInScreen(
         ) {
             // Header
             Text(
-                text = "Login account",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
+                text = "Sign In account",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -129,10 +131,10 @@ fun SignInScreen(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = .6f),
                 )
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Email
-            FormLabel("Your email")
+            FormLabel("Email")
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = userDetail.email,
@@ -150,6 +152,7 @@ fun SignInScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
+                shape = MaterialTheme.shapes.small
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -185,10 +188,29 @@ fun SignInScreen(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() },
-                )
+                ),
+                shape = MaterialTheme.shapes.small
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = "Forget password",
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .clickable {
+                            navController.navigate(ForgetPassword)
+                        },
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Login Button
             Button(
@@ -201,10 +223,10 @@ fun SignInScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
+                shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
                 enabled = !(userDetail.email.isEmpty() && userDetail.password.isEmpty())
@@ -219,13 +241,54 @@ fun SignInScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("SignIn")
+                        Text("Sign In")
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Divider(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                )
 
+                Text(
+                    text = "  Or Sign In with  ", // Intentional spacing padding inside text
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    textAlign = TextAlign.Center
+                )
+
+                Divider(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                )
+            }
+
+            SignInWithGoogleButton(
+                onSuccess = {
+                    viewModel.onLoggedIn()
+                    navController.navigate(Main)
+                    Toast.makeText(context, "Sign-in Success", Toast.LENGTH_SHORT).show()
+                },
+                onError = {
+                    Toast.makeText(context, "Sign-in Failed", Toast.LENGTH_SHORT).show()
+                },
+                title = "Sign In with Google"
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             // Register
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -243,39 +306,21 @@ fun SignInScreen(
                             fontWeight = FontWeight.SemiBold
                         )
                     )
-
                     Text(
-                        text = "Forget password",
+                        text = "Sign Up",
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .clickable {
-                                navController.navigate(ForgetPassword)
+                                navController.navigate(SignUp)
+                                viewModel.resetForm()
                             },
                         style = MaterialTheme.typography.titleSmall.copy(
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
-                        )
+                        ),
+                        textAlign = TextAlign.End
                     )
-
                 }
-            }
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate(SignUp)
-                    viewModel.resetForm()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text("SignUp")
             }
         }
     }

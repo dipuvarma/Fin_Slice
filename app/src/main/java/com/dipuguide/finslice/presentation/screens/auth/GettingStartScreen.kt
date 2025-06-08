@@ -1,19 +1,14 @@
 package com.dipuguide.finslice.presentation.screens.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -21,25 +16,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.screens.onBoard.SplashScreen
-import com.dipuguide.finslice.ui.theme.FinSliceTheme
+import com.dipuguide.finslice.presentation.navigation.SignIn
+import com.dipuguide.finslice.presentation.navigation.SignUp
 
 @Composable
-fun GettingStartScreen(modifier: Modifier = Modifier) {
+fun GettingStartScreen(
+    navController: NavController
+) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 24.dp, vertical = 32.dp)
@@ -55,27 +49,38 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Welcome to \nFin Slice",
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    textAlign = TextAlign.Center
-                )
+                Column {
+                    Text(
+                        text = stringResource(R.string.welcome),
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 Text(
                     text = buildAnnotatedString {
-                        append("Split your income the rich way — into ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Needs") }
+                        append(stringResource(R.string.split_income))
+                        append(" ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.need)) }
                         append(", ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Wants") }
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.want)) }
                         append(", and ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Investments") }
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.invest)) }
                         append(".")
                     },
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .8f)
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -88,7 +93,7 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .5f)
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -101,7 +106,7 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Explore the app",
+                    text = stringResource(R.string.explore_app),
                     style = MaterialTheme.typography.headlineLarge.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold
@@ -109,15 +114,17 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
                 )
 
                 Text(
-                    text = "Now your finances are in one place and always under control.",
+                    text = stringResource(R.string.finance_control),
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .5f)
                     ),
                     textAlign = TextAlign.Center
                 )
 
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = {
+                        navController.navigate(SignIn)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -131,7 +138,9 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
                 }
 
                 OutlinedButton(
-                    onClick = { /* TODO */ },
+                    onClick = {
+                        navController.navigate(SignUp)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -145,10 +154,3 @@ fun GettingStartScreen(modifier: Modifier = Modifier) {
 }
 
 
-@Preview(showSystemUi = true, name = "Light Mode")
-@Composable
-private fun LightPreview() {
-    FinSliceTheme(darkTheme = false) {
-        GettingStartScreen()
-    }
-}

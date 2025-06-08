@@ -2,6 +2,13 @@ package com.dipuguide.finslice.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
+//onBoard
+@Serializable
+object Splash
+
+@Serializable
+object GettingStart
+
 //Auth
 @Serializable
 object SignUp
@@ -11,6 +18,8 @@ object SignIn
 
 @Serializable
 object ForgetPassword
+
+
 
 //Main
 @Serializable

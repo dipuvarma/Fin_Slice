@@ -3,9 +3,11 @@ package com.dipuguide.finslice.presentation.screens.auth
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +49,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
@@ -53,6 +57,7 @@ import com.dipuguide.finslice.presentation.component.PasswordStrengthMeter
 import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.navigation.SignIn
+import com.dipuguide.finslice.presentation.navigation.SignUp
 
 @Composable
 fun SignUpScreen(
@@ -106,8 +111,8 @@ fun SignUpScreen(
             // Header
             Text(
                 text = "Create account",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -118,10 +123,10 @@ fun SignUpScreen(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = .6f),
                 )
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             //Name
-            FormLabel("Your Name")
+            FormLabel("Name")
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = userDetail.name,
@@ -137,6 +142,7 @@ fun SignUpScreen(
                     imeAction = ImeAction.Next,
                     capitalization = KeyboardCapitalization.Words
                 ),
+                shape = MaterialTheme.shapes.small,
                 isError = state.user.name.isNotBlank() && state.nameError != null,
                 singleLine = true,
             )
@@ -152,7 +158,7 @@ fun SignUpScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
             // Email
-            FormLabel("Your email")
+            FormLabel("Email")
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = userDetail.email,
@@ -167,6 +173,7 @@ fun SignUpScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
+                shape = MaterialTheme.shapes.small,
                 isError = state.user.email.isNotBlank() && state.emailError != null,
                 singleLine = true
             )
@@ -217,6 +224,7 @@ fun SignUpScreen(
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() }
                 ),
+                shape = MaterialTheme.shapes.small,
                 isError = state.user.password.isNotBlank() && state.showPasswordErrors && state.passwordErrors.isNotEmpty(),
                 singleLine = true,
             )
@@ -234,7 +242,7 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 PasswordStrengthMeter(state.passwordStrength)
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Register Button
             Button(
@@ -248,10 +256,10 @@ fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
+                shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
                 enabled = isFormValid
@@ -270,37 +278,83 @@ fun SignUpScreen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Divider(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                )
+
+                Text(
+                    text = "  Or Sign Up with  ", // Intentional spacing padding inside text
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    textAlign = TextAlign.Center
+                )
+
+                Divider(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                )
+            }
+
+            SignInWithGoogleButton(
+                onSuccess = {
+                    viewModel.onLoggedIn()
+                    navController.navigate(Main)
+                    Toast.makeText(context, "Sign-Up Success", Toast.LENGTH_SHORT).show()
+                },
+                onError = {
+                    Toast.makeText(context, "Sign-Up Failed", Toast.LENGTH_SHORT).show()
+                },
+                title = "Sign Up with Google"
+            )
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Login Prompt
+
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Already have an account?",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.SemiBold
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Already have an account?",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     )
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    navController.navigate(SignIn)
-                    viewModel.resetForm()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
-                    contentColor = MaterialTheme.colorScheme.primary
-                ),
-            ) {
-                Text("SignIn")
+                    Text(
+                        text = "Sign In",
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .clickable {
+                                navController.navigate(SignIn)
+                                viewModel.resetForm()
+                            },
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        textAlign = TextAlign.End
+                    )
+                }
             }
         }
     }

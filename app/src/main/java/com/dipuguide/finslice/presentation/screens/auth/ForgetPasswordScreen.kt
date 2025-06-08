@@ -3,9 +3,11 @@ package com.dipuguide.finslice.presentation.screens.auth
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
@@ -92,15 +95,15 @@ fun ForgetPasswordScreen(
         ) {
             // Header
             Text(
-                text = "Forget Password",
+                text = "Forgot Your Password?",
                 style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Please enter your email",
+                text = "No worries — we’ll help you reset it and get back to slicing.",
                 style = MaterialTheme.typography.titleMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = .6f),
                 )
@@ -108,7 +111,7 @@ fun ForgetPasswordScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Email
-            FormLabel("Your email")
+            FormLabel("Email")
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = userDetail.email,
@@ -128,7 +131,8 @@ fun ForgetPasswordScreen(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() },
-                )
+                ),
+                shape = MaterialTheme.shapes.small
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -144,7 +148,7 @@ fun ForgetPasswordScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
+                shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -162,7 +166,7 @@ fun ForgetPasswordScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Forget Password")
+                        Text("Send Reset Link")
                     }
                 }
             }
@@ -174,31 +178,33 @@ fun ForgetPasswordScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Already have an account?",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.SemiBold
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Already have an account?",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     )
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate(SignIn)
-                    viewModel.resetForm()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text("SignIn")
+                    Text(
+                        text = "Sign In",
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .clickable {
+                                navController.navigate(SignIn)
+                                viewModel.resetForm()
+                            },
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        textAlign = TextAlign.End
+                    )
+                }
             }
         }
     }

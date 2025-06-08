@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.auth.ForgetPasswordScreen
+import com.dipuguide.finslice.presentation.screens.auth.GettingStartScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
@@ -15,6 +16,7 @@ import com.dipuguide.finslice.presentation.screens.main.MainScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.AddTransactionScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.auth.SplashScreen
 
 @Composable
 fun AppNavGraph() {
@@ -33,9 +35,21 @@ fun AppNavGraph() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = SignIn
+        startDestination = Splash
     ) {
 
+        composable <Splash>{
+            SplashScreen(
+                authViewModel = authViewModel,
+                navController = rootNavController
+            )
+        }
+
+        composable <GettingStart>{
+            GettingStartScreen(
+                navController = rootNavController
+            )
+        }
         composable<SignIn> {
             SignInScreen(
                 viewModel = authViewModel,
