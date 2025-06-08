@@ -38,7 +38,7 @@ fun AppNavGraph() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = OnBoard
+        startDestination = Splash
     ) {
 
         composable<Splash> {
@@ -55,7 +55,7 @@ fun AppNavGraph() {
         }
         composable<OnBoard> {
             OnBoardingScreen(
-                viewModel =onBoardingViewModel,
+                viewModel = onBoardingViewModel,
                 navController = rootNavController
             )
         }

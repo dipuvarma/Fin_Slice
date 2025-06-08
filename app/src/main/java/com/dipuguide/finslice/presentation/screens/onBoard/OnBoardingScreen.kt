@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,11 +60,7 @@ fun OnBoardingScreen(
 
     val pagerState = rememberPagerState(pageCount = { pagerData.size })
     val coroutineScope = rememberCoroutineScope()
-
     val lastIndex = pagerData.lastIndex
-    LaunchedEffect(Unit) {
-        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-    }
 
     Column(
         modifier = Modifier

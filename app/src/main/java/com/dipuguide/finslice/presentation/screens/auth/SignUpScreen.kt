@@ -56,6 +56,7 @@ import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.component.PasswordStrengthMeter
 import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.navigation.OnBoard
 import com.dipuguide.finslice.presentation.navigation.SignIn
 import com.dipuguide.finslice.presentation.navigation.SignUp
 
@@ -80,7 +81,10 @@ fun SignUpScreen(
                         .show()
                     viewModel.resetPasswordStrengthMessage()
                     // navigate
-                    navController.navigate(Main)
+                    navController.navigate(OnBoard) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                     //reset Inputs
                     viewModel.resetForm()
                 }
@@ -312,7 +316,10 @@ fun SignUpScreen(
             SignInWithGoogleButton(
                 onSuccess = {
                     viewModel.onLoggedIn()
-                    navController.navigate(Main)
+                    navController.navigate(OnBoard) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                     Toast.makeText(context, "Sign-Up Success", Toast.LENGTH_SHORT).show()
                 },
                 onError = {

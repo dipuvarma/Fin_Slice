@@ -53,6 +53,7 @@ import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.ForgetPassword
 import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.navigation.OnBoard
 import com.dipuguide.finslice.presentation.navigation.SignUp
 import com.dipuguide.finslice.utils.Destination
 
@@ -91,9 +92,11 @@ fun SignInScreen(
         viewModel.navigation.collect { destination ->
             when (destination) {
                 Destination.Main -> {
-                    navController.navigate(Main)
+                    navController.navigate(OnBoard){
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
-
                 Destination.GettingStart -> {
                     navController.navigate(GettingStart)
                 }
@@ -280,7 +283,10 @@ fun SignInScreen(
             SignInWithGoogleButton(
                 onSuccess = {
                     viewModel.onLoggedIn()
-                    navController.navigate(Main)
+                    navController.navigate(OnBoard){
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                     Toast.makeText(context, "Sign-in Success", Toast.LENGTH_SHORT).show()
                 },
                 onError = {
