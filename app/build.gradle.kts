@@ -79,6 +79,8 @@ dependencies {
     //for Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-auth")
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("com.firebaseui:firebase-ui-auth:9.0.0")
     implementation("com.google.firebase:firebase-firestore")
 
     //for local dataStore
