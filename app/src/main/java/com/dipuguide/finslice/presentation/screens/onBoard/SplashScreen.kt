@@ -36,6 +36,7 @@ fun SplashScreen() {
     } else {
         R.drawable.fin_slice_logo_white_bg
     }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -70,18 +71,3 @@ fun SplashScreen() {
 
 
 
-@Preview(showSystemUi = true, name = "Light Mode")
-@Composable
-private fun LightPreview() {
-    FinSliceTheme(darkTheme = false) {
-        SplashScreen()
-    }
-}
-
-@Preview(showSystemUi = true, name = "Dark Mode")
-@Composable
-private fun DarkPreview() {
-    FinSliceTheme(darkTheme = true) {
-        SplashScreen()
-    }
-}

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Fin Slice</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="tagline_gs">*Inspired by Rich Dad Poor Dad.</string>
+
 </resources>
