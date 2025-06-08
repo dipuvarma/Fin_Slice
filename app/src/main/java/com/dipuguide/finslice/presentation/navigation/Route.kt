@@ -9,6 +9,9 @@ object Splash
 @Serializable
 object GettingStart
 
+@Serializable
+object OnBoard
+
 //Auth
 @Serializable
 object SignUp

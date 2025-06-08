@@ -90,5 +90,8 @@ dependencies {
 
     implementation("androidx.compose.material3:material3:1.4.0-alpha15")
 
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+
+
 
 }
