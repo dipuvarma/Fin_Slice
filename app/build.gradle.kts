@@ -86,6 +86,7 @@ dependencies {
 
     implementation ("com.google.code.gson:gson:2.13.1")
 
+    implementation("androidx.compose.material3:material3:1.4.0-alpha15")
 
 
 }

@@ -116,7 +116,10 @@ fun TransactionHistoryScreen(
                 .fillMaxWidth()
                 .weight(1f)) {
                 when (selectedTab) {
-                    0 -> ExpenseHistoryScreen(expenseViewModel)
+                    0 -> ExpenseHistoryScreen(
+                        expenseViewModel,
+                        historyViewModel
+                    )
                     1 -> IncomeHistoryScreen(incomeViewModel)
                 }
             }

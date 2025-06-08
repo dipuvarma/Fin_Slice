@@ -22,6 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
+import java.util.Locale
 
 
 class TransactionHistoryViewModel : ViewModel() {
@@ -30,6 +39,16 @@ class TransactionHistoryViewModel : ViewModel() {
 
     fun onTabSelected(index: Int) {
         selectedTab = index
+    }
+
+
+
+
+    private val _selectedDate = MutableStateFlow<Long?>(null)
+    val selectedDate: StateFlow<Long?> = _selectedDate.asStateFlow()
+
+    fun setDate(millis: Long) {
+        _selectedDate.value = millis
     }
 
 

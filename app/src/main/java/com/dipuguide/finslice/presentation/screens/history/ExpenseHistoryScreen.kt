@@ -1,7 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.history
 
-import android.widget.Toast
-import androidx.collection.CircularArray
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,20 +12,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
-import androidx.compose.material.icons.automirrored.filled.ShowChart
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.HomeWork
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.ReceiptLong
@@ -33,38 +29,140 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerFormatter
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.dipuguide.finslice.presentation.navigation.Home
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
+import com.dipuguide.finslice.utils.formatTimestampToDateTime
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
+
+@Suppress("AutoBoxing")
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseHistoryScreen(
     expenseViewModel: ExpenseTransactionViewModel,
+    historyViewModel: TransactionHistoryViewModel,
 ) {
 
     val allUiState by expenseViewModel.allExpenseUiState.collectAsState()
+
+    val selectedDate by historyViewModel.selectedDate.collectAsState()
+
+    val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+
+    var showDialog by remember { mutableStateOf(false) }
+
+
+    val todayMillis = remember {
+        LocalDate.now(ZoneOffset.UTC)  // Force UTC date
+            .atStartOfDay(ZoneOffset.UTC) // Midnight UTC
+            .toInstant()
+            .toEpochMilli()
+    }
+    Log.d("todayMillis", "ExpenseHistoryScreen: $todayMillis")
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = todayMillis,
+        initialDisplayedMonthMillis = todayMillis,
+        initialDisplayMode = DisplayMode.Picker,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                // Example: Disable future dates
+                return utcTimeMillis <= todayMillis
+            }
+        },
+        yearRange = 1900..LocalDate.now().year
+    )
+
+    if (showDialog) {
+        DatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            historyViewModel.setDate(millis)
+                        }
+                        showDialog = false
+                    },
+                    enabled = datePickerState.selectedDateMillis != null
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                dateFormatter = remember { DatePickerDefaults.dateFormatter() }
+            )
+        }
+    }
+
+
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
     ) {
+        item {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = datePickerState.selectedDateMillis?.let { millis ->
+                            val date = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                            "Selected: ${DateTimeFormatter.ofPattern("dd MMM yyyy").format(date)}"
+                        } ?: "No date selected",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Button(onClick = { showDialog = true }) {
+                        Text("Pick Today Only")
+                    }
+                }
+            }
+        }
         items(allUiState.expenseTransactionList, key = { it.id!! }) { expense ->
             TransactionCardComp(
                 category = expense.category,
