@@ -14,7 +14,7 @@ fun SettingScreen(modifier: Modifier = Modifier) {
         modifier = Modifier.fillMaxSize()
     ) {
         TopAppBarComp(
-            title = "Setting",
+            title = "Settings",
         )
     }
 }

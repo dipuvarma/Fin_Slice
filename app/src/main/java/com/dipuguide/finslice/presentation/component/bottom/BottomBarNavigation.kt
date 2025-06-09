@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -24,7 +25,7 @@ fun BottomBarNavigation(
 ) {
     NavigationBar(
         modifier = modifier.height(72.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         var selectedItem by remember { mutableIntStateOf(0) }
 
@@ -35,11 +36,11 @@ fun BottomBarNavigation(
                 label = { Text(item.title) },
                 selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.onSecondary, // Improved contrast
-                    selectedTextColor = MaterialTheme.colorScheme.onSecondary, // Matches selected icon
+                    selectedIconColor = MaterialTheme.colorScheme.onBackground, // Improved contrast
+                    selectedTextColor = MaterialTheme.colorScheme.onBackground, // Matches selected icon
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    indicatorColor = MaterialTheme.colorScheme.secondary
+                    indicatorColor = MaterialTheme.colorScheme.background
                 ),
                 onClick = {
                     selectedItem = index
@@ -53,7 +54,7 @@ fun BottomBarNavigation(
                 },
                 icon = {
                     Icon(
-                        if (isSelected) item.selectedIcon else item.unSelectedIcon,
+                        painter = if (isSelected) painterResource(id = item.selectedIcon) else painterResource(id = item.unSelectedIcon),
                         contentDescription = item.title
                     )
                 },
