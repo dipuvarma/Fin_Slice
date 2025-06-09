@@ -29,17 +29,6 @@ import com.dipuguide.finslice.R
 import com.dipuguide.finslice.ui.theme.FinSliceTheme
 
 
-@Preview(showSystemUi = true)
-@Composable
-private fun Test() {
-    FinSliceTheme {
-        CustomTopAppBar(
-            title = "Dipu",
-            image = R.drawable.image_1
-        )
-    }
-}
-
 @Composable
 fun CustomTopAppBar(
     title: String,

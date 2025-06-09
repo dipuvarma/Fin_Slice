@@ -19,7 +19,7 @@ fun formatPrice(input: Double): String {
 
 
 fun formatTimestampToDateTime(timestamp: Long): String {
-    val sdf = SimpleDateFormat("dd MMM, h:mm a, yyyy", Locale.ENGLISH)
+    val sdf = SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH)
     sdf.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
     return sdf.format(Date(timestamp))
 }
