@@ -62,16 +62,15 @@ fun BudgetCategoryCard(
     )
 
     val formattedSpent = "₹ %,d".format(animatedSpent)
-    val formattedTotal = "%,d".format(animatedTotal)
+    val formattedTotal = "₹ %,d".format(animatedTotal)
 
     Surface(
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
-        shadowElevation = 2.dp,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
+            .padding(vertical = 8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
@@ -132,8 +131,7 @@ fun BudgetCategoryCard(
                 progress = animatedProgress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(50)),
+                    .height(4.dp),
                 color = color,
                 trackColor = MaterialTheme.colorScheme.outlineVariant
             )

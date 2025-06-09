@@ -2,6 +2,7 @@ package com.dipuguide.finslice.presentation.component
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,29 +15,53 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AnimatedNetBalance(balance: String) {
+fun AnimatedNetBalance(
+    balance: String
+) {
+    // Convert balance to float for animation
+    val targetValue = remember(balance) {
+        balance.replace("[^\\d.]".toRegex(), "").toFloatOrNull() ?: 0f
+    }
+
+    // Animate the numeric value
+    val animatedValue by animateFloatAsState(
+        targetValue = targetValue,
+        animationSpec = tween(durationMillis = 1000),
+        label = "countingAnimation"
+    )
+
+    // Format with ₹ symbol
+    val displayValue = remember(animatedValue) {
+        "₹ ${"%,.2f".format(animatedValue)}" // Formats with commas and 2 decimal places
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Net Balance",
-            style = MaterialTheme.typography.labelLarge.copy(
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.SemiBold
+            text = "NET AMOUNT",
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = MaterialTheme.colorScheme.onSurface.copy(.8f),
+                letterSpacing = 2.sp
             )
         )
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Animate amount here
+        // Keep your existing AnimatedContent for the transition
         AnimatedContent(
-            targetState = balance,
+            targetState = displayValue,
             transitionSpec = {
                 fadeIn(animationSpec = tween(300)) + slideInVertically(initialOffsetY = { it }) with
                         fadeOut(animationSpec = tween(300)) + slideOutVertically(targetOffsetY = { -it })
@@ -44,9 +69,9 @@ fun AnimatedNetBalance(balance: String) {
             label = "NetBalanceAnimation"
         ) { animatedBalance ->
             Text(
-                text = "₹ $animatedBalance",
-                style = MaterialTheme.typography.displaySmall.copy(
-                    color = MaterialTheme.colorScheme.onPrimary,
+                text = animatedBalance,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             )

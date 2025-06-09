@@ -70,6 +70,7 @@ fun MainScreen(
 
             composable<Home> {
                 HomeScreen(
+                    innerPadding= innerPadding,
                     incomeViewModel = incomeViewModel,
                     expenseViewModel = expenseViewModel,
                     onOverViewClick = {

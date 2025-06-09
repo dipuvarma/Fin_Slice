@@ -38,7 +38,7 @@ fun AppNavGraph() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = Splash
+        startDestination = Main
     ) {
 
         composable<Splash> {
