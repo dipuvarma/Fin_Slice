@@ -3,13 +3,13 @@ package com.dipuguide.finslice.presentation.screens.main.category
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dipuguide.finslice.presentation.component.ExpenseTransactionCardComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
+import kotlin.math.exp
 
 @Composable
 fun NeedCategoryScreen(
@@ -23,8 +23,18 @@ fun NeedCategoryScreen(
     }
 
     LazyColumn {
-        items(uiState.value.expenseTransactionList) {
-            Log.d("TAG", "NeedCategoryScreen: $it")
+        items(uiState.value.expenseTransactionList) {expense->
+            HorizontalDivider()
+
+            ExpenseTransactionCardComp(
+                amount = expense.amount,
+                category = expense.category,
+                note = expense.note,
+                tag = expense.tag,
+                date = expense.date,
+                onEditClick = {},
+                onDeleteClick = {}
+            )
         }
     }
 
