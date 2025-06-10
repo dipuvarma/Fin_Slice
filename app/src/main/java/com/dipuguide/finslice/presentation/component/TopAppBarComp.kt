@@ -1,6 +1,10 @@
 package com.dipuguide.finslice.presentation.component
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,47 +29,49 @@ fun TopAppBarComp(
     onClickNavigationIcon: (() -> Unit)? = null,
     onClickActionIcon: (() -> Unit)? = null,
 ) {
-
     val gradient = listOf(
         MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onBackground
     )
 
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    brush = Brush.linearGradient(gradient)
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+
+        TopAppBar(
+            windowInsets = WindowInsets(0),
+            title = {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        brush = Brush.linearGradient(gradient)
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            navigationIcon = {
+                if (navigationIcon != null && onClickNavigationIcon != null) {
+                    IconButton(onClick = onClickNavigationIcon) {
+                        Icon(
+                            imageVector = navigationIcon,
+                            contentDescription = "Navigation icon"
+                        )
+                    }
+                }
+            },
+            actions = {
+                if (actionIcon != null && onClickActionIcon != null) {
+                    IconButton(onClick = onClickActionIcon) {
+                        Icon(
+                            imageVector = actionIcon,
+                            contentDescription = "Action icon"
+                        )
+                    }
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                titleContentColor = MaterialTheme.colorScheme.onBackground,
             )
-        },
-        navigationIcon = {
-            if (navigationIcon != null && onClickNavigationIcon != null) {
-                IconButton(onClick = onClickNavigationIcon) {
-                    Icon(
-                        imageVector = navigationIcon,
-                        contentDescription = "Navigation icon"
-                    )
-                }
-            }
-        },
-        actions = {
-            if (actionIcon != null && onClickActionIcon != null) {
-                IconButton(onClick = onClickActionIcon) {
-                    Icon(
-                        imageVector = actionIcon,
-                        contentDescription = "Action icon"
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-            titleContentColor = MaterialTheme.colorScheme.onBackground,
         )
-    )
-}
+    }
+

@@ -1,5 +1,7 @@
 package com.dipuguide.finslice.presentation.screens.main
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -70,7 +73,7 @@ fun MainScreen(
 
             composable<Home> {
                 HomeScreen(
-                    innerPadding= innerPadding,
+                    innerPadding = innerPadding,
                     incomeViewModel = incomeViewModel,
                     expenseViewModel = expenseViewModel,
                     onOverViewClick = {
@@ -81,16 +84,18 @@ fun MainScreen(
 
             composable<Categories> {
                 CategoriesScreen(
+                    innerPadding = innerPadding,
                     expenseViewModel = expenseViewModel
                 )
             }
 
             composable<Report> {
-                ReportScreen()
+                ReportScreen(innerPadding = innerPadding)
             }
 
             composable<TransactionHistory> {
                 TransactionHistoryScreen(
+                    innerPadding = innerPadding,
                     historyViewModel = historyViewModel,
                     incomeViewModel = incomeViewModel,
                     expenseViewModel = expenseViewModel
@@ -98,7 +103,7 @@ fun MainScreen(
             }
 
             composable<Setting> {
-                SettingScreen()
+                SettingScreen(innerPadding = innerPadding)
             }
         }
     }

@@ -57,12 +57,11 @@ fun TransactionCardComp(
 
     Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surface
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -70,7 +69,8 @@ fun TransactionCardComp(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(.8f)
                 ) {
                     Box(
                         modifier = Modifier
@@ -107,8 +107,9 @@ fun TransactionCardComp(
                             )
                         )
                         if (!note.isNullOrEmpty() || !tag.isNullOrEmpty()) {
+                            val tagAndNote = listOfNotNull(tag, note).joinToString(" • ")
                             Text(
-                                text = listOfNotNull(tag, note).joinToString(" • "),
+                                text = tagAndNote,
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),

@@ -1,6 +1,7 @@
 package com.dipuguide.finslice.presentation.component.bottom
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -55,7 +56,8 @@ fun BottomBarNavigation(
                 icon = {
                     Icon(
                         painter = if (isSelected) painterResource(id = item.selectedIcon) else painterResource(id = item.unSelectedIcon),
-                        contentDescription = item.title
+                        contentDescription = item.title,
+                        modifier = Modifier.size(20.dp)
                     )
                 },
             )

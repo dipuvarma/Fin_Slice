@@ -44,7 +44,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
-@Suppress("AutoBoxing")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
