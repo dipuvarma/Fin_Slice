@@ -1,10 +1,14 @@
 package com.dipuguide.finslice.data.repo
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.dipuguide.finslice.data.model.IncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransactionUi
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.utils.DateFilterType
+import com.dipuguide.finslice.utils.getDateRangeMillis
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -114,6 +118,73 @@ class IncomeTransactionRepoImpl @Inject constructor(
 
             awaitClose { listener.remove() } // Close Firestore listener when flow is cancelled
         }.flowOn(Dispatchers.IO)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun getIncomeTransactionByDate(filter: DateFilterType): Flow<Result<List<IncomeTransactionUi>>> =
+        callbackFlow {
+            val userId = auth.currentUser?.uid ?: run {
+                trySend(Result.failure(Exception("User not logged in")))
+                close()
+                return@callbackFlow
+            }
+
+            try {
+                val (startDate, endDate) = getDateRangeMillis(filter)
+
+                val listener = firestore.collection(USERS_COLLECTION)
+                    .document(userId)
+                    .collection(TRANSACTIONS_COLLECTION)
+                    .whereGreaterThanOrEqualTo("createdAt", startDate)
+                    .whereLessThanOrEqualTo("createdAt", endDate)
+                    .addSnapshotListener { snapshot, error ->
+                        when {
+                            error != null -> {
+                                trySend(Result.failure(error))
+                                return@addSnapshotListener
+                            }
+
+                            snapshot == null -> {
+                                trySend(Result.success(emptyList()))
+                            }
+
+                            else -> {
+                                Log.d("IncomeRepo", "Fetched ${snapshot.size()} income transactions.")
+                                val transactions = snapshot.documents.mapNotNull { doc ->
+                                    val id = doc.getString("id") ?: doc.id
+                                    val amount = doc.getDouble("amount") ?: 0.0
+                                    val note = doc.getString("note") ?: ""
+                                    val category = doc.getString("category") ?: ""
+                                    val createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis()
+
+                                    try {
+                                        if (category.isNotBlank()) {
+                                            IncomeTransaction(
+                                                id = id,
+                                                amount = amount,
+                                                note = note,
+                                                category = category,
+                                                createdAt = createdAt
+                                            ).toIncomeTransactionUi()
+                                        } else null
+                                    } catch (e: Exception) {
+                                        Log.e("IncomeRepo", "Parsing error: ${e.message}")
+                                        null
+                                    }
+                                }
+
+                                trySend(Result.success(transactions))
+                            }
+                        }
+                    }
+
+                awaitClose { listener.remove() }
+
+            } catch (e: Exception) {
+                trySend(Result.failure(e))
+                close(e)
+            }
+        }.flowOn(Dispatchers.IO)
+
 
 
     override suspend fun editIncomeTransaction(incomeTransactionUi: IncomeTransactionUi): Result<Unit> =

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,6 +32,12 @@ class IncomeTransactionViewModel @Inject constructor(
     private val _incomeUiEvent = MutableSharedFlow<IncomeUiEvent>()
     val incomeUiEvent = _incomeUiEvent.asSharedFlow()
 
+    private val _getIncomeTransactionByDate =
+        MutableStateFlow<List<IncomeTransactionUi>>(emptyList())
+    val getIncomeTransactionByDate = _getIncomeTransactionByDate.asStateFlow()
+
+    private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
+    val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
 
     val incomeCategories = listOf(
         "Salary",
@@ -47,9 +54,10 @@ class IncomeTransactionViewModel @Inject constructor(
     )
 
     fun onTabSelected(index: Int) {
-        _incomeUiState.value = incomeUiState.value.copy(selectedTab = index)
+        _incomeUiState.update {
+            it.copy(selectedTab = index)
+        }
     }
-
 
     fun calculatePercentageAmount(label: String, percentage: Double) {
         val transactions = incomeUiState.value.incomeTransactionList
@@ -163,6 +171,12 @@ class IncomeTransactionViewModel @Inject constructor(
 
     init {
         getIncomeTransaction()
+        getIncomeTransactionByDate(DateFilterType.Today)
+    }
+
+    fun onFilterSelected(filter: DateFilterType) {
+        _selectedFilter.value = filter
+        getIncomeTransactionByDate(filter)
     }
 
     fun getIncomeTransaction() {
@@ -197,6 +211,22 @@ class IncomeTransactionViewModel @Inject constructor(
                 }
 
             }
+        }
+    }
+
+    fun getIncomeTransactionByDate(dateFilterType: DateFilterType) {
+        viewModelScope.launch {
+            _incomeUiEvent.emit(IncomeUiEvent.Loading)
+            incomeTransactionRepo.getIncomeTransactionByDate(dateFilterType).collectLatest { result ->
+                    result.onSuccess { data ->
+                        _getIncomeTransactionByDate.value = data
+                        _incomeUiEvent.emit(IncomeUiEvent.Success("Income loaded"))
+                        Log.d("TAG", "getIncomeTransactionByDate: $data")
+                    }
+                    result.onFailure { error ->
+                        _incomeUiEvent.emit(IncomeUiEvent.Error(error.message ?: "Unknown error"))
+                    }
+                }
         }
     }
 
