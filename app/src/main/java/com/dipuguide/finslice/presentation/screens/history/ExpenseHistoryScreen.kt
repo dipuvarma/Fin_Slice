@@ -147,14 +147,13 @@ fun ExpenseHistoryScreen(
             )
             TransactionCardComp(
                 category = expense.category,
+                categoryMatch = "Expense",
                 note = expense.note,
                 amount = expense.amount,
                 tag = expense.tag,
                 date = expense.date,
-                icon = Icons.Default.ArrowDownward,
-                iconColor = Color(0xFFFFEBEE),
-                iconBgColor = Color(0xFFC62828),
-                amountColor = Color(0xFFC62828)
+                onDeleteClick = {},
+                onEditClick = {}
             )
         }
     }

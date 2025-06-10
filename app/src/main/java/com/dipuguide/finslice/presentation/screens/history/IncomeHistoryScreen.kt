@@ -31,13 +31,12 @@ fun IncomeHistoryScreen(
             )
             TransactionCardComp(
                 category = income.category,
+                categoryMatch = "Income",
                 note = income.note,
                 amount = income.amount,
                 date = income.date,
-                icon = Icons.Default.ArrowUpward,
-                iconColor = Color(0xFFD0F0DA),
-                iconBgColor = Color(0xFF2E7D32),
-                amountColor = Color(0xFF2E7D32)
+                onDeleteClick = {},
+                onEditClick = {}
             )
         }
     }
