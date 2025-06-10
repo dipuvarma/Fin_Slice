@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.utils.Category
+import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -33,8 +36,18 @@ class ExpenseTransactionViewModel @Inject constructor(
     private val _allExpenseUiState = MutableStateFlow(AllExpenseUiState())
     val allExpenseUiState = _allExpenseUiState.asStateFlow()
 
-    private val _getExpenseByCategory = MutableStateFlow(AllExpenseUiState())
-    val getExpenseByCategory = _getExpenseByCategory.asStateFlow()
+    private val _getAllExpenseByCategory = MutableStateFlow(AllExpenseUiState())
+    val getAllExpenseByCategory = _getAllExpenseByCategory.asStateFlow()
+
+    private val _getAllExpenseByDate = MutableStateFlow<List<ExpenseTransactionUi>>(emptyList())
+    val getAllExpenseByDate = _getAllExpenseByDate.asStateFlow()
+
+    // 👇 Persistent selected filter state
+    private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
+    val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
+
+    private val _selectedCategory = MutableStateFlow<String>("Need")
+    val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
     val expenseCategories = listOf("Need", "Want", "Invest")
 
@@ -76,6 +89,12 @@ class ExpenseTransactionViewModel @Inject constructor(
             "SIP (Systematic Investment Plan)"
         )
     )
+
+    fun onSelectedTab(selected: Int) {
+        _allExpenseUiState.update {
+            it.copy(selectedTab = selected)
+        }
+    }
 
 
     fun calculateTotalExpense() {
@@ -166,11 +185,20 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
+    fun onFilterSelected(filter: DateFilterType) {
+        _selectedFilter.value = filter
+        getAllExpensesByDateRange(filter)
+    }
+
+    fun onCategorySelected(category: String) {
+        _selectedCategory.value = category
+        getAllExpensesByCategory(category)
+    }
+
     init {
+        getAllExpensesByDateRange(DateFilterType.Today)
         getExpenseTransaction()
         getAllExpensesByCategory("Need")
-        getAllExpensesByCategory("Want")
-        getAllExpensesByCategory("Invest")
     }
 
 
@@ -208,43 +236,20 @@ class ExpenseTransactionViewModel @Inject constructor(
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
 
             expenseTransactionRepo.getAllExpensesByCategory(category).collectLatest { result ->
-                result.onSuccess { expenseTransactionList ->
-                    val total = expenseTransactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-
-                    _getExpenseByCategory.update {
+                result.onSuccess { data ->
+                    val total = data.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+                    _getAllExpenseByCategory.update {
                         it.copy(
-                            expenseTransactionList = expenseTransactionList,
+                            expenseTransactionList = data,
+                            needExpenseAmount = formatNumberToIndianStyle(total),
+                            wantExpenseAmount = formatNumberToIndianStyle(total),
+                            investExpenseAmount = formatNumberToIndianStyle(total),
                         )
                     }
-
-                    when (category) {
-                        "Need" -> {
-                            _getExpenseByCategory.update {
-                                it.copy(
-                                    needExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
-
-                        "Want" -> {
-                            _getExpenseByCategory.update {
-                                it.copy(
-                                    wantExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
-
-                        "Invest" -> {
-                            _getExpenseByCategory.update {
-                                it.copy(
-                                    investExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
-                    }
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Expenses loaded By Category"))
                     Log.d(
                         "getAllExpensesByCategory",
-                        "getAllExpensesByCategory: ${expenseTransactionList.size}"
+                        "getAllExpensesByCategory: ${data.size}"
                     )
                 }
                 result.onFailure {
@@ -254,6 +259,28 @@ class ExpenseTransactionViewModel @Inject constructor(
             }
         }
     }
+
+
+    fun getAllExpensesByDateRange(filter: DateFilterType) {
+        viewModelScope.launch {
+            _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
+            expenseTransactionRepo.getAllExpensesByDateRange(filter).collectLatest { result ->
+                result.onSuccess { data ->
+                    _getAllExpenseByDate.value = data
+                    _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Expenses loaded"))
+                }
+                result.onFailure { error ->
+                    _expenseUiEvent.emit(
+                        ExpenseTransactionUiEvent.Error(
+                            error.message ?: "Unknown error"
+                        )
+                    )
+                }
+
+            }
+        }
+    }
+
 
     fun editExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
 

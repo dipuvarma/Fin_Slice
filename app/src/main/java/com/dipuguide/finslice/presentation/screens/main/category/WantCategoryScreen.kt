@@ -1,26 +1,39 @@
 package com.dipuguide.finslice.presentation.screens.main.category
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.presentation.component.ExpenseTransactionCardComp
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
+import com.dipuguide.finslice.utils.DateFilterType
+import kotlinx.coroutines.flow.collectLatest
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Composable
 fun WantCategoryScreen(
     expenseViewModel: ExpenseTransactionViewModel,
 ) {
-    val uiState = expenseViewModel.getExpenseByCategory.collectAsState()
-
-    LaunchedEffect(Unit) {
-        expenseViewModel.getAllExpensesByCategory("Want")
-    }
+    val uiState = expenseViewModel.getAllExpenseByCategory.collectAsStateWithLifecycle()
 
     LazyColumn {
         items(uiState.value.expenseTransactionList) {expense->

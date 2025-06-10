@@ -32,7 +32,7 @@ fun HomeScreen(
 
     val incomeUiState by incomeViewModel.incomeUiState.collectAsState()
     val expenseUiState by expenseViewModel.allExpenseUiState.collectAsState()
-    val expenseByCategory by expenseViewModel.getExpenseByCategory.collectAsState()
+    val expenseByCategory by expenseViewModel.getAllExpenseByCategory.collectAsState()
 
     val incomeAmount = incomeUiState.totalIncome
     val expenseAmount = expenseUiState.totalExpense

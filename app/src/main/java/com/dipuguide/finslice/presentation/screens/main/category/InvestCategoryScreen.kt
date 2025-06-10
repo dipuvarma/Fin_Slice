@@ -16,7 +16,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTrans
 fun InvestCategoryScreen(
     expenseViewModel: ExpenseTransactionViewModel,
 ) {
-    val uiState = expenseViewModel.getExpenseByCategory.collectAsState()
+    val uiState = expenseViewModel.getAllExpenseByCategory.collectAsState()
 
     LaunchedEffect(Unit) {
         expenseViewModel.getAllExpensesByCategory("Invest")

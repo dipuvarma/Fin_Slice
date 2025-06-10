@@ -41,9 +41,6 @@ class TransactionHistoryViewModel : ViewModel() {
         selectedTab = index
     }
 
-
-
-
     private val _selectedDate = MutableStateFlow<Long?>(null)
     val selectedDate: StateFlow<Long?> = _selectedDate.asStateFlow()
 

@@ -84,7 +84,7 @@ fun TransactionHistoryScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // 🚨 THIS IS CRUCIAL: Use Modifier.weight(1f) to give LazyColumn scroll space!
             Box(
