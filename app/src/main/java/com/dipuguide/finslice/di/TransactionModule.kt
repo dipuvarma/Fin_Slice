@@ -4,6 +4,8 @@ import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepoImpl
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
+import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -62,4 +64,22 @@ object TransactionModule {
     @Singleton
     fun provideExpenseTransactionRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
         ExpenseTransactionViewModel(expenseTransactionRepo)
+
+
+    @Provides
+    @Singleton
+    fun provideIncomeAndExpenseRepo(
+        incomeTransactionRepo: IncomeTransactionRepo,
+        expenseTransactionRepo: ExpenseTransactionRepo,
+    ) =
+        HomeViewModel(
+            incomeTransactionRepo = incomeTransactionRepo,
+            expenseTransactionRepo = expenseTransactionRepo
+        )
+
+
+    @Provides
+    @Singleton
+    fun provideExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
+        CategoryViewModel(expenseTransactionRepo)
 }

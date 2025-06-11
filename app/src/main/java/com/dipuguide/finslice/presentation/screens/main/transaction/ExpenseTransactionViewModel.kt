@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -90,11 +91,7 @@ class ExpenseTransactionViewModel @Inject constructor(
         )
     )
 
-    fun onSelectedTab(selected: Int) {
-        _allExpenseUiState.update {
-            it.copy(selectedTab = selected)
-        }
-    }
+
 
 
     fun calculateTotalExpense() {
@@ -206,7 +203,7 @@ class ExpenseTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
 
-            expenseTransactionRepo.getExpenseTransaction().collectLatest { result ->
+            expenseTransactionRepo.getExpenseTransaction().distinctUntilChanged().collectLatest { result ->
 
                 result.onSuccess { expenseTransactionList ->
                     Log.d("calculateTotalExpense", "${expenseTransactionList.size}")
@@ -235,16 +232,39 @@ class ExpenseTransactionViewModel @Inject constructor(
 
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
 
-            expenseTransactionRepo.getAllExpensesByCategory(category).collectLatest { result ->
+            expenseTransactionRepo.getAllExpensesByCategory(category).distinctUntilChanged().collectLatest { result ->
                 result.onSuccess { data ->
                     val total = data.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
                     _getAllExpenseByCategory.update {
                         it.copy(
                             expenseTransactionList = data,
-                            needExpenseAmount = formatNumberToIndianStyle(total),
-                            wantExpenseAmount = formatNumberToIndianStyle(total),
-                            investExpenseAmount = formatNumberToIndianStyle(total),
                         )
+                    }
+
+                    when (category) {
+                        "Need" -> {
+                            _getAllExpenseByCategory.update {
+                                it.copy(
+                                    needExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
+
+                        "Want" -> {
+                            _getAllExpenseByCategory.update {
+                                it.copy(
+                                    wantExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
+
+                        "Invest" -> {
+                            _getAllExpenseByCategory.update {
+                                it.copy(
+                                    investExpenseAmount = formatNumberToIndianStyle(total),
+                                )
+                            }
+                        }
                     }
                     _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Expenses loaded By Category"))
                     Log.d(
@@ -264,7 +284,7 @@ class ExpenseTransactionViewModel @Inject constructor(
     fun getAllExpensesByDateRange(filter: DateFilterType) {
         viewModelScope.launch {
             _expenseUiEvent.emit(ExpenseTransactionUiEvent.Loading)
-            expenseTransactionRepo.getAllExpensesByDateRange(filter).collectLatest { result ->
+            expenseTransactionRepo.getAllExpensesByDateRange(filter).distinctUntilChanged().collectLatest { result ->
                 result.onSuccess { data ->
                     _getAllExpenseByDate.value = data
                     _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Expenses loaded"))

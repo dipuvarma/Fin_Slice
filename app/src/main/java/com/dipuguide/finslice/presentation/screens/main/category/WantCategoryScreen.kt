@@ -31,12 +31,32 @@ import kotlin.collections.component2
 
 @Composable
 fun WantCategoryScreen(
-    expenseViewModel: ExpenseTransactionViewModel,
+    categoryViewModel: CategoryViewModel,
 ) {
-    val uiState = expenseViewModel.getAllExpenseByCategory.collectAsStateWithLifecycle()
+    val uiState by categoryViewModel.categoryUiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
+    LaunchedEffect(true) {
+        categoryViewModel.categoryUiEvent.collectLatest { event ->
+            when (event) {
+                is CategoryUiEvent.Loading -> {
+                    Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
+                }
+
+                is CategoryUiEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                is CategoryUiEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {}
+            }
+        }
+    }
     LazyColumn {
-        items(uiState.value.expenseTransactionList) {expense->
+        items(uiState.expenseWantList) {expense->
             Log.d("TAG", "NeedCategoryScreen: $expense")
             HorizontalDivider()
             ExpenseTransactionCardComp(

@@ -38,18 +38,21 @@ import kotlin.collections.component2
 
 @Composable
 fun CategoriesScreen(
-    expenseViewModel: ExpenseTransactionViewModel,
+    categoryViewModel: CategoryViewModel,
     innerPadding: PaddingValues,
 ) {
 
-    val uiState = expenseViewModel.allExpenseUiState.collectAsStateWithLifecycle()
-    val selectedTab = uiState.value.selectedTab
-    val selectedCategory by expenseViewModel.selectedCategory.collectAsStateWithLifecycle()
-    val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+   // val uiState by categoryViewModel.categoryUiState.collectAsStateWithLifecycle()
+    // val selectedCategory by expenseViewModel.selectedCategory.collectAsStateWithLifecycle()
+    // val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
+    // val context = LocalContext.current
+
+    val selectedTab by categoryViewModel.selectedTab.collectAsState(0)
+
     val categoryListItem = listOf(
         "Need", "Want", "Invest"
     )
+
     val filters = mapOf(
         "Today" to DateFilterType.Today,
         "Yesterday" to DateFilterType.Yesterday,
@@ -57,6 +60,7 @@ fun CategoriesScreen(
         "This Month" to DateFilterType.ThisMonth,
         "This Year" to DateFilterType.ThisYear
     )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +80,6 @@ fun CategoriesScreen(
         ) {
             categoryListItem.forEachIndexed { index, text ->
                 val selected = selectedTab == index
-                selectedCategory == text
                 val backgroundColor =
                     if (selected) MaterialTheme.colorScheme.onBackground else Color.Transparent
                 val contentColor =
@@ -88,8 +91,7 @@ fun CategoriesScreen(
                         .clip(MaterialTheme.shapes.small)
                         .background(backgroundColor)
                         .clickable {
-                            expenseViewModel.onSelectedTab(index)
-                            expenseViewModel.onCategorySelected(text)
+                            categoryViewModel.onSelectedTab(index)
                         }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -104,9 +106,9 @@ fun CategoriesScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         when (selectedTab) {
-            0 -> NeedCategoryScreen(expenseViewModel)
-            1 -> WantCategoryScreen(expenseViewModel)
-            2 -> InvestCategoryScreen(expenseViewModel)
+            0 -> NeedCategoryScreen(categoryViewModel)
+            1 -> WantCategoryScreen(categoryViewModel)
+            2 -> InvestCategoryScreen(categoryViewModel)
         }
     }
 }

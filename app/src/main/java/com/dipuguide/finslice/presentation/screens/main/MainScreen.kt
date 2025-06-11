@@ -28,7 +28,9 @@ import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryScreen
 import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoriesScreen
+import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeScreen
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
@@ -46,6 +48,8 @@ fun MainScreen(
     val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
     val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
     val authViewModel = hiltViewModel<AuthViewModel>()
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val categoryViewModel = hiltViewModel<CategoryViewModel>()
 
     val currentBackStackEntry = tabNavController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination
@@ -61,8 +65,8 @@ fun MainScreen(
             if (currentDestination?.route?.contains("Home") == true) {
                 FloatingActionButton(
                     onClick = {
-                    rootNavController.navigate(AddTransaction)
-                },
+                        rootNavController.navigate(AddTransaction)
+                    },
                     contentColor = MaterialTheme.colorScheme.onBackground,
                     containerColor = MaterialTheme.colorScheme.background
                 ) {
@@ -79,8 +83,7 @@ fun MainScreen(
             composable<Home> {
                 HomeScreen(
                     innerPadding = innerPadding,
-                    incomeViewModel = incomeViewModel,
-                    expenseViewModel = expenseViewModel,
+                    homeViewModel = homeViewModel,
                     onOverViewClick = {
                         tabNavController.navigate(Report)
                     }
@@ -90,7 +93,7 @@ fun MainScreen(
             composable<Categories> {
                 CategoriesScreen(
                     innerPadding = innerPadding,
-                    expenseViewModel = expenseViewModel
+                    categoryViewModel = categoryViewModel
                 )
             }
 

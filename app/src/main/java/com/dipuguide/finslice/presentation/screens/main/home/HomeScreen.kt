@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,69 +25,65 @@ import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 
 @Composable
 fun HomeScreen(
-    incomeViewModel: IncomeTransactionViewModel,
-    expenseViewModel: ExpenseTransactionViewModel,
+    homeViewModel: HomeViewModel,
     onOverViewClick: () -> Unit,
     innerPadding: PaddingValues,
 ) {
+    val uiState by homeViewModel.homeUiState.collectAsState()
 
-    val incomeUiState by incomeViewModel.incomeUiState.collectAsState()
-    val expenseUiState by expenseViewModel.allExpenseUiState.collectAsState()
-    val expenseByCategory by expenseViewModel.getAllExpenseByCategory.collectAsState()
+    // ✅ Removed unnecessary collectAsState of sharedFlow
+    LaunchedEffect(Unit) {
+        homeViewModel.homeUiEvent.collect { event ->
+            when (event) {
+                is HomeUiEvent.Loading -> {
+                    // TODO: Show loading dialog/spinner
+                }
 
-    val incomeAmount = incomeUiState.totalIncome
-    val expenseAmount = expenseUiState.totalExpense
+                is HomeUiEvent.Success -> {
+                    // TODO: Snackbar or toast
+                }
 
-    val incomeAmountRaw = incomeUiState.totalIncome.replace(",", "").toDoubleOrNull() ?: 0.0
-    val expenseAmountRaw = expenseUiState.totalExpense.replace(",", "").toDoubleOrNull() ?: 0.0
+                is HomeUiEvent.Error -> {
+                    // TODO: Show error message
+                }
 
-    Log.d("netBalance", "Income: ${incomeUiState.totalIncome}")
-    Log.d("netBalance", "Expense: ${expenseUiState.totalExpense}")
-
-    val netBalance = incomeAmountRaw - expenseAmountRaw
-    val formattedNetBalance = formatNumberToIndianStyle(netBalance)
-
-    Log.d("netBalance", "Net: $netBalance")
-    Log.d("netBalance", "Formatted: $formattedNetBalance")
-
+                else -> Unit
+            }
+        }
+    }
 
     Column(
-        modifier = Modifier
-            .padding(innerPadding)
+        modifier = Modifier.padding(innerPadding)
     ) {
-        CustomTopAppBar(
-            title = "Dipu",
-        )
+        CustomTopAppBar(title = "Dipu")
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
             item {
                 TransactionDashboard(
-                    onOverViewClick = {
-                        onOverViewClick()
-                    },
-                    netBalanceAmount = formattedNetBalance,
-                    expenseAmount = expenseAmount,
-                    incomeAmount = incomeAmount
+                    onOverViewClick = onOverViewClick,
+                    netBalanceAmount = uiState.netBalance,
+                    expenseAmount = uiState.totalExpense,
+                    incomeAmount = uiState.totalIncome
                 )
                 Column(modifier = Modifier.padding(16.dp)) {
                     FormLabel(text = "CATEGORY")
                     Spacer(modifier = Modifier.height(8.dp))
                     BudgetCategoryCard(
                         title = "Need",
-                        spentAmount = expenseByCategory.needExpenseAmount,
-                        totalAmount = incomeUiState.needPercentageAmount,
+                        spentAmount = uiState.needExpenseTotal,
+                        totalAmount = uiState.needPercentageAmount,
                         color = MaterialTheme.colorScheme.primary
                     )
                     BudgetCategoryCard(
                         title = "Want",
-                        spentAmount = expenseByCategory.wantExpenseAmount,
-                        totalAmount = incomeUiState.wantPercentageAmount,
+                        spentAmount = uiState.wantExpenseTotal,
+                        totalAmount = uiState.wantPercentageAmount,
                         color = MaterialTheme.colorScheme.tertiary
                     )
                     BudgetCategoryCard(
                         title = "Invest",
-                        spentAmount = expenseByCategory.investExpenseAmount,
-                        totalAmount = incomeUiState.investPercentageAmount,
+                        spentAmount = uiState.investExpenseTotal,
+                        totalAmount = uiState.investPercentageAmount,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
@@ -94,6 +91,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 
 

@@ -20,24 +20,24 @@ import kotlin.math.exp
 
 @Composable
 fun NeedCategoryScreen(
-    expenseViewModel: ExpenseTransactionViewModel,
+    categoryViewModel: CategoryViewModel,
 ) {
 
-    val getAllExpenseByCategory by expenseViewModel.getAllExpenseByCategory.collectAsStateWithLifecycle()
+    val uiState by categoryViewModel.categoryUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(true) {
-        expenseViewModel.expenseEvent.collectLatest { event ->
+        categoryViewModel.categoryUiEvent.collectLatest { event ->
             when (event) {
-                is ExpenseTransactionUiEvent.Loading -> {
+                is CategoryUiEvent.Loading -> {
                     Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Success -> {
+                is CategoryUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Error -> {
+                is CategoryUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -47,7 +47,7 @@ fun NeedCategoryScreen(
     }
 
     LazyColumn {
-        items(getAllExpenseByCategory.expenseTransactionList) { expense->
+        items(uiState.expenseNeedList) { expense ->
             HorizontalDivider()
             ExpenseTransactionCardComp(
                 amount = expense.amount,
