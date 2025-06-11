@@ -283,6 +283,7 @@ fun AddExpenseScreen(
                 shape = MaterialTheme.shapes.medium,
                 enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty()
             ) {
+
                 AnimatedContent(
                     targetState = event is AddExpenseUiEvent.Loading
                 ) { loading ->
