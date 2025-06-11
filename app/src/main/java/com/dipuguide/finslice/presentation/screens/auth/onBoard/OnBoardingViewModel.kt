@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.onBoard
+package com.dipuguide.finslice.presentation.screens.auth.onBoard
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

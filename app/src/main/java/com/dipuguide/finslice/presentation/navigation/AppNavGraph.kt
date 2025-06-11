@@ -10,10 +10,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.auth.ForgetPasswordScreen
-import com.dipuguide.finslice.presentation.screens.auth.GettingStartScreen
+import com.dipuguide.finslice.presentation.screens.auth.onBoard.GettingStartScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
-import com.dipuguide.finslice.presentation.screens.auth.SplashScreen
+import com.dipuguide.finslice.presentation.screens.auth.onBoard.SplashScreen
 import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.MainScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.AddTransactionScreen
@@ -21,8 +21,8 @@ import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExp
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.onBoard.OnBoardingScreen
-import com.dipuguide.finslice.presentation.screens.onBoard.OnBoardingViewModel
+import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingScreen
+import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -36,7 +36,6 @@ fun AppNavGraph() {
 
     val incomeViewModel = hiltViewModel<IncomeTransactionViewModel>()
     val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
-    val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
     val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
     val addExpenseViewModel = hiltViewModel<AddExpenseViewModel>()
     val addIncomeViewModel = hiltViewModel<AddIncomeViewModel>()

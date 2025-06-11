@@ -47,55 +47,6 @@ class ExpenseTransactionViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
     val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
 
-    private val _selectedCategory = MutableStateFlow<String>("Need")
-    val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
-
-    val expenseCategories = listOf("Need", "Want", "Invest")
-
-    val expenseTagsByCategory = mapOf(
-        "Need" to listOf(
-            "Food",
-            "Rent",
-            "Utilities",
-            "Transport",
-            "Medical",
-            "Groceries",
-            "Insurance",
-            "Phone Bill",
-            "Education",
-            "Childcare"
-        ),
-        "Want" to listOf(
-            "Shopping",
-            "Entertainment",
-            "Dining Out",
-            "Streaming",
-            "Travel",
-            "Gadgets",
-            "Subscriptions",
-            "Gaming",
-            "Hobbies",
-            "Fitness Classes"
-        ),
-        "Invest" to listOf(
-            "Stocks",
-            "Mutual Funds",
-            "Crypto",
-            "Real Estate",
-            "Gold",
-            "Bonds",
-            "Pension Fund",
-            "REITs",
-            "Startup Investment",
-            "SIP (Systematic Investment Plan)"
-        )
-    )
-
-
-
-
-
-
 
 
     fun addExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
@@ -112,17 +63,7 @@ class ExpenseTransactionViewModel @Inject constructor(
         }
     }
 
-    fun onFilterSelected(filter: DateFilterType) {
-        _selectedFilter.value = filter
-        getAllExpensesByDateRange(filter)
-    }
 
-
-    init {
-        getAllExpensesByDateRange(DateFilterType.Today)
-        getExpenseTransaction()
-        getAllExpensesByCategory("Need")
-    }
 
 
     fun getExpenseTransaction() {
@@ -159,7 +100,6 @@ class ExpenseTransactionViewModel @Inject constructor(
 
             expenseTransactionRepo.getAllExpensesByCategory(category).distinctUntilChanged().collectLatest { result ->
                 result.onSuccess { data ->
-                    val total = data.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
                     _getAllExpenseByCategory.update {
                         it.copy(
                             expenseTransactionList = data,

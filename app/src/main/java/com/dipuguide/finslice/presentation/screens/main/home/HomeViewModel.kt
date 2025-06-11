@@ -11,6 +11,7 @@ import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -45,15 +46,27 @@ class HomeViewModel @Inject constructor(
     private val _allExpenseList = MutableStateFlow<List<ExpenseTransactionUi>>(emptyList())
     val allExpenseList = _allExpenseList.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     private var isIncomeLoaded = false
     private var isExpenseLoaded = false
 
     init {
-        getAllExpenseTransaction()
-        getAllIncomeTransaction()
-        getAllExpensesByCategory("Need")
-        getAllExpensesByCategory("Want")
-        getAllExpensesByCategory("Invest")
+        fetchAllHomeData()
+    }
+
+    fun refresh() {
+        Log.d(TAG, "Pull-to-refresh triggered")
+        fetchAllHomeData(isManualRefresh = true)
+    }
+
+    private fun fetchAllHomeData(isManualRefresh: Boolean = false) {
+        getAllExpenseTransaction(isManualRefresh)
+        getAllIncomeTransaction(isManualRefresh)
+        listOf("Need", "Want", "Invest").forEach { category ->
+            getAllExpensesByCategory(category, isManualRefresh)
+        }
     }
 
     private fun tryCalculateNetAmount() {
@@ -121,8 +134,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getAllExpensesByCategory(category: String) {
+    fun getAllExpensesByCategory(category: String, isManualRefresh: Boolean = false) {
         viewModelScope.launch {
+            if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
             expenseTransactionRepo.getAllExpensesByCategory(category).distinctUntilChanged().collectLatest { result ->
@@ -141,17 +155,19 @@ class HomeViewModel @Inject constructor(
                         }
                     }
 
-                    _homeUiEvent.emit(HomeUiEvent.Success("Expenses loaded By Category"))
+                    _homeUiEvent.emit(HomeUiEvent.Success("Expenses loaded by category: $category"))
                 }.onFailure {
-                    Log.e(TAG, "getAllExpensesByCategory Failed", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("Get All Expense Transaction By Category Failed"))
+                    Log.e(TAG, "getAllExpensesByCategory Failed ($category)", it)
+                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load $category expenses"))
                 }
+                if (isManualRefresh) _isRefreshing.value = false
             }
         }
     }
 
-    fun getAllIncomeTransaction() {
+    fun getAllIncomeTransaction(isManualRefresh: Boolean = false) {
         viewModelScope.launch {
+            if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
             incomeTransactionRepo.getIncomeTransaction().distinctUntilChanged().collectLatest { result ->
@@ -168,17 +184,19 @@ class HomeViewModel @Inject constructor(
                     isIncomeLoaded = true
                     tryCalculateNetAmount()
 
-                    _homeUiEvent.emit(HomeUiEvent.Success("AllIncomeList Loaded"))
+                    _homeUiEvent.emit(HomeUiEvent.Success("All income loaded"))
                 }.onFailure {
                     Log.e(TAG, "getAllIncomeTransaction Failed", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("AllIncomeList Failed"))
+                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load income"))
                 }
+                if (isManualRefresh) _isRefreshing.value = false
             }
         }
     }
 
-    fun getAllExpenseTransaction() {
+    fun getAllExpenseTransaction(isManualRefresh: Boolean = false) {
         viewModelScope.launch {
+            if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
             expenseTransactionRepo.getExpenseTransaction().distinctUntilChanged().collectLatest { result ->
@@ -191,11 +209,12 @@ class HomeViewModel @Inject constructor(
                     isExpenseLoaded = true
                     tryCalculateNetAmount()
 
-                    _homeUiEvent.emit(HomeUiEvent.Success("AllExpenseList Loaded"))
+                    _homeUiEvent.emit(HomeUiEvent.Success("All expenses loaded"))
                 }.onFailure {
                     Log.e(TAG, "getAllExpenseTransaction Failed", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("AllExpenseList Failed"))
+                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load expenses"))
                 }
+                if (isManualRefresh) _isRefreshing.value = false
             }
         }
     }

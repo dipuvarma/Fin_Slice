@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.auth
+package com.dipuguide.finslice.presentation.screens.auth.onBoard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

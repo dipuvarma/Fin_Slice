@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.onBoard
+package com.dipuguide.finslice.presentation.screens.auth.onBoard
 
 data class IntroPagerModel(
     val image: Int,

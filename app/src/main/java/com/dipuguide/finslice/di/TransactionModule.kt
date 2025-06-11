@@ -7,6 +7,7 @@ import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
+import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
@@ -87,12 +88,25 @@ object TransactionModule {
 
     @Provides
     @Singleton
-    fun provideAddIncomeRep(incomeTransactionRepo: IncomeTransactionRepo) = AddIncomeViewModel(incomeTransactionRepo)
+    fun provideAddIncomeRep(incomeTransactionRepo: IncomeTransactionRepo) =
+        AddIncomeViewModel(incomeTransactionRepo)
 
 
     @Provides
     @Singleton
-    fun provideAddExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) = AddExpenseViewModel(expenseTransactionRepo)
+    fun provideAddExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
+        AddExpenseViewModel(expenseTransactionRepo)
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Provides
+    @Singleton
+    fun provideHistoryIncomeAndExpenseRepo(
+        expenseTransactionRepo: ExpenseTransactionRepo,
+        incomeTransactionRepo: IncomeTransactionRepo,
+    ) = TransactionHistoryViewModel(
+        expenseTransactionRepo = expenseTransactionRepo,
+        incomeTransactionRepo = incomeTransactionRepo
+    )
 
 
 }

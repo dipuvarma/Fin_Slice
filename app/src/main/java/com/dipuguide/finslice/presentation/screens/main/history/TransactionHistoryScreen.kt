@@ -30,23 +30,21 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 @Composable
 fun TransactionHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,
-    incomeViewModel: IncomeTransactionViewModel,
-    expenseViewModel: ExpenseTransactionViewModel,
     innerPadding: PaddingValues,
 ) {
-    val tabTitles = listOf("Expense", "Income")
     val selectedTab = historyViewModel.selectedTab
+    val tabTitles = listOf("Expense", "Income")
 
-    val containerColor = MaterialTheme.colorScheme.surface
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(containerColor),
+            .background(MaterialTheme.colorScheme.surface),
     ) {
         // 🔥 Use Column + Modifier.weight(1f) to allow scrolling
         Column(
             modifier = Modifier
-                .fillMaxSize().padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             TopAppBarComp(title = "All Transaction")
 
@@ -94,10 +92,10 @@ fun TransactionHistoryScreen(
             ) {
                 when (selectedTab) {
                     0 -> ExpenseHistoryScreen(
-                        expenseViewModel,
                         historyViewModel
                     )
-                    1 -> IncomeHistoryScreen(incomeViewModel)
+
+                    1 -> IncomeHistoryScreen(historyViewModel)
                 }
             }
         }

@@ -36,7 +36,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTrans
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun MainScreen(
     rootNavController: NavController,
@@ -104,9 +104,7 @@ fun MainScreen(
             composable<TransactionHistory> {
                 TransactionHistoryScreen(
                     innerPadding = innerPadding,
-                    historyViewModel = historyViewModel,
-                    incomeViewModel = incomeViewModel,
-                    expenseViewModel = expenseViewModel
+                    historyViewModel = historyViewModel
                 )
             }
 

@@ -30,33 +30,37 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun IncomeHistoryScreen(
-    incomeViewModel: IncomeTransactionViewModel,
+    historyViewModel: TransactionHistoryViewModel,
 ) {
+    val getAllIncomeByDate by historyViewModel.getAllIncomeByDate.collectAsStateWithLifecycle()
+    val selectedFilter by historyViewModel.selectedFilter.collectAsStateWithLifecycle()
+    val isRefreshing by historyViewModel.isRefreshing.collectAsStateWithLifecycle()
 
-    val getAllIncomeByDate by incomeViewModel.getIncomeTransactionByDate.collectAsStateWithLifecycle()
-    val selectedFilter by incomeViewModel.selectedFilter.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    // 🎯 Toast messages from UI events
     LaunchedEffect(true) {
-        incomeViewModel.incomeUiEvent.collectLatest { event ->
+        historyViewModel.incomeHistoryUiEvent.collectLatest { event ->
             when (event) {
-                is IncomeUiEvent.Loading -> {
-                    Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
+                is IncomeHistoryUiEvent.Loading -> {
+                    Toast.makeText(context, "Loading income data...", Toast.LENGTH_SHORT).show()
                 }
 
-                is IncomeUiEvent.Success -> {
+                is IncomeHistoryUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is IncomeUiEvent.Error -> {
+                is IncomeHistoryUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                else -> {}
+                else -> Unit
             }
         }
     }
@@ -69,55 +73,64 @@ fun IncomeHistoryScreen(
         "This Year" to DateFilterType.ThisYear
     )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
+    // 🔁 SWIPE TO REFRESH WRAPPER
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = {
+            historyViewModel.refresh()
+        }
     ) {
-        item {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                item {
-                    filters.forEach { (label, filterType) ->
-                        FilterChip(
-                            modifier = Modifier.padding(end = 8.dp),
-                            selected = (selectedFilter == filterType),
-                            onClick = {
-                                incomeViewModel.onFilterSelected(filterType)
-                            },
-                            label = { Text(label) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = if (selectedFilter == filterType) {
-                                    MaterialTheme.colorScheme.onBackground
-                                } else {
-                                    Color.Transparent
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+        ) {
+            item {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    item {
+                        filters.forEach { (label, filterType) ->
+                            FilterChip(
+                                modifier = Modifier.padding(end = 8.dp),
+                                selected = (selectedFilter == filterType),
+                                onClick = {
+                                    historyViewModel.onFilterSelected(filterType)
                                 },
-                                labelColor = if (selectedFilter == filterType) {
-                                    MaterialTheme.colorScheme.background
-                                } else {
-                                    MaterialTheme.colorScheme.onBackground
-                                }
+                                label = { Text(label) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    containerColor = if (selectedFilter == filterType) {
+                                        MaterialTheme.colorScheme.onBackground
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                    labelColor = if (selectedFilter == filterType) {
+                                        MaterialTheme.colorScheme.background
+                                    } else {
+                                        MaterialTheme.colorScheme.onBackground
+                                    }
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
-        }
-        items(getAllIncomeByDate, key = { it.id!! }) { income ->
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
-            )
-            TransactionCardComp(
-                category = income.category,
-                categoryMatch = "Income",
-                note = income.note,
-                amount = income.amount,
-                date = formatTimestampToDateTime(income.date!!),
-                onDeleteClick = {},
-                onEditClick = {}
-            )
+
+            items(getAllIncomeByDate, key = { it.id!! }) { income ->
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
+                )
+                TransactionCardComp(
+                    category = income.category,
+                    categoryMatch = "Income",
+                    note = income.note,
+                    amount = income.amount,
+                    date = formatTimestampToDateTime(income.date!!),
+                    onDeleteClick = {},
+                    onEditClick = {}
+                )
+            }
         }
     }
 }

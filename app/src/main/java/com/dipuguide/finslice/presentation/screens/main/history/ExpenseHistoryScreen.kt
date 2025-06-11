@@ -29,6 +29,8 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTrans
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.collectLatest
 
 
@@ -36,26 +38,26 @@ import kotlinx.coroutines.flow.collectLatest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseHistoryScreen(
-    expenseViewModel: ExpenseTransactionViewModel,
     historyViewModel: TransactionHistoryViewModel,
 ) {
 
-    val selectedDate by historyViewModel.selectedDate.collectAsState()
-    val getAllExpenseByDate by expenseViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()
-    val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
+    val getAllExpenseByDate by historyViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()
+    val selectedFilter by historyViewModel.selectedFilter.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val isRefreshing by historyViewModel.isRefreshing.collectAsStateWithLifecycle()
+
     LaunchedEffect(true) {
-        expenseViewModel.expenseEvent.collectLatest { event ->
+        historyViewModel.expenseHistoryUiEvent.collectLatest { event ->
             when (event) {
-                is ExpenseTransactionUiEvent.Loading -> {
+                is ExpenseHistoryUiEvent.Loading -> {
                     Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Success -> {
+                is ExpenseHistoryUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Error -> {
+                is ExpenseHistoryUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -71,59 +73,67 @@ fun ExpenseHistoryScreen(
         "This Month" to DateFilterType.ThisMonth,
         "This Year" to DateFilterType.ThisYear
     )
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+    // 🔁 SWIPE TO REFRESH WRAPPER
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = {
+            historyViewModel.refresh()
+        }
     ) {
-        item {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                item {
-                    filters.forEach { (label, filterType) ->
-                        FilterChip(
-                            modifier = Modifier.padding(end = 8.dp),
-                            selected = (selectedFilter == filterType),
-                            onClick = {
-                                expenseViewModel.onFilterSelected(filterType)
-                            },
-                            label = { Text(label) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = if (selectedFilter == filterType) {
-                                    MaterialTheme.colorScheme.onBackground
-                                } else {
-                                    Color.Transparent
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            item {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    item {
+                        filters.forEach { (label, filterType) ->
+                            FilterChip(
+                                modifier = Modifier.padding(end = 8.dp),
+                                selected = (selectedFilter == filterType),
+                                onClick = {
+                                    historyViewModel.onFilterSelected(filterType)
                                 },
-                                labelColor = if (selectedFilter == filterType) {
-                                    MaterialTheme.colorScheme.background
-                                } else {
-                                    MaterialTheme.colorScheme.onBackground
-                                }
+                                label = { Text(label) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    containerColor = if (selectedFilter == filterType) {
+                                        MaterialTheme.colorScheme.onBackground
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                    labelColor = if (selectedFilter == filterType) {
+                                        MaterialTheme.colorScheme.background
+                                    } else {
+                                        MaterialTheme.colorScheme.onBackground
+                                    }
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
-        }
 
-        items(getAllExpenseByDate, key = { it.id!! }) { expense ->
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
-            )
-            TransactionCardComp(
-                category = expense.category,
-                categoryMatch = "Expense",
-                note = expense.note,
-                amount = expense.amount,
-                tag = expense.tag,
-                date = formatTimestampToDateTime(expense.date!!),
-                onDeleteClick = {},
-                onEditClick = {}
-            )
+            items(getAllExpenseByDate, key = { it.id!! }) { expense ->
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
+                )
+                TransactionCardComp(
+                    category = expense.category,
+                    categoryMatch = "Expense",
+                    note = expense.note,
+                    amount = expense.amount,
+                    tag = expense.tag,
+                    date = formatTimestampToDateTime(expense.date!!),
+                    onDeleteClick = {},
+                    onEditClick = {}
+                )
+            }
         }
     }
+
 }
 
 

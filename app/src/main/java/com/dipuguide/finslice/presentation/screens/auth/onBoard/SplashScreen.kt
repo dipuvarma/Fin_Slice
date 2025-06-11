@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.auth
+package com.dipuguide.finslice.presentation.screens.auth.onBoard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.dipuguide.finslice.R
 import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.utils.Destination
 
 @Composable
