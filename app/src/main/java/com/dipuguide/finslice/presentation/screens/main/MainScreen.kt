@@ -67,8 +67,8 @@ fun MainScreen(
                     onClick = {
                         rootNavController.navigate(AddTransaction)
                     },
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                    containerColor = MaterialTheme.colorScheme.background
+                    contentColor = MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.onBackground
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "")
                 }
