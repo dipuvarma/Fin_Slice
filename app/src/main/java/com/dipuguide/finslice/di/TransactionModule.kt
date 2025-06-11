@@ -4,6 +4,8 @@ import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepoImpl
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepoImpl
+import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
+import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
@@ -80,6 +82,17 @@ object TransactionModule {
 
     @Provides
     @Singleton
-    fun provideExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
+    fun provideCategoryExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
         CategoryViewModel(expenseTransactionRepo)
+
+    @Provides
+    @Singleton
+    fun provideAddIncomeRep(incomeTransactionRepo: IncomeTransactionRepo) = AddIncomeViewModel(incomeTransactionRepo)
+
+
+    @Provides
+    @Singleton
+    fun provideAddExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) = AddExpenseViewModel(expenseTransactionRepo)
+
+
 }

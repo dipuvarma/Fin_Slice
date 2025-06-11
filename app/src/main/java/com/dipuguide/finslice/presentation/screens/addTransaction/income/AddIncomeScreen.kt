@@ -1,32 +1,25 @@
-package com.dipuguide.finslice.presentation.screens.main.transaction
+package com.dipuguide.finslice.presentation.screens.addTransaction.income
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.Button
@@ -37,45 +30,39 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Main
-import com.dipuguide.finslice.presentation.screens.auth.AuthUiEvent
-import kotlin.String
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIncomeScreen(
-    viewModel: IncomeTransactionViewModel,
+    addIncomeViewModel: AddIncomeViewModel,
     navController: NavController,
 ) {
-
     val focusManager = LocalFocusManager.current
 
     // States - you should lift them to a ViewModel in a real app
-    val uiState by viewModel.incomeUi.collectAsState()
-    val event by viewModel.incomeUiEvent.collectAsState(IncomeUiEvent.Idle)
+    val uiState by addIncomeViewModel.addIncomeUiState.collectAsState()
+    val event by addIncomeViewModel.addIncomeUiEvent.collectAsState(IncomeUiEvent.Idle)
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
 
@@ -84,19 +71,22 @@ fun AddIncomeScreen(
         focusRequester.requestFocus()
 
         // for event
-        viewModel.incomeUiEvent.collect { event ->
+        addIncomeViewModel.addIncomeUiEvent.collect { event ->
             when (event) {
-                is IncomeUiEvent.Success -> {
+                is AddIncomeUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
                         .show()
                     // navigate
-                    navController.navigate(Main)
+                    navController.navigate(Main) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                     //clear input
-                    viewModel.clearForm()
+                    addIncomeViewModel.clearForm()
 
                 }
 
-                is IncomeUiEvent.Error -> {
+                is AddIncomeUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -111,7 +101,7 @@ fun AddIncomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-         .padding(horizontal = 32.dp),
+            .padding(horizontal = 32.dp),
         verticalArrangement = Arrangement.Top,
     ) {
 
@@ -144,14 +134,14 @@ fun AddIncomeScreen(
         FormLabel(text = "Amount")
         OutlinedTextField(
             value = uiState.amount,
-            onValueChange = { viewModel.updatedAmount(it) },
+            onValueChange = { addIncomeViewModel.updatedAmount(it) },
             placeholder = { Text(text = "Add Amount") },
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.CurrencyRupee, contentDescription = null)
             },
             trailingIcon = {
                 if (uiState.amount.isNotEmpty()) {
-                    IconButton(onClick = { viewModel.clearAmount() }) {
+                    IconButton(onClick = { addIncomeViewModel.clearAmount() }) {
                         Icon(imageVector = Icons.Default.Cancel, contentDescription = "Clear")
                     }
                 }
@@ -180,14 +170,14 @@ fun AddIncomeScreen(
         FormLabel(text = "Note (Optional)")
         OutlinedTextField(
             value = uiState.note.orEmpty(),
-            onValueChange = { viewModel.updatedNote(it) },
+            onValueChange = { addIncomeViewModel.updatedNote(it) },
             placeholder = { Text(text = "Add Note") },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.NoteAlt, contentDescription = null)
             },
             trailingIcon = {
                 if (!uiState.note.isNullOrEmpty()) {
-                    IconButton(onClick = { viewModel.clearNote() }) {
+                    IconButton(onClick = { addIncomeViewModel.clearNote() }) {
                         Icon(imageVector = Icons.Default.Cancel, contentDescription = "Clear")
                     }
                 }
@@ -208,9 +198,9 @@ fun AddIncomeScreen(
         // Category Selector
         DropDownComp(
             menuName = "Category",
-            menuItemList = viewModel.incomeCategories,
+            menuItemList = addIncomeViewModel.incomeCategories,
             onDropDownClick = {
-                viewModel.setCategory(it)
+                addIncomeViewModel.setCategory(it)
             },
             selectedText = uiState.category,
         )
@@ -218,13 +208,7 @@ fun AddIncomeScreen(
         // Save Button
         Button(
             onClick = {
-                viewModel.addIncomeTransaction(
-                    incomeTransactionUi = IncomeTransactionUi(
-                        amount = uiState.amount,
-                        note = uiState.note,
-                        category = uiState.category
-                    )
-                )
+                addIncomeViewModel.addIncomeTransaction()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -234,7 +218,7 @@ fun AddIncomeScreen(
             enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty()
         ) {
             AnimatedContent(
-                targetState = event is IncomeUiEvent.Loading
+                targetState = event is AddIncomeUiEvent.Loading
             ) { loading ->
                 if (loading) {
                     CircularProgressIndicator(

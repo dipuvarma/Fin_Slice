@@ -1,5 +1,7 @@
 package com.dipuguide.finslice.presentation.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -12,14 +14,17 @@ import com.dipuguide.finslice.presentation.screens.auth.GettingStartScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
 import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
 import com.dipuguide.finslice.presentation.screens.auth.SplashScreen
-import com.dipuguide.finslice.presentation.screens.history.TransactionHistoryViewModel
+import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.MainScreen
-import com.dipuguide.finslice.presentation.screens.main.transaction.AddTransactionScreen
+import com.dipuguide.finslice.presentation.screens.addTransaction.AddTransactionScreen
+import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
+import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.onBoard.OnBoardingScreen
 import com.dipuguide.finslice.presentation.screens.onBoard.OnBoardingViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavGraph() {
 
@@ -33,6 +38,8 @@ fun AppNavGraph() {
     val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
     val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
     val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
+    val addExpenseViewModel = hiltViewModel<AddExpenseViewModel>()
+    val addIncomeViewModel = hiltViewModel<AddIncomeViewModel>()
 
     val scope = rememberCoroutineScope()
 
@@ -86,8 +93,8 @@ fun AppNavGraph() {
 
         composable<AddTransaction> {
             AddTransactionScreen(
-                incomeViewModel = incomeViewModel,
-                expenseViewModel = expenseViewModel,
+                addIncomeViewModel = addIncomeViewModel,
+                addExpenseViewModel = addExpenseViewModel,
                 navController = rootNavController
             )
         }

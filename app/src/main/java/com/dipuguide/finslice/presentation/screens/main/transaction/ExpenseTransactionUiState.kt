@@ -3,10 +3,6 @@ package com.dipuguide.finslice.presentation.screens.main.transaction
 
 data class AllExpenseUiState(
     val selectedTab: Int = 0,
-    val totalExpense: String = "",
-    val needExpenseAmount: String = "",
-    val wantExpenseAmount: String = "",
-    val investExpenseAmount: String = "",
     val expenseTransactionList: List<ExpenseTransactionUi> = emptyList(),
 )
 

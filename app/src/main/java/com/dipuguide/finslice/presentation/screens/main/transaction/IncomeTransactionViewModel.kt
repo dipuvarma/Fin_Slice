@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.utils.DateFilterType
-import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,119 +38,6 @@ class IncomeTransactionViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
     val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
 
-    val incomeCategories = listOf(
-        "Salary",
-        "Freelance",
-        "Investments",
-        "Rental Income",
-        "Gifts",
-        "Business",
-        "Interest",
-        "Dividends",
-        "Selling Assets",
-        "Refunds",
-        "Others"
-    )
-
-    fun onTabSelected(index: Int) {
-        _incomeUiState.update {
-            it.copy(selectedTab = index)
-        }
-    }
-
-    fun calculatePercentageAmount(label: String, percentage: Double) {
-        val transactions = incomeUiState.value.incomeTransactionList
-        val total = transactions.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-        val amount = formatNumberToIndianStyle(total * percentage)
-
-        _incomeUiState.update {
-            when (label) {
-                "Need" -> it.copy(needPercentageAmount = amount)
-                "Want" -> it.copy(wantPercentageAmount = amount)
-                "Invest" -> it.copy(investPercentageAmount = amount)
-                else -> it
-            }
-        }
-    }
-
-
-    fun calculateTotalIncome() {
-        val transactionList = incomeUiState.value.incomeTransactionList
-        Log.d("TAG", "Transaction List Size: ${transactionList.size}")
-
-        val totalIncome = transactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-        Log.d("TAG", "Calculated Total Income: $totalIncome")
-
-        _incomeUiState.update {
-            Log.d("TAG", "Old State: $it")
-            val newState = it.copy(totalIncome = formatNumberToIndianStyle(totalIncome))
-            Log.d("TAG", "New State: $newState")
-            newState
-        }
-    }
-
-
-    fun calculateIncomeAverage() {
-        val transactions = incomeUiState.value.incomeTransactionList
-        if (transactions.isNotEmpty()) {
-            val avg = transactions.sumOf { it.amount.toDoubleOrNull() ?: 0.0 } / transactions.size
-            Log.d("TAG", "calculateIncomeAverage: $avg")
-            _incomeUiState.update {
-                it.copy(averageIncome = formatNumberToIndianStyle(avg))
-            }
-        }
-    }
-
-    fun clearForm() {
-        _incomeUi.update {
-            it.copy(
-                amount = "",
-                note = "",
-                category = ""
-            )
-        }
-    }
-
-    fun clearAmount() {
-        _incomeUi.update {
-            it.copy(
-                amount = ""
-            )
-        }
-    }
-
-    fun clearNote() {
-        _incomeUi.update {
-            it.copy(
-                note = ""
-            )
-        }
-    }
-
-
-    fun updatedAmount(amount: String) {
-        _incomeUi.update {
-            it.copy(
-                amount = amount
-            )
-        }
-    }
-
-    fun updatedNote(note: String) {
-        _incomeUi.update {
-            it.copy(
-                note = note
-            )
-        }
-    }
-
-    fun setCategory(category: String) {
-        _incomeUi.update {
-            it.copy(
-                category = category
-            )
-        }
-    }
 
 
     fun addIncomeTransaction(incomeTransactionUi: IncomeTransactionUi) {
@@ -189,20 +75,6 @@ class IncomeTransactionViewModel @Inject constructor(
                     _incomeUiState.update {
                         it.copy(incomeTransactionList = newList)
                     }
-                    calculateTotalIncome()
-                    calculateIncomeAverage()
-                    calculatePercentageAmount(
-                        "Need",
-                        0.5
-                    )
-                    calculatePercentageAmount(
-                        "Want",
-                        0.3
-                    )
-                    calculatePercentageAmount(
-                        "Invest",
-                        0.2
-                    )
 
                     Log.d("TAG", "getIncomeTransaction: ${newList.size}")
                 }.onFailure {

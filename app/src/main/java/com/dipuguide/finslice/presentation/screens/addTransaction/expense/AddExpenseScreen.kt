@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.main.transaction
+package com.dipuguide.finslice.presentation.screens.addTransaction.expense
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
@@ -7,19 +7,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,42 +52,48 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
 @Composable
 fun AddExpenseScreen(
-    expenseVM: ExpenseTransactionViewModel,
+    addExpenseViewModel: AddExpenseViewModel,
     navController: NavController,
 ) {
     val focusManager = LocalFocusManager.current
 
     // States - you should lift them to a ViewModel in a real app
-    val uiState by expenseVM.expenseUiState.collectAsState()
-    val event by expenseVM.expenseEvent.collectAsState(IncomeUiEvent.Idle)
+    val uiState by addExpenseViewModel.addExpenseUiState.collectAsState()
+
+    val event by addExpenseViewModel.addExpenseUiEvent.collectAsState(IncomeUiEvent.Idle)
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
 
     val selectedCategory = uiState.category
 
-    val tags = expenseVM.expenseTagsByCategory[selectedCategory] ?: emptyList()
+    val tags = addExpenseViewModel.expenseTagsByCategory[selectedCategory] ?: emptyList()
+
     LaunchedEffect(Unit) {
         //for request focus on amount textField
         focusRequester.requestFocus()
 
         // for event
-        expenseVM.expenseEvent.collect { event ->
+        addExpenseViewModel.addExpenseUiEvent.collect { event ->
             when (event) {
-                is ExpenseTransactionUiEvent.Success -> {
+                is AddExpenseUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
                         .show()
                     // navigate
-                    navController.navigate(Main)
+                    navController.navigate(Main) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                     //clear input
-                    expenseVM.clearForm()
+                    addExpenseViewModel.clearForm()
                 }
 
-                is ExpenseTransactionUiEvent.Error -> {
+                is AddExpenseUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -139,14 +140,14 @@ fun AddExpenseScreen(
             FormLabel(text = "Amount")
             OutlinedTextField(
                 value = uiState.amount,
-                onValueChange = { expenseVM.updatedAmount(it) },
+                onValueChange = { addExpenseViewModel.updatedAmount(it) },
                 placeholder = { Text(text = "Add Amount") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Filled.CurrencyRupee, contentDescription = null)
                 },
                 trailingIcon = {
                     if (uiState.amount.isNotEmpty()) {
-                        IconButton(onClick = { expenseVM.clearAmount() }) {
+                        IconButton(onClick = { addExpenseViewModel.clearAmount() }) {
                             Icon(imageVector = Icons.Default.Cancel, contentDescription = "Clear")
                         }
                     }
@@ -176,14 +177,14 @@ fun AddExpenseScreen(
             FormLabel(text = "Note (Optional)")
             OutlinedTextField(
                 value = uiState.note.orEmpty(),
-                onValueChange = { expenseVM.updatedNote(it) },
+                onValueChange = { addExpenseViewModel.updatedNote(it) },
                 placeholder = { Text(text = "Add Note") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.NoteAlt, contentDescription = null)
                 },
                 trailingIcon = {
                     if (!uiState.note.isNullOrEmpty()) {
-                        IconButton(onClick = { expenseVM.clearNote() }) {
+                        IconButton(onClick = { addExpenseViewModel.clearNote() }) {
                             Icon(imageVector = Icons.Default.Cancel, contentDescription = "Clear")
                         }
                     }
@@ -205,9 +206,9 @@ fun AddExpenseScreen(
             // Category Selector
             DropDownComp(
                 menuName = "Category",
-                menuItemList = expenseVM.expenseCategories,
+                menuItemList = addExpenseViewModel.expenseCategories,
                 onDropDownClick = {
-                    expenseVM.setCategory(it)
+                    addExpenseViewModel.setCategory(it)
                 },
                 selectedText = uiState.category,
             )
@@ -245,7 +246,7 @@ fun AddExpenseScreen(
 
                     AssistChip(
                         onClick = {
-                            expenseVM.setTag(tag)
+                            addExpenseViewModel.setTag(tag)
                         },
                         label = {
                             Text(text = tag)
@@ -273,14 +274,7 @@ fun AddExpenseScreen(
             // Save Button
             Button(
                 onClick = {
-                    expenseVM.addExpenseTransaction(
-                        ExpenseTransactionUi(
-                            amount = uiState.amount,
-                            note = uiState.note,
-                            category = uiState.category,
-                            tag = uiState.tag
-                        )
-                    )
+                    addExpenseViewModel.addExpenseTransaction()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -290,7 +284,7 @@ fun AddExpenseScreen(
                 enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty()
             ) {
                 AnimatedContent(
-                    targetState = event is ExpenseTransactionUiEvent.Loading
+                    targetState = event is AddExpenseUiEvent.Loading
                 ) { loading ->
                     if (loading) {
                         CircularProgressIndicator(

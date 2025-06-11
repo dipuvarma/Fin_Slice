@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.history
+package com.dipuguide.finslice.presentation.screens.main.history
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong

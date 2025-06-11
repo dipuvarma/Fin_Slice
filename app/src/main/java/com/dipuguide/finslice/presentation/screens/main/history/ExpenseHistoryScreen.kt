@@ -1,15 +1,15 @@
-package com.dipuguide.finslice.presentation.screens.history
+package com.dipuguide.finslice.presentation.screens.main.history
 
+import android.os.Build
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -26,33 +26,35 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.presentation.component.TransactionCardComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.utils.DateFilterType
 import kotlinx.coroutines.flow.collectLatest
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IncomeHistoryScreen(
-    incomeViewModel: IncomeTransactionViewModel,
+fun ExpenseHistoryScreen(
+    expenseViewModel: ExpenseTransactionViewModel,
+    historyViewModel: TransactionHistoryViewModel,
 ) {
 
-
-    val getAllIncomeByDate by incomeViewModel.getIncomeTransactionByDate.collectAsStateWithLifecycle()
-    val selectedFilter by incomeViewModel.selectedFilter.collectAsStateWithLifecycle()
+    val selectedDate by historyViewModel.selectedDate.collectAsState()
+    val getAllExpenseByDate by expenseViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()
+    val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
     LaunchedEffect(true) {
-        incomeViewModel.incomeUiEvent.collectLatest { event ->
+        expenseViewModel.expenseEvent.collectLatest { event ->
             when (event) {
-                is IncomeUiEvent.Loading -> {
+                is ExpenseTransactionUiEvent.Loading -> {
                     Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
                 }
 
-                is IncomeUiEvent.Success -> {
+                is ExpenseTransactionUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is IncomeUiEvent.Error -> {
+                is ExpenseTransactionUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -71,7 +73,6 @@ fun IncomeHistoryScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
     ) {
         item {
             LazyRow(
@@ -85,7 +86,7 @@ fun IncomeHistoryScreen(
                             modifier = Modifier.padding(end = 8.dp),
                             selected = (selectedFilter == filterType),
                             onClick = {
-                                incomeViewModel.onFilterSelected(filterType)
+                                expenseViewModel.onFilterSelected(filterType)
                             },
                             label = { Text(label) },
                             colors = FilterChipDefaults.filterChipColors(
@@ -105,19 +106,23 @@ fun IncomeHistoryScreen(
                 }
             }
         }
-        items(getAllIncomeByDate, key = { it.id!! }) { income ->
+
+        items(getAllExpenseByDate, key = { it.id!! }) { expense ->
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
             )
             TransactionCardComp(
-                category = income.category,
-                categoryMatch = "Income",
-                note = income.note,
-                amount = income.amount,
-                date = income.date,
+                category = expense.category,
+                categoryMatch = "Expense",
+                note = expense.note,
+                amount = expense.amount,
+                tag = expense.tag,
+                date = expense.date,
                 onDeleteClick = {},
                 onEditClick = {}
             )
         }
     }
 }
+
+

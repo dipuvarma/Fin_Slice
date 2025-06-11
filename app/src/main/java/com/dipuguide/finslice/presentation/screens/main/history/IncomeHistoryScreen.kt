@@ -1,72 +1,58 @@
-package com.dipuguide.finslice.presentation.screens.history
+package com.dipuguide.finslice.presentation.screens.main.history
 
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.ChipColors
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.CustomDatePicker
 import com.dipuguide.finslice.presentation.component.TransactionCardComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
+import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 import com.dipuguide.finslice.utils.DateFilterType
 import kotlinx.coroutines.flow.collectLatest
 
-
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseHistoryScreen(
-    expenseViewModel: ExpenseTransactionViewModel,
-    historyViewModel: TransactionHistoryViewModel,
+fun IncomeHistoryScreen(
+    incomeViewModel: IncomeTransactionViewModel,
 ) {
 
-    val selectedDate by historyViewModel.selectedDate.collectAsState()
-    val getAllExpenseByDate by expenseViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()
-    val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
+
+    val getAllIncomeByDate by incomeViewModel.getIncomeTransactionByDate.collectAsStateWithLifecycle()
+    val selectedFilter by incomeViewModel.selectedFilter.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
     LaunchedEffect(true) {
-        expenseViewModel.expenseEvent.collectLatest { event ->
+        incomeViewModel.incomeUiEvent.collectLatest { event ->
             when (event) {
-                is ExpenseTransactionUiEvent.Loading -> {
+                is IncomeUiEvent.Loading -> {
                     Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Success -> {
+                is IncomeUiEvent.Success -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is ExpenseTransactionUiEvent.Error -> {
+                is IncomeUiEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -85,6 +71,7 @@ fun ExpenseHistoryScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
     ) {
         item {
             LazyRow(
@@ -98,7 +85,7 @@ fun ExpenseHistoryScreen(
                             modifier = Modifier.padding(end = 8.dp),
                             selected = (selectedFilter == filterType),
                             onClick = {
-                                expenseViewModel.onFilterSelected(filterType)
+                                incomeViewModel.onFilterSelected(filterType)
                             },
                             label = { Text(label) },
                             colors = FilterChipDefaults.filterChipColors(
@@ -118,23 +105,19 @@ fun ExpenseHistoryScreen(
                 }
             }
         }
-
-        items(getAllExpenseByDate, key = { it.id!! }) { expense ->
+        items(getAllIncomeByDate, key = { it.id!! }) { income ->
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = .5f)
             )
             TransactionCardComp(
-                category = expense.category,
-                categoryMatch = "Expense",
-                note = expense.note,
-                amount = expense.amount,
-                tag = expense.tag,
-                date = expense.date,
+                category = income.category,
+                categoryMatch = "Income",
+                note = income.note,
+                amount = income.amount,
+                date = income.date,
                 onDeleteClick = {},
                 onEditClick = {}
             )
         }
     }
 }
-
-

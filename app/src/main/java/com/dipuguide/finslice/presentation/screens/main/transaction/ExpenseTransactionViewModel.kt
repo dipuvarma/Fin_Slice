@@ -94,78 +94,8 @@ class ExpenseTransactionViewModel @Inject constructor(
 
 
 
-    fun calculateTotalExpense() {
-        val transactionList = allExpenseUiState.value.expenseTransactionList
-        Log.d("calculateTotalExpense", "${transactionList.size}")
-        val totalExpense = transactionList.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-        Log.d("calculateTotalExpense", "$totalExpense")
-
-        _allExpenseUiState.update {
-            it.copy(
-                totalExpense = formatNumberToIndianStyle(totalExpense)
-            )
-        }
-    }
 
 
-    fun clearAmount() {
-        _expenseUiState.update {
-            it.copy(
-                amount = ""
-            )
-        }
-    }
-
-    fun clearNote() {
-        _expenseUiState.update {
-            it.copy(
-                note = ""
-            )
-        }
-    }
-
-    fun clearForm() {
-        _expenseUiState.update {
-            it.copy(
-                amount = "",
-                note = "",
-                category = "",
-                tag = ""
-            )
-        }
-    }
-
-    fun setCategory(category: String) {
-        _expenseUiState.update {
-            it.copy(
-                category = category
-            )
-        }
-    }
-
-    fun setTag(tag: String) {
-        _expenseUiState.update {
-            it.copy(
-                tag = tag
-            )
-        }
-    }
-
-    fun updatedAmount(amount: String) {
-        _expenseUiState.update {
-            it.copy(
-                amount = amount
-            )
-        }
-    }
-
-    fun updatedNote(note: String) {
-        _expenseUiState.update {
-            it.copy(
-                note = note
-            )
-        }
-    }
 
 
     fun addExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
@@ -187,10 +117,6 @@ class ExpenseTransactionViewModel @Inject constructor(
         getAllExpensesByDateRange(filter)
     }
 
-    fun onCategorySelected(category: String) {
-        _selectedCategory.value = category
-        getAllExpensesByCategory(category)
-    }
 
     init {
         getAllExpensesByDateRange(DateFilterType.Today)
@@ -213,7 +139,6 @@ class ExpenseTransactionViewModel @Inject constructor(
                             expenseTransactionList = expenseTransactionList
                         )
                     }
-                    calculateTotalExpense()
                     Log.d(
                         "getExpenseTransaction",
                         "getExpenseTransaction: ${expenseTransactionList.size}"
@@ -239,32 +164,6 @@ class ExpenseTransactionViewModel @Inject constructor(
                         it.copy(
                             expenseTransactionList = data,
                         )
-                    }
-
-                    when (category) {
-                        "Need" -> {
-                            _getAllExpenseByCategory.update {
-                                it.copy(
-                                    needExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
-
-                        "Want" -> {
-                            _getAllExpenseByCategory.update {
-                                it.copy(
-                                    wantExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
-
-                        "Invest" -> {
-                            _getAllExpenseByCategory.update {
-                                it.copy(
-                                    investExpenseAmount = formatNumberToIndianStyle(total),
-                                )
-                            }
-                        }
                     }
                     _expenseUiEvent.emit(ExpenseTransactionUiEvent.Success("Expenses loaded By Category"))
                     Log.d(

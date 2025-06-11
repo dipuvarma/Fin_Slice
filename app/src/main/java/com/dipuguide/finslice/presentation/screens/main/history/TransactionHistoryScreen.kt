@@ -1,4 +1,4 @@
-package com.dipuguide.finslice.presentation.screens.history
+package com.dipuguide.finslice.presentation.screens.main.history
 
 import android.os.Build
 import androidx.annotation.RequiresApi
