@@ -93,7 +93,9 @@ fun ExpenseTransactionCardComp(
                         )
                     }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         Text(
                             text = "₹$amount",
                             style = MaterialTheme.typography.titleMedium.copy(

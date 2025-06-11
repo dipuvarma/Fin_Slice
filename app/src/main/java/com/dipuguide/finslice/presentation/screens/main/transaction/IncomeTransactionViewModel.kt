@@ -24,7 +24,6 @@ class IncomeTransactionViewModel @Inject constructor(
     private val _incomeUiState = MutableStateFlow(IncomeTransactionUiState())
     val incomeUiState = _incomeUiState.asStateFlow()
 
-
     private val _incomeUi = MutableStateFlow(IncomeTransactionUi())
     val incomeUi = _incomeUi.asStateFlow()
 
@@ -38,22 +37,6 @@ class IncomeTransactionViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
     val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
 
-
-
-    fun addIncomeTransaction(incomeTransactionUi: IncomeTransactionUi) {
-        viewModelScope.launch {
-
-            _incomeUiEvent.emit(IncomeUiEvent.Loading)
-
-            val result = incomeTransactionRepo.addIncomeTransaction(incomeTransactionUi)
-
-            result.onSuccess {
-                _incomeUiEvent.emit(IncomeUiEvent.Success("Add Transaction Successfully"))
-            }.onFailure {
-                _incomeUiEvent.emit(IncomeUiEvent.Error("Add Transaction Failed"))
-            }
-        }
-    }
 
     init {
         getIncomeTransaction()

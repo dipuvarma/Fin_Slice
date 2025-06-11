@@ -68,6 +68,13 @@ class AddExpenseViewModel @Inject constructor(
         )
     )
 
+    fun setDate(millis: Long) {
+        _addExpenseUiState.update {
+            it.copy(
+                date = millis
+            )
+        }
+    }
 
     fun clearAmount() {
         _addExpenseUiState.update {
@@ -141,7 +148,7 @@ class AddExpenseViewModel @Inject constructor(
                         note = data.note,
                         category = data.category,
                         tag = data.tag,
-                        date = data.date
+                        date = addExpenseUiState.value.date
                     )
                 }
                 Log.d("addExpenseTransaction ", "Add Expense Successfully")

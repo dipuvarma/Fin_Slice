@@ -10,6 +10,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEven
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -30,6 +31,9 @@ class AddIncomeViewModel @Inject constructor(
     private val _selectedTab = MutableStateFlow<Int>(0)
     val selectedTab = _selectedTab.asStateFlow()
 
+    private val _selectedDate = MutableStateFlow<Long?>(null)
+    val selectedDate: StateFlow<Long?> = _selectedDate.asStateFlow()
+
     val incomeCategories = listOf(
         "Salary",
         "Freelance",
@@ -43,6 +47,15 @@ class AddIncomeViewModel @Inject constructor(
         "Refunds",
         "Others"
     )
+
+
+    fun setDate(millis: Long) {
+        _addIncomeUiState.update {
+            it.copy(
+                date = millis
+            )
+        }
+    }
 
     fun onTabSelected(index: Int) {
         _selectedTab.value = index
@@ -112,7 +125,7 @@ class AddIncomeViewModel @Inject constructor(
                         amount = data.amount,
                         note = data.note,
                         category = data.category,
-                        date = data.date
+                        date = addIncomeUiState.value.date
                     )
                 }
                 _addIncomeUiEvent.emit(AddIncomeUiEvent.Success("Add Transaction Successfully"))

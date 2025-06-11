@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.presentation.component.ExpenseTransactionCardComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
+import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -53,7 +54,7 @@ fun InvestCategoryScreen(
                 category = expense.category,
                 note = expense.note,
                 tag = expense.tag,
-                date = expense.date,
+                date = formatTimestampToDateTime(expense.date!!),
                 onEditClick = {},
                 onDeleteClick = {}
             )

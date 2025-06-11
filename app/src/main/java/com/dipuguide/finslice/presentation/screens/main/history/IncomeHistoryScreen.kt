@@ -29,13 +29,13 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTrans
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 import com.dipuguide.finslice.utils.DateFilterType
+import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun IncomeHistoryScreen(
     incomeViewModel: IncomeTransactionViewModel,
 ) {
-
 
     val getAllIncomeByDate by incomeViewModel.getIncomeTransactionByDate.collectAsStateWithLifecycle()
     val selectedFilter by incomeViewModel.selectedFilter.collectAsStateWithLifecycle()
@@ -114,7 +114,7 @@ fun IncomeHistoryScreen(
                 categoryMatch = "Income",
                 note = income.note,
                 amount = income.amount,
-                date = income.date,
+                date = formatTimestampToDateTime(income.date!!),
                 onDeleteClick = {},
                 onEditClick = {}
             )

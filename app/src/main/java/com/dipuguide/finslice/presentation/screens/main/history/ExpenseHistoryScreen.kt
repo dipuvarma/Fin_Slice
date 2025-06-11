@@ -28,6 +28,7 @@ import com.dipuguide.finslice.presentation.component.TransactionCardComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.utils.DateFilterType
+import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import kotlinx.coroutines.flow.collectLatest
 
 
@@ -117,7 +118,7 @@ fun ExpenseHistoryScreen(
                 note = expense.note,
                 amount = expense.amount,
                 tag = expense.tag,
-                date = expense.date,
+                date = formatTimestampToDateTime(expense.date!!),
                 onDeleteClick = {},
                 onEditClick = {}
             )

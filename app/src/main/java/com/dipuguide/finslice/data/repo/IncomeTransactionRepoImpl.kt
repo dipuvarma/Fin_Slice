@@ -55,6 +55,7 @@ class IncomeTransactionRepoImpl @Inject constructor(
                     amount = incomeTransaction.amount,
                     note = incomeTransaction.note,
                     category = incomeTransaction.category,
+                    createdAt = incomeTransaction.createdAt ?: System.currentTimeMillis()
                 )
 
                 val transactionMap = mapOf(
@@ -62,7 +63,7 @@ class IncomeTransactionRepoImpl @Inject constructor(
                     "amount" to transaction.amount,
                     "note" to transaction.note,
                     "category" to transaction.category,
-                    "createdAt" to System.currentTimeMillis()
+                    "createdAt" to transaction.createdAt
                 )
 
                 Log.d(TAG, "Prepared transaction map: $transactionMap")

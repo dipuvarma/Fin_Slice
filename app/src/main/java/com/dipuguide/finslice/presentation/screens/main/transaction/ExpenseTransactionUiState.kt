@@ -13,5 +13,5 @@ data class ExpenseTransactionUi(
     val note: String? = null,
     val category: String = "", // "need", "want", "invest"
     val tag: String? = null,       // e.g., "food", "rent", "entertainment"
-    val date: String? = null,
+    val date: Long? = null,
 )

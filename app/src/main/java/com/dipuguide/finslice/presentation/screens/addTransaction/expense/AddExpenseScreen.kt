@@ -1,6 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.expense
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -45,17 +47,21 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dipuguide.finslice.R
+import com.dipuguide.finslice.presentation.component.CustomDatePicker
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddExpenseScreen(
     addExpenseViewModel: AddExpenseViewModel,
@@ -120,22 +126,36 @@ fun AddExpenseScreen(
                     modifier = Modifier
                         .size(96.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.onBackground,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Wallet,
+                        painter = painterResource(id = R.drawable.expense_icon),
                         contentDescription = "Wallet Icon",
                         modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.background
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
+            CustomDatePicker(
+                onDateSelected = { millis ->
+                    addExpenseViewModel.setDate(millis)
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.calendar_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             // Amount Field
             FormLabel(text = "Amount")
             OutlinedTextField(

@@ -55,7 +55,7 @@ class ExpenseTransactionRepoImpl @Inject constructor(
                     note = transaction.note,
                     category = transaction.category,
                     tag = transaction.tag,
-                    date = System.currentTimeMillis()
+                    date = transaction.date ?: System.currentTimeMillis()
                 )
 
                 docRef.set(expenseTransaction).await()

@@ -14,7 +14,7 @@ fun IncomeTransaction.toIncomeTransactionUi(): IncomeTransactionUi {
         amount = formatPrice(amount),
         note = note ?: "",
         category = category,
-        date = formatTimestampToDateTime(createdAt!!)
+        date = createdAt
     )
 }
 
@@ -24,7 +24,7 @@ fun IncomeTransactionUi.toIncomeTransaction(): IncomeTransaction {
         amount = amount.toDouble(),
         note = note,
         category = category,
-        createdAt = System.currentTimeMillis()
+        createdAt = date
     )
 }
 
@@ -36,7 +36,7 @@ fun ExpenseTransactionUi.toExpenseTransaction(): ExpenseTransaction {
         note = note,
         category = category,
         tag = tag,
-        date = System.currentTimeMillis()
+        date = date
     )
 }
 
@@ -47,6 +47,6 @@ fun ExpenseTransaction.toExpenseTransactionUi(): ExpenseTransactionUi {
         note = note,
         category = category,
         tag = tag,
-        date = formatTimestampToDateTime(date!!)
+        date = date
     )
 }

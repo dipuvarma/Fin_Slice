@@ -1,7 +1,12 @@
 package com.dipuguide.finslice.presentation.component
+
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -14,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -22,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +49,7 @@ fun CustomDatePicker(
     modifier: Modifier = Modifier,
     label: String = "Select date",
     dateFormat: String = "EEE, dd MMM yyyy",
-    icon: @Composable (() -> Unit)? = null
+    icon: @Composable (() -> Unit)? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -97,31 +104,37 @@ fun CustomDatePicker(
     }
 
     // The date selector button (with your original styling)
-    Button(
-        onClick = { showDialog = true },
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            contentColor = MaterialTheme.colorScheme.background,
-            containerColor = MaterialTheme.colorScheme.onBackground
-        ),
+    Surface(
+        modifier = modifier.clickable {
+            showDialog = true
+        },
+        contentColor = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.onBackground,
         shape = MaterialTheme.shapes.small
     ) {
-        icon?.invoke() ?: Icon(
-            painter = painterResource(id = R.drawable.calendar_icon),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = datePickerState.selectedDateMillis?.let { millis ->
-                val date = Instant.ofEpochMilli(millis)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-                DateTimeFormatter.ofPattern(dateFormat).format(date)
-            } ?: label,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold
+        Row (
+            modifier = Modifier.padding(8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            icon?.invoke() ?: Icon(
+                painter = painterResource(id = R.drawable.calendar_icon),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
             )
-        )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = datePickerState.selectedDateMillis?.let { millis ->
+                    val date = Instant.ofEpochMilli(millis)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                    DateTimeFormatter.ofPattern(dateFormat).format(date)
+                } ?: label,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
+
     }
 }

@@ -11,5 +11,5 @@ data class IncomeTransactionUi(
     val amount: String = "",
     val note: String? = null,
     val category: String = "",
-    val date: String? = null,
+    val date: Long? = null,
 )

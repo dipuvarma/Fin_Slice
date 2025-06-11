@@ -1,6 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.income
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,11 +42,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dipuguide.finslice.R
+import com.dipuguide.finslice.presentation.component.CustomDatePicker
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
@@ -52,12 +57,14 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIncomeScreen(
     addIncomeViewModel: AddIncomeViewModel,
     navController: NavController,
 ) {
+
     val focusManager = LocalFocusManager.current
 
     // States - you should lift them to a ViewModel in a real app
@@ -114,22 +121,37 @@ fun AddIncomeScreen(
                 modifier = Modifier
                     .size(96.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = MaterialTheme.colorScheme.onBackground,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Wallet,
-                    contentDescription = "Wallet Icon",
+                    painter = painterResource(id = R.drawable.income_icon),
+                    contentDescription = "Income Icon",
                     modifier = Modifier.size(48.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.background
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        CustomDatePicker(
+            onDateSelected = { millis ->
+                addIncomeViewModel.setDate(millis)
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.calendar_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         // Amount Field
         FormLabel(text = "Amount")
         OutlinedTextField(
@@ -158,7 +180,7 @@ fun AddIncomeScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp)
                 .focusRequester(focusRequester),
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.small,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -190,7 +212,7 @@ fun AddIncomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.small,
             colors = OutlinedTextFieldDefaults.colors()
         )
 
