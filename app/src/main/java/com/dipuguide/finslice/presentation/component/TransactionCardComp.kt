@@ -85,7 +85,7 @@ fun TransactionCardComp(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = if (categoryMatch == "Income") Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            painter = if (categoryMatch == "Income") painterResource(R.drawable.dollar_up_icon) else painterResource(R.drawable.dollar_down_icon),
                             contentDescription = category,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(24.dp)

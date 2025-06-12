@@ -1,5 +1,6 @@
 package com.dipuguide.finslice.di
 
+import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepoImpl
@@ -9,6 +10,7 @@ import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddInco
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
+import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -108,5 +110,6 @@ object TransactionModule {
         incomeTransactionRepo = incomeTransactionRepo
     )
 
+    fun provideSettingDataStore(dataStoreRepository: DataStoreRepository) = SettingViewModel(dataStoreRepository)
 
 }

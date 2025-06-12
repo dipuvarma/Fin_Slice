@@ -5,12 +5,16 @@ import javax.inject.Inject
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.dipuguide.finslice.utils.DataStoreUtil
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 
 class DataStoreRepository @Inject constructor(
-    private val dataStore: DataStoreUtil
+    private val dataStore: DataStoreUtil,
 ) {
 
-    suspend fun onLoggedIn(){
+    suspend fun onLoggedIn() {
         dataStore.setData("isLoggedIn", true)
     }
 
@@ -18,7 +22,22 @@ class DataStoreRepository @Inject constructor(
         return dataStore.getData("isLoggedIn") ?: false
     }
 
-    suspend fun onLogout(){
+    suspend fun darkModeOn() {
+        dataStore.setData("isDarkMode", true)
+    }
+
+    suspend fun isDarkMode(): Flow<Boolean> {
+        return dataStore.isDarkMode()
+    }
+
+
+
+    suspend fun darkModeOff() {
+        dataStore.removeKey("isDarkMode") // ✅ safer
+    }
+
+
+    suspend fun onLogout() {
         dataStore.clear()
     }
 

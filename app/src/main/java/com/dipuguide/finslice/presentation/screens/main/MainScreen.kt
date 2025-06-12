@@ -36,7 +36,6 @@ import com.dipuguide.finslice.presentation.screens.main.setting.SettingScreen
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun MainScreen(
@@ -78,7 +77,7 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = tabNavController,
-            startDestination = Setting,
+            startDestination = Home,
         ) {
 
             composable<Home> {
@@ -86,7 +85,13 @@ fun MainScreen(
                     innerPadding = innerPadding,
                     homeViewModel = homeViewModel,
                     onOverViewClick = {
-                        tabNavController.navigate(Report)
+                        tabNavController.navigate(Report) {
+                            popUpTo(tabNavController.graph.startDestinationId) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 )
             }

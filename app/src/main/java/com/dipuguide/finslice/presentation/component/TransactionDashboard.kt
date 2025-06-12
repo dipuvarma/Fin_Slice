@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -82,29 +83,26 @@ fun TransactionDashboard(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        //Transaction
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Absolute.SpaceAround
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TotalAmountCardComp(
                 amountType = "EXPENSE",
                 totalAmount = expenseAmount,
-                icon = Icons.Default.ArrowDownward,
-                tintBgColor = Color(0xFFC62828),
-                iconColor = Color(0xFFFFEBEE)
+                modifier = Modifier.weight(1f)
             )
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             TotalAmountCardComp(
                 amountType = "INCOME",
                 totalAmount = incomeAmount,
-                icon = Icons.Default.ArrowUpward,
-                tintBgColor = Color(0xFF2E7D32),
-                iconColor = Color(0xFFD0F0DA)
+                modifier = Modifier.weight(1f)
             )
-
         }
     }
 }

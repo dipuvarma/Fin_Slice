@@ -26,7 +26,7 @@ import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun TransactionHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,

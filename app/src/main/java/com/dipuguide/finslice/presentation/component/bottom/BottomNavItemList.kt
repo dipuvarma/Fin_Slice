@@ -27,9 +27,9 @@ val bottomNavItemList = listOf(
         route = Report
     ),
     BottomNavItem(
-        title = "Journal",
-        selectedIcon = R.drawable.journal_filled,
-        unSelectedIcon = R.drawable.journal_outline,
+        title = "History",
+        selectedIcon = R.drawable.dollar_transaction_filled,
+        unSelectedIcon = R.drawable.dollar_transaction_icon,
         route = TransactionHistory
     ),
     BottomNavItem(

@@ -24,7 +24,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingScreen
 import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun AppNavGraph() {
 
