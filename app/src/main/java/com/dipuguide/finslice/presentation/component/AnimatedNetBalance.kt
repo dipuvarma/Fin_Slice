@@ -1,14 +1,8 @@
 package com.dipuguide.finslice.presentation.component
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -20,15 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedNetBalance(
-    balance: String
+    balance: String,
 ) {
     // Convert balance to float for animation
     val targetValue = remember(balance) {
@@ -60,21 +52,13 @@ fun AnimatedNetBalance(
         Spacer(modifier = Modifier.height(4.dp))
 
         // Keep your existing AnimatedContent for the transition
-        AnimatedContent(
-            targetState = displayValue,
-            transitionSpec = {
-                fadeIn(animationSpec = tween(300)) + slideInVertically(initialOffsetY = { it }) with
-                        fadeOut(animationSpec = tween(300)) + slideOutVertically(targetOffsetY = { -it })
-            },
-            label = "NetBalanceAnimation"
-        ) { animatedBalance ->
-            Text(
-                text = animatedBalance,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
+        Text(
+            text = displayValue,
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
             )
-        }
+        )
+
     }
 }

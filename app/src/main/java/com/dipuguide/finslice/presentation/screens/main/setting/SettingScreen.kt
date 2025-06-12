@@ -54,6 +54,7 @@ fun SettingScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
+
         TopAppBarComp(title = "Settings")
 
         Spacer(modifier = Modifier.height(12.dp))

@@ -21,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarComp(
@@ -34,8 +33,6 @@ fun TopAppBarComp(
     val gradient = listOf(
         MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onBackground
     )
-
-
         TopAppBar(
             windowInsets = WindowInsets(0),
             title = {
