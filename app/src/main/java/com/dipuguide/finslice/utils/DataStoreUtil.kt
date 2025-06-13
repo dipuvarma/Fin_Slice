@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import java.io.File
 
 class DataStoreUtil(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
 ) {
 
     companion object {
@@ -28,9 +28,15 @@ class DataStoreUtil(
     }
 
 
-   suspend fun isDarkMode(): Flow<Boolean> {
+    suspend fun isDarkMode(): Flow<Boolean> {
         return dataStore.data.map { prefs ->
             prefs[stringPreferencesKey("isDarkMode")]?.toBoolean() ?: false
+        }
+    }
+
+    suspend fun isDynamicMode(): Flow<Boolean> {
+        return dataStore.data.map { prefs ->
+            prefs[stringPreferencesKey("isDynamicMode")]?.toBoolean() ?: false
         }
     }
 

@@ -30,15 +30,24 @@ class DataStoreRepository @Inject constructor(
         return dataStore.isDarkMode()
     }
 
-
-
     suspend fun darkModeOff() {
         dataStore.removeKey("isDarkMode") // ✅ safer
     }
 
+    suspend fun dynamicModeOn() {
+        dataStore.setData("isDynamicMode", true)
+    }
+
+    suspend fun dynamicModeOff() {
+        dataStore.removeKey("isDynamicMode")
+    }
+
+    suspend fun isDynamicMode(): Flow<Boolean> {
+        return dataStore.isDynamicMode()
+    }
 
     suspend fun onLogout() {
-        dataStore.clear()
+        dataStore.removeKey("isLoggedIn")
     }
 
 }

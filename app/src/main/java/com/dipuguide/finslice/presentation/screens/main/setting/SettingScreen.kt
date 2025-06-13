@@ -44,6 +44,7 @@ fun SettingScreen(
 ) {
     val darkTheme = isSystemInDarkTheme()
     val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
+    val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
 
     Log.d("TAG", "SettingScreen: $isDarkMode")
 
@@ -89,8 +90,10 @@ fun SettingScreen(
                     iconFilled = R.drawable.dynamic_color_fill,
                     iconOutline = R.drawable.dynamic_color_outline,
                     title = "Dynamic Color",
-                    checked = true,
-                    onCheckedChange = { /* TODO */ }
+                    checked = isDynamicMode.value,
+                    onCheckedChange = {
+                        settingViewModel.toggleDynamicMode(it)
+                    }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
                 SettingSwitchCard(

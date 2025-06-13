@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,36 +22,68 @@ class SettingViewModel @Inject constructor(
     private val dataStoreRepo: DataStoreRepository,
 ) : ViewModel() {
 
+    // Internal mutable state
     private val _isDarkMode = MutableStateFlow(false)
-    val isDarkModeState: StateFlow<Boolean> = _isDarkMode.asStateFlow()
+    private val _isDynamicMode = MutableStateFlow(false)
 
+    // Public immutable state
+    val isDarkModeState: StateFlow<Boolean> = _isDarkMode.asStateFlow()
+    val isDynamicModeState: StateFlow<Boolean> = _isDynamicMode.asStateFlow()
 
     init {
-        loadDarkMode()
+        observeSettings()
     }
 
-    private fun loadDarkMode() {
+    /**
+     * 💬 Observes the current dark mode and dynamic mode settings from DataStore.
+     * 🔥 FIX: Use separate coroutines to avoid collect() blocking each other.
+     */
+    private fun observeSettings() {
         viewModelScope.launch {
-            dataStoreRepo.isDarkMode().collect {
-                _isDarkMode.value = it
-            }
+            dataStoreRepo.isDarkMode()
+                .catch { ex -> Log.e("SettingsVM", "Failed to load dark mode", ex) }
+                .collect { isDark ->
+                    Log.d("SettingsVM", "Dark mode state updated: $isDark")
+                    _isDarkMode.value = isDark
+                }
+        }
 
+        viewModelScope.launch {
+            dataStoreRepo.isDynamicMode()
+                .catch { ex -> Log.e("SettingsVM", "Failed to load dynamic mode", ex) }
+                .collect { isDynamic ->
+                    Log.d("SettingsVM", "Dynamic mode state updated: $isDynamic")
+                    _isDynamicMode.value = isDynamic
+                }
         }
     }
 
+    /**
+     * 💡 Toggle dark mode preference
+     */
     fun toggleDarkMode(enabled: Boolean) {
-        Log.d("darkmode", "toggleDarkMode: $enabled")
+        Log.d("SettingsVM", "Toggling dark mode to: $enabled")
         viewModelScope.launch {
-            if (enabled) {
-                dataStoreRepo.darkModeOn()
-            } else {
-                dataStoreRepo.darkModeOff()
+            runCatching {
+                if (enabled) dataStoreRepo.darkModeOn() else dataStoreRepo.darkModeOff()
+            }.onFailure {
+                Log.e("SettingsVM", "Failed to toggle dark mode", it)
             }
-            Log.d("darkmode", "isDarkMode: ${dataStoreRepo.isDarkMode()}")
-            dataStoreRepo.isDarkMode().collectLatest {
-                _isDarkMode.value = it
-            }
+        }
+    }
 
+    /**
+     * 💡 Toggle dynamic color mode preference
+     */
+    fun toggleDynamicMode(enabled: Boolean) {
+        Log.d("SettingsVM", "Toggling dynamic mode to: $enabled")
+        viewModelScope.launch {
+            runCatching {
+                if (enabled) dataStoreRepo.dynamicModeOn() else dataStoreRepo.dynamicModeOff()
+            }.onFailure {
+                Log.e("SettingsVM", "Failed to toggle dynamic mode", it)
+            }
         }
     }
 }
+
