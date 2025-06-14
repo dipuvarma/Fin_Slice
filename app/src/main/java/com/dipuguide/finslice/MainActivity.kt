@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
             val settingViewModel : SettingViewModel = hiltViewModel()
             val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
             val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
-            Log.d("TAG", "onCreate: $isDarkMode")
             FinSliceTheme(
                 dynamicColor = isDynamicMode.value,
                 darkTheme = isDarkMode.value

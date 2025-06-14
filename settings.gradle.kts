@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Fin Slice"
 include(":app")
- 
+
+

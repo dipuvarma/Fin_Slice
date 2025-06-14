@@ -46,7 +46,7 @@ class DataStoreRepository @Inject constructor(
         return dataStore.isDynamicMode()
     }
 
-    suspend fun onLogout() {
+    suspend fun signOut() {
         dataStore.removeKey("isLoggedIn")
     }
 

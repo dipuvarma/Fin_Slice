@@ -124,8 +124,7 @@ class AuthViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()
-            dataStoreRepo.onLogout()
-            _isLoggedIn.value = false
+            dataStoreRepo.signOut()
             _navigation.emit(Destination.GettingStart)
         }
     }

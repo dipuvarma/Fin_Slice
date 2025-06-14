@@ -94,6 +94,13 @@ dependencies {
 
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.30.1")
 
+    implementation("androidx.biometric:biometric:1.4.0-alpha02")
+
+    //for pie chart
+    implementation ("io.github.ehsannarmani:compose-charts:0.1.7")
+
+
+
 
 
 }

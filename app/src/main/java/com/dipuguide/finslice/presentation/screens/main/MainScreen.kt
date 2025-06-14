@@ -1,7 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,14 +23,15 @@ import com.dipuguide.finslice.presentation.navigation.Report
 import com.dipuguide.finslice.presentation.navigation.Setting
 import com.dipuguide.finslice.presentation.navigation.TransactionHistory
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryScreen
-import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoriesScreen
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
+import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryScreen
+import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeScreen
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingScreen
+import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
@@ -44,12 +43,11 @@ fun MainScreen(
 
     val tabNavController = rememberNavController()
 
-    val incomeViewModel = hiltViewModel<IncomeTransactionViewModel>()
-    val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
     val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
     val authViewModel = hiltViewModel<AuthViewModel>()
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
+    val settingViewModel = hiltViewModel<SettingViewModel>()
 
     val currentBackStackEntry = tabNavController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination
@@ -115,7 +113,12 @@ fun MainScreen(
             }
 
             composable<Setting> {
-                SettingScreen(innerPadding = innerPadding)
+                SettingScreen(
+                    innerPadding = innerPadding,
+                    settingViewModel = settingViewModel,
+                    authViewModel = authViewModel,
+                    navController = rootNavController
+                )
             }
         }
     }

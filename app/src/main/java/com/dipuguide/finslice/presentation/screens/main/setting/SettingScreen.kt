@@ -31,22 +31,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dipuguide.finslice.R
 import com.dipuguide.finslice.presentation.component.SettingCardComp
 import com.dipuguide.finslice.presentation.component.SettingProfileComp
 import com.dipuguide.finslice.presentation.component.SettingSwitchCard
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.navigation.GettingStart
+import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
+import com.dipuguide.finslice.presentation.screens.auth.onBoard.GettingStartScreen
+import com.dipuguide.finslice.utils.Destination
 
 @Composable
 fun SettingScreen(
     innerPadding: PaddingValues,
-    settingViewModel: SettingViewModel = hiltViewModel(),
+    settingViewModel: SettingViewModel,
+    authViewModel: AuthViewModel,
+    navController: NavController
 ) {
     val darkTheme = isSystemInDarkTheme()
     val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
     val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
 
+
     Log.d("TAG", "SettingScreen: $isDarkMode")
+
+    LaunchedEffect(Unit) {
+        authViewModel.navigation.collect {
+            when(it){
+                Destination.GettingStart -> {
+                    navController.navigate(GettingStart){
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+              else -> {}
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -154,7 +176,7 @@ fun SettingScreen(
                     icon = R.drawable.sign_out_icon,
                     title = "Sign Out",
                     onClick = {
-
+                        authViewModel.signOut()
                     }
                 )
             }
