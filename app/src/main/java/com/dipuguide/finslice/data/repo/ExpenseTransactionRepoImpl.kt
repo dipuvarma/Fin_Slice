@@ -11,6 +11,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTrans
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.getDateRangeMillis
+import com.dipuguide.finslice.utils.getMillisRangeForMonth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -240,6 +241,62 @@ class ExpenseTransactionRepoImpl @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun getAllExpensesByMonth(month: Int, year: Int): Flow<Result<List<ExpenseTransactionUi>>> =
+        callbackFlow {
+            try {
+                val userId = auth.currentUser?.uid
+                if (userId == null) {
+                    trySend(Result.failure(Exception("User not logged in")))
+                    close()
+                    return@callbackFlow
+                }
+
+                val (startDate, endDate) = getMillisRangeForMonth(month, year)
+
+                val listener = firestore.collection(USERS_COLLECTION)
+                    .document(userId)
+                    .collection(EXPENSE_COLLECTION)
+                    .whereGreaterThanOrEqualTo("date", startDate)
+                    .whereLessThanOrEqualTo("date", endDate)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            trySend(Result.failure(error))
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null) {
+                            val transactions = snapshot.documents.mapNotNull { doc ->
+                                val id = doc.getString("id") ?: doc.id
+                                val amount = doc.getDouble("amount") ?: 0.0
+                                val note = doc.getString("note") ?: ""
+                                val tag = doc.getString("tag") ?: ""
+                                val category = doc.getString("category") ?: ""
+                                val date = doc.getLong("date") ?: System.currentTimeMillis()
+
+                                ExpenseTransaction(
+                                    id = id,
+                                    amount = amount,
+                                    note = note,
+                                    category = category,
+                                    tag = tag,
+                                    date = date
+                                ).toExpenseTransactionUi()
+                            }
+                            trySend(Result.success(transactions))
+                        } else {
+                            trySend(Result.success(emptyList()))
+                        }
+                    }
+
+                awaitClose { listener.remove() }
+
+            } catch (e: Exception) {
+                trySend(Result.failure(e))
+            }
+        }.flowOn(Dispatchers.IO)
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getAllExpensesByDateRange(filter: DateFilterType): Flow<Result<List<ExpenseTransactionUi>>> =
         callbackFlow {
             try {
@@ -293,7 +350,6 @@ class ExpenseTransactionRepoImpl @Inject constructor(
                 trySend(Result.failure(e))
             }
         }.flowOn(Dispatchers.IO)
-
 
 
     override suspend fun deleteExpenseTransaction(id: String): Result<Unit> {

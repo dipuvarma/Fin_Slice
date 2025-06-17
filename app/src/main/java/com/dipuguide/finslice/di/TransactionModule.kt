@@ -10,6 +10,7 @@ import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddInco
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
+import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
@@ -110,6 +111,13 @@ object TransactionModule {
         incomeTransactionRepo = incomeTransactionRepo
     )
 
-    fun provideSettingDataStore(dataStoreRepository: DataStoreRepository) = SettingViewModel(dataStoreRepository)
+    @Provides
+    @Singleton
+    fun provideSettingDataStore(dataStoreRepository: DataStoreRepository) =
+        SettingViewModel(dataStoreRepository)
 
+    @Provides
+    @Singleton
+    fun provideReportExpenseRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
+        ReportViewModel(expenseTransactionRepo)
 }

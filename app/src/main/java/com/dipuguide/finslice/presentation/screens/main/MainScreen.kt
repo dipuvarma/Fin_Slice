@@ -30,6 +30,7 @@ import com.dipuguide.finslice.presentation.screens.main.history.TransactionHisto
 import com.dipuguide.finslice.presentation.screens.main.home.HomeScreen
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
+import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingScreen
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
@@ -48,6 +49,7 @@ fun MainScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
     val settingViewModel = hiltViewModel<SettingViewModel>()
+    val reportViewModel = hiltViewModel<ReportViewModel>()
 
     val currentBackStackEntry = tabNavController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination
@@ -102,7 +104,10 @@ fun MainScreen(
             }
 
             composable<Report> {
-                ReportScreen(innerPadding = innerPadding)
+                ReportScreen(
+                    innerPadding = innerPadding,
+                    reportViewModel = reportViewModel
+                )
             }
 
             composable<TransactionHistory> {
