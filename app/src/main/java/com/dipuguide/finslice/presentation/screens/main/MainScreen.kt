@@ -114,7 +114,7 @@ fun MainScreen(
             composable<TransactionHistory> {
                 TransactionHistoryScreen(
                     innerPadding = innerPadding,
-                    historyViewModel = historyViewModel
+                    historyViewModel = historyViewModel,
                 )
             }
 

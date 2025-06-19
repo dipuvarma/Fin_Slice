@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.utils.DateFilterType
 import kotlin.collections.component1
@@ -106,9 +107,15 @@ fun CategoriesScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         when (selectedTab) {
-            0 -> NeedCategoryScreen(categoryViewModel)
-            1 -> WantCategoryScreen(categoryViewModel)
-            2 -> InvestCategoryScreen(categoryViewModel)
+            0 -> NeedCategoryScreen(
+               categoryViewModel =  categoryViewModel
+            )
+            1 -> WantCategoryScreen(
+               categoryViewModel =  categoryViewModel
+            )
+            2 -> InvestCategoryScreen(
+                categoryViewModel = categoryViewModel
+            )
         }
     }
 }

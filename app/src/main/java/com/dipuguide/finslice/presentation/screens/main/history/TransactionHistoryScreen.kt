@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
@@ -92,7 +93,7 @@ fun TransactionHistoryScreen(
             ) {
                 when (selectedTab) {
                     0 -> ExpenseHistoryScreen(
-                        historyViewModel
+                        historyViewModel = historyViewModel,
                     )
 
                     1 -> IncomeHistoryScreen(historyViewModel)

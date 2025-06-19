@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ExpenseHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,
-    navController: NavController,
 ) {
 
     val getAllExpenseByDate by historyViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()

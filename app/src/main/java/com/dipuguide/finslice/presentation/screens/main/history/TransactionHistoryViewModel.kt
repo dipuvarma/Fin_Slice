@@ -207,4 +207,19 @@ class TransactionHistoryViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteIncomeTransaction(id: String){
+        viewModelScope.launch {
+            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
+            val result = incomeTransactionRepo.deleteIncomeTransaction(id = id)
+
+            result.onSuccess {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Updated SuccessFully"))
+            }
+
+            result.onFailure {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Update Failed"))
+            }
+        }
+    }
 }

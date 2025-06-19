@@ -127,7 +127,9 @@ fun IncomeHistoryScreen(
                     note = income.note,
                     amount = income.amount,
                     date = formatTimestampToDateTime(income.date!!),
-                    onDeleteClick = {},
+                    onDeleteClick = {
+                        historyViewModel.deleteIncomeTransaction(income.id!!)
+                    },
                     onEditClick = {}
                 )
             }

@@ -57,7 +57,9 @@ fun NeedCategoryScreen(
                 tag = expense.tag,
                 date = formatTimestampToDateTime(expense.date!!),
                 onEditClick = {},
-                onDeleteClick = {}
+                onDeleteClick = {
+                    categoryViewModel.deleteExpenseTransaction(expense.id!!)
+                }
             )
         }
     }

@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.presentation.screens.main.history.ExpenseHistoryUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -100,6 +102,22 @@ class CategoryViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+
+    fun deleteExpenseTransaction(id: String) {
+        viewModelScope.launch {
+            _categoryUiEvent.emit(CategoryUiEvent.Loading)
+            val result = expenseTransactionRepo.deleteExpenseTransaction(id = id)
+
+            result.onSuccess {
+                _categoryUiEvent.emit(CategoryUiEvent.Success("Updated SuccessFully"))
+            }
+
+            result.onFailure {
+                _categoryUiEvent.emit(CategoryUiEvent.Error("Update Failed"))
+            }
         }
     }
 }
