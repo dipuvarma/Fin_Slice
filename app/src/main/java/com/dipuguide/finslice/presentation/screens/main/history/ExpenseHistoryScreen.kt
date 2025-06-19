@@ -21,7 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TransactionCardComp
+import com.dipuguide.finslice.presentation.navigation.AddTransaction
+import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -33,6 +36,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ExpenseHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,
+    navController: NavController,
 ) {
 
     val getAllExpenseByDate by historyViewModel.getAllExpenseByDate.collectAsStateWithLifecycle()
@@ -121,8 +125,12 @@ fun ExpenseHistoryScreen(
                     amount = expense.amount,
                     tag = expense.tag,
                     date = formatTimestampToDateTime(expense.date!!),
-                    onDeleteClick = {},
-                    onEditClick = {}
+                    onDeleteClick = {
+                        historyViewModel.deleteExpenseTransaction(id = expense.id!!)
+                    },
+                    onEditClick = {
+
+                    }
                 )
             }
         }

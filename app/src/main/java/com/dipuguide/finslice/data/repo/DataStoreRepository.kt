@@ -18,7 +18,7 @@ class DataStoreRepository @Inject constructor(
     }
 
     suspend fun darkModeOn() {
-        dataStore.setData("isDarkMode", true)
+        dataStore.setData("isDarkMode", false)
     }
 
     suspend fun isDarkMode(): Flow<Boolean> {

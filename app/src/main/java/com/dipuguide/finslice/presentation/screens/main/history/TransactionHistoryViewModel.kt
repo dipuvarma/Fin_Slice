@@ -62,16 +62,19 @@ class TransactionHistoryViewModel @Inject constructor(
     var selectedTab by mutableIntStateOf(0)
 
     private val _expenseHistoryUiEvent = MutableSharedFlow<ExpenseHistoryUiEvent>()
-    val expenseHistoryUiEvent: SharedFlow<ExpenseHistoryUiEvent> = _expenseHistoryUiEvent.asSharedFlow()
+    val expenseHistoryUiEvent: SharedFlow<ExpenseHistoryUiEvent> =
+        _expenseHistoryUiEvent.asSharedFlow()
 
     private val _getAllExpenseByDate = MutableStateFlow<List<ExpenseTransactionUi>>(emptyList())
-    val getAllExpenseByDate: StateFlow<List<ExpenseTransactionUi>> = _getAllExpenseByDate.asStateFlow()
+    val getAllExpenseByDate: StateFlow<List<ExpenseTransactionUi>> =
+        _getAllExpenseByDate.asStateFlow()
 
     private val _getAllIncomeByDate = MutableStateFlow<List<IncomeTransactionUi>>(emptyList())
     val getAllIncomeByDate: StateFlow<List<IncomeTransactionUi>> = _getAllIncomeByDate.asStateFlow()
 
     private val _incomeHistoryUiEvent = MutableSharedFlow<IncomeHistoryUiEvent>()
-    val incomeHistoryUiEvent: SharedFlow<IncomeHistoryUiEvent> = _incomeHistoryUiEvent.asSharedFlow()
+    val incomeHistoryUiEvent: SharedFlow<IncomeHistoryUiEvent> =
+        _incomeHistoryUiEvent.asSharedFlow()
 
     private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
     val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
@@ -102,7 +105,7 @@ class TransactionHistoryViewModel @Inject constructor(
 
     private fun fetchAllForFilter(
         filter: DateFilterType,
-        isManualRefresh: Boolean = false
+        isManualRefresh: Boolean = false,
     ) {
         getAllExpensesByDateRange(filter, isManualRefresh)
         getIncomeTransactionByDate(filter, isManualRefresh)
@@ -110,7 +113,7 @@ class TransactionHistoryViewModel @Inject constructor(
 
     private fun getAllExpensesByDateRange(
         filter: DateFilterType,
-        isManualRefresh: Boolean = false
+        isManualRefresh: Boolean = false,
     ) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
@@ -142,7 +145,7 @@ class TransactionHistoryViewModel @Inject constructor(
 
     private fun getIncomeTransactionByDate(
         filter: DateFilterType,
-        isManualRefresh: Boolean = false
+        isManualRefresh: Boolean = false,
     ) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
@@ -169,6 +172,39 @@ class TransactionHistoryViewModel @Inject constructor(
 
                     if (isManualRefresh) _isRefreshing.value = false
                 }
+        }
+    }
+
+    fun editExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
+        viewModelScope.launch {
+            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
+
+            val result = expenseTransactionRepo.editExpenseTransaction(
+                expenseTransactionUi
+            )
+
+            result.onSuccess {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Edit Success"))
+            }
+
+            result.onFailure {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Edit Failed"))
+            }
+        }
+    }
+
+    fun deleteExpenseTransaction(id: String) {
+        viewModelScope.launch {
+            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
+            val result = expenseTransactionRepo.deleteExpenseTransaction(id = id)
+
+            result.onSuccess {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Updated SuccessFully"))
+            }
+
+            result.onFailure {
+                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Update Failed"))
+            }
         }
     }
 }

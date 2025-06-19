@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -40,6 +41,7 @@ import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.auth.onBoard.GettingStartScreen
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.utils.Destination
 
 @Composable
@@ -47,12 +49,24 @@ fun SettingScreen(
     innerPadding: PaddingValues,
     settingViewModel: SettingViewModel,
     authViewModel: AuthViewModel,
+    homeViewModel: HomeViewModel,
     navController: NavController
 ) {
     val darkTheme = isSystemInDarkTheme()
     val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
     val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
 
+    val userDetail by homeViewModel.userDetails.collectAsState()
+
+    val getUserDetail by authViewModel.getUserDetails.collectAsState()
+
+    val userName = userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
+        ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
+        ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
+
+    val userEmail = userDetail.email.takeUnless { it.isNullOrEmpty() }
+        ?: getUserDetail.email.takeUnless { it.isNullOrEmpty() }
+        ?: ""
 
     Log.d("TAG", "SettingScreen: $isDarkMode")
 
@@ -83,8 +97,9 @@ fun SettingScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         SettingProfileComp(
-            name = "Dipu Verma",
-            email = "dipuverma@gmail.com"
+            name = userName,
+            email = userEmail,
+            image = userDetail.photo
         )
         Spacer(modifier = Modifier.height(24.dp))
 

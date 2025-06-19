@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import com.dipuguide.finslice.utils.formatNumberToIndianStyle

@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
+    authViewModel: AuthViewModel,
     onOverViewClick: () -> Unit,
     innerPadding: PaddingValues,
 ) {
@@ -55,9 +56,11 @@ fun HomeScreen(
 
     val userDetail by homeViewModel.userDetails.collectAsState()
 
+    val getUserDetail by authViewModel.getUserDetails.collectAsState()
+
     // ✅ Removed unnecessary collectAsState of sharedFlow
     LaunchedEffect(Unit) {
-        Log.d("userDetail", "userDetail: $userDetail")
+        Log.d("userDetail", "userDetail: $getUserDetail")
         homeViewModel.homeUiEvent.collect { event ->
             when (event) {
                 is HomeUiEvent.Loading -> {
@@ -78,13 +81,16 @@ fun HomeScreen(
         }
     }
 
+    val userName = userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
+        ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
+        ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
 
     Column(
         modifier = Modifier
             .padding(innerPadding)
     ) {
         CustomTopAppBar(
-            title = userDetail.name ?:"Fin Slice",
+            title = userName,
             image = userDetail.photo,
             actions = {
                 IconButton(onClick = {

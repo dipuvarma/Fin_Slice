@@ -30,7 +30,7 @@ class DataStoreUtil(
 
     suspend fun isDarkMode(): Flow<Boolean> {
         return dataStore.data.map { prefs ->
-            prefs[stringPreferencesKey("isDarkMode")]?.toBoolean() ?: false
+            prefs[stringPreferencesKey("isDarkMode")]?.toBoolean() ?: true
         }
     }
 

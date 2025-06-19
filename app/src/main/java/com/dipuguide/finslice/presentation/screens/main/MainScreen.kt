@@ -84,6 +84,7 @@ fun MainScreen(
                 HomeScreen(
                     innerPadding = innerPadding,
                     homeViewModel = homeViewModel,
+                    authViewModel = authViewModel,
                     onOverViewClick = {
                         tabNavController.navigate(Report) {
                             popUpTo(tabNavController.graph.startDestinationId) {
@@ -122,6 +123,7 @@ fun MainScreen(
                     innerPadding = innerPadding,
                     settingViewModel = settingViewModel,
                     authViewModel = authViewModel,
+                    homeViewModel = homeViewModel,
                     navController = rootNavController
                 )
             }

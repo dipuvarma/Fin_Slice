@@ -65,7 +65,7 @@ class SettingViewModel @Inject constructor(
         Log.d("SettingsVM", "Toggling dark mode to: $enabled")
         viewModelScope.launch {
             runCatching {
-                if (enabled) dataStoreRepo.darkModeOn() else dataStoreRepo.darkModeOff()
+                if (enabled) dataStoreRepo.darkModeOff() else dataStoreRepo.darkModeOn()
             }.onFailure {
                 Log.e("SettingsVM", "Failed to toggle dark mode", it)
             }

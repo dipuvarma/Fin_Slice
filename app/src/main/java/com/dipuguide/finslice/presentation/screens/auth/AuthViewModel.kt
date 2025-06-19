@@ -25,6 +25,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+data class GetUserDetail(
+    val name: String? = null,
+    val email: String? = null
+)
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
@@ -47,9 +52,12 @@ class AuthViewModel @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
 
+    private val _getUserDetail = MutableStateFlow(GetUserDetail())
+    val getUserDetails = _getUserDetail.asStateFlow()
 
     init {
         checkLoggedInStatus()
+        getUserDetails()
     }
 
     fun saveUserDetails(name: String?, email: String?, photo: Uri?, phoneNumber: String?) {
@@ -59,6 +67,19 @@ class AuthViewModel @Inject constructor(
             dataStoreRepo.savePhoto(photo)
             dataStoreRepo.savePhoneNumber(phoneNumber)
             Log.d("AuthViewModel", "saveUserDetails: $name $email $photo $phoneNumber")
+        }
+    }
+
+    fun getUserDetails() {
+        viewModelScope.launch {
+            val user = authRepository.getCurrentUser()
+            val name = user?.email?.take(5) ?: ""
+            _getUserDetail.update {
+                it.copy(
+                    name = name,
+                    email = user?.email
+                )
+            }
         }
     }
 

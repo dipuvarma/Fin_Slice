@@ -320,6 +320,12 @@ fun SignUpScreen(
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
+                    viewModel.saveUserDetails(
+                        name = it.displayName,
+                        email = it.email,
+                        photo = it.photoUrl,
+                        phoneNumber = it.phoneNumber
+                    )
                     Toast.makeText(context, "Sign-Up Success", Toast.LENGTH_SHORT).show()
                 },
                 onError = {

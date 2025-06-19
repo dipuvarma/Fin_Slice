@@ -18,8 +18,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.dipuguide.finslice.R
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun SettingProfileComp(
     name: String,
@@ -47,13 +50,13 @@ fun SettingProfileComp(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                AsyncImage(
+                GlideImage(
                     model = image ?: logoRes,
                     contentDescription = "Profile Image",
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
                 )
                 Column {
                     Text(
