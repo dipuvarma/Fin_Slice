@@ -1,5 +1,6 @@
 package com.dipuguide.finslice.presentation.component
 
+import android.provider.Settings.Global.getString
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,10 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.ImagePainter
+import coil3.request.ImageRequest
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.dipuguide.finslice.R
 import com.dipuguide.finslice.ui.theme.FinSliceTheme
+import kotlin.math.log
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun CustomTopAppBar(
     title: String,
@@ -59,27 +66,15 @@ fun CustomTopAppBar(
             horizontalArrangement = Arrangement.Start
         ) {
             // Navigation Icon
-            if (image != null) {
-                AsyncImage(
-                    model = image,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(Color.Transparent)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Fit
-                )
-            } else {
-                AsyncImage(
-                    model = logoRes,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.Transparent)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Fit
-                )
-            }
+            GlideImage(
+                model = image ?: logoRes,
+                contentDescription = "",
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(Color.Transparent)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Fit
+            )
 
             // Title
             Text(

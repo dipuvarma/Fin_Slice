@@ -1,5 +1,6 @@
 package com.dipuguide.finslice.presentation.screens.auth
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -37,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,13 +51,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.ForgetPassword
 import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.navigation.OnBoard
 import com.dipuguide.finslice.presentation.navigation.SignUp
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.utils.Destination
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignInScreen(
@@ -67,7 +72,7 @@ fun SignInScreen(
     val userDetail = state.user
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-
+    val scope = rememberCoroutineScope()
 
     // Handle UI Events
     LaunchedEffect(Unit) {
@@ -92,14 +97,19 @@ fun SignInScreen(
         viewModel.navigation.collect { destination ->
             when (destination) {
                 Destination.Main -> {
-                    navController.navigate(OnBoard){
+                    navController.navigate(Main) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
+
                 Destination.GettingStart -> {
-                    navController.navigate(GettingStart)
+                    navController.navigate(GettingStart) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
+
                 else -> {}
             }
         }
@@ -282,10 +292,16 @@ fun SignInScreen(
             SignInWithGoogleButton(
                 onSuccess = {
                     viewModel.onLoggedIn()
-                    navController.navigate(OnBoard){
+                    navController.navigate(Main) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
+                    viewModel.saveUserDetails(
+                        name = it.displayName,
+                        email = it.email,
+                        photo = it.photoUrl,
+                        phoneNumber = it.phoneNumber
+                    )
                     Toast.makeText(context, "Sign-in Success", Toast.LENGTH_SHORT).show()
                 },
                 onError = {

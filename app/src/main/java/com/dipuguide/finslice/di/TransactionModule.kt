@@ -77,10 +77,12 @@ object TransactionModule {
     fun provideIncomeAndExpenseRepo(
         incomeTransactionRepo: IncomeTransactionRepo,
         expenseTransactionRepo: ExpenseTransactionRepo,
+        dataStoreRepository: DataStoreRepository,
     ) =
         HomeViewModel(
             incomeTransactionRepo = incomeTransactionRepo,
-            expenseTransactionRepo = expenseTransactionRepo
+            expenseTransactionRepo = expenseTransactionRepo,
+            dataStoreRepository = dataStoreRepository
         )
 
 

@@ -34,8 +34,6 @@ fun AppNavGraph() {
     //Auth Viewmodel
     val authViewModel = hiltViewModel<AuthViewModel>()
 
-    val incomeViewModel = hiltViewModel<IncomeTransactionViewModel>()
-    val expenseViewModel = hiltViewModel<ExpenseTransactionViewModel>()
     val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
     val addExpenseViewModel = hiltViewModel<AddExpenseViewModel>()
     val addIncomeViewModel = hiltViewModel<AddIncomeViewModel>()

@@ -1,6 +1,7 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
@@ -9,17 +10,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,13 +27,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.R
+import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
 import com.dipuguide.finslice.presentation.component.CustomTopAppBar
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.component.MonthYearPickerDialog
 import com.dipuguide.finslice.presentation.component.TransactionDashboard
+import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -50,9 +53,11 @@ fun HomeScreen(
     val selectedYear by homeViewModel.selectedYear.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
 
+    val userDetail by homeViewModel.userDetails.collectAsState()
 
     // ✅ Removed unnecessary collectAsState of sharedFlow
     LaunchedEffect(Unit) {
+        Log.d("userDetail", "userDetail: $userDetail")
         homeViewModel.homeUiEvent.collect { event ->
             when (event) {
                 is HomeUiEvent.Loading -> {
@@ -79,7 +84,8 @@ fun HomeScreen(
             .padding(innerPadding)
     ) {
         CustomTopAppBar(
-            title = "Dipu",
+            title = userDetail.name ?:"Fin Slice",
+            image = userDetail.photo,
             actions = {
                 IconButton(onClick = {
                     showDialog = true
@@ -92,11 +98,11 @@ fun HomeScreen(
                 }
             }
         )
-        if (showDialog){
+        if (showDialog) {
             MonthYearPickerDialog(
                 currentMonth = selectedMonth,
                 currentYear = selectedYear,
-                onDismiss = {showDialog = false},
+                onDismiss = { showDialog = false },
                 onConfirm = { month, year ->
                     homeViewModel.setMonthAndYear(month = month, year = year)
                 }

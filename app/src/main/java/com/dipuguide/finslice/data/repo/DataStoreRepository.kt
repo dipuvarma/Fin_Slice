@@ -1,14 +1,9 @@
 package com.dipuguide.finslice.data.repo
 
-import android.preference.Preference
-import javax.inject.Inject
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
+import android.net.Uri
 import com.dipuguide.finslice.utils.DataStoreUtil
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 class DataStoreRepository @Inject constructor(
     private val dataStore: DataStoreUtil,
@@ -48,6 +43,39 @@ class DataStoreRepository @Inject constructor(
 
     suspend fun signOut() {
         dataStore.removeKey("isLoggedIn")
+    }
+
+    suspend fun saveName(name: String?) {
+        dataStore.setData("name", name)
+    }
+
+    suspend fun saveEmail(email: String?) {
+        dataStore.setData("email", email)
+    }
+
+    suspend fun savePhoto(photo: Uri?) {
+        dataStore.setData("photo", photo?.toString())
+    }
+
+    suspend fun savePhoneNumber(phoneNumber: String?) {
+        dataStore.setData("phoneNumber", phoneNumber)
+    }
+
+
+    suspend fun getName(): String? {
+        return dataStore.getData("name") ?: null
+    }
+
+    suspend fun getEmail(): String? {
+        return dataStore.getData("email") ?: null
+    }
+
+    suspend fun getPhoto(): String? {
+        return dataStore.getData("photo") ?: null
+    }
+
+    suspend fun getPhoneNumber(): String? {
+        return dataStore.getData("phoneNumber") ?: null
     }
 
 }

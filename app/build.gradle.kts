@@ -99,6 +99,8 @@ dependencies {
     //for pie chart
     implementation ("io.github.ehsannarmani:compose-charts:0.1.7")
 
+    implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
+
 
 
 

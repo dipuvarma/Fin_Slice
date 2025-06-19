@@ -1,10 +1,10 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
-import android.os.Build
+import android.net.Uri
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
@@ -28,6 +28,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val incomeTransactionRepo: IncomeTransactionRepo,
     private val expenseTransactionRepo: ExpenseTransactionRepo,
+    private val dataStoreRepository: DataStoreRepository,
 ) : ViewModel() {
 
     companion object {
@@ -59,11 +60,15 @@ class HomeViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    private val _userDetails = MutableStateFlow(UserDetail())
+    val userDetails = _userDetails.asStateFlow()
+
     private var isIncomeLoaded = false
     private var isExpenseLoaded = false
 
     init {
         fetchAllHomeData()
+        userDetails()
     }
 
     fun setMonthAndYear(month: Int, year: Int) {
@@ -128,6 +133,26 @@ class HomeViewModel @Inject constructor(
 
         _homeUiState.update {
             it.copy(totalIncome = formatNumberToIndianStyle(total))
+        }
+    }
+
+
+    fun userDetails() {
+        viewModelScope.launch {
+            val name = dataStoreRepository.getName()
+            val email = dataStoreRepository.getEmail()
+            val photo = dataStoreRepository.getPhoto()
+            val phoneNumber = dataStoreRepository.getPhoneNumber()
+
+            Log.d(TAG, "userDetails: $name $email $photo $phoneNumber")
+            _userDetails.update {
+                it.copy(
+                    name = name,
+                    email = email,
+                    photo = photo,
+                    phoneNumber = phoneNumber
+                )
+            }
         }
     }
 
@@ -206,7 +231,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getAllExpensesByCategory(category: String, month: Int, year: Int, isManualRefresh: Boolean = false) {
+    fun getAllExpensesByCategory(
+        category: String,
+        month: Int,
+        year: Int,
+        isManualRefresh: Boolean = false,
+    ) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
@@ -223,7 +253,12 @@ class HomeViewModel @Inject constructor(
                             when (category) {
                                 "Need" -> it.copy(needExpenseTotal = formatNumberToIndianStyle(total))
                                 "Want" -> it.copy(wantExpenseTotal = formatNumberToIndianStyle(total))
-                                "Invest" -> it.copy(investExpenseTotal = formatNumberToIndianStyle(total))
+                                "Invest" -> it.copy(
+                                    investExpenseTotal = formatNumberToIndianStyle(
+                                        total
+                                    )
+                                )
+
                                 else -> it
                             }
                         }
@@ -239,3 +274,10 @@ class HomeViewModel @Inject constructor(
     }
 
 }
+
+data class UserDetail(
+    val name: String? = null,
+    val email: String? = null,
+    val photo: String? = null,
+    val phoneNumber: String? = null,
+)

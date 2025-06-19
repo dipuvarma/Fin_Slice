@@ -1,5 +1,7 @@
 package com.dipuguide.finslice.presentation.screens.auth
 
+import android.net.Uri
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,8 +47,19 @@ class AuthViewModel @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
 
+
     init {
         checkLoggedInStatus()
+    }
+
+    fun saveUserDetails(name: String?, email: String?, photo: Uri?, phoneNumber: String?) {
+        viewModelScope.launch {
+            dataStoreRepo.saveName(name)
+            dataStoreRepo.saveEmail(email)
+            dataStoreRepo.savePhoto(photo)
+            dataStoreRepo.savePhoneNumber(phoneNumber)
+            Log.d("AuthViewModel", "saveUserDetails: $name $email $photo $phoneNumber")
+        }
     }
 
     fun checkLoggedInStatus() {
@@ -62,10 +75,11 @@ class AuthViewModel @Inject constructor(
 
     fun onLoggedIn() {
         viewModelScope.launch {
-           dataStoreRepo.onLoggedIn()
+            dataStoreRepo.onLoggedIn()
             _isLoggedIn.value = true
         }
     }
+
 
     fun signUp(name: String, email: String, password: String) {
         viewModelScope.launch {
@@ -202,6 +216,7 @@ class AuthViewModel @Inject constructor(
     }
 
 }
+
 
 
 

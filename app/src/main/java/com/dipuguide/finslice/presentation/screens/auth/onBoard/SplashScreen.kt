@@ -43,7 +43,6 @@ fun SplashScreen(
                 Destination.GettingStart -> {
                     navController.navigate(GettingStart)
                 }
-
                 else -> {}
             }
         }
