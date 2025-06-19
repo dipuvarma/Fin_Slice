@@ -1,20 +1,26 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
-import android.util.Log
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,14 +30,13 @@ import com.dipuguide.finslice.R
 import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
 import com.dipuguide.finslice.presentation.component.CustomTopAppBar
 import com.dipuguide.finslice.presentation.component.FormLabel
+import com.dipuguide.finslice.presentation.component.MonthYearPickerDialog
 import com.dipuguide.finslice.presentation.component.TransactionDashboard
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
-import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
@@ -41,6 +46,9 @@ fun HomeScreen(
     val uiState by homeViewModel.homeUiState.collectAsState()
     val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val selectedMonth by homeViewModel.selectedMonth.collectAsStateWithLifecycle()
+    val selectedYear by homeViewModel.selectedYear.collectAsStateWithLifecycle()
+    var showDialog by remember { mutableStateOf(false) }
 
 
     // ✅ Removed unnecessary collectAsState of sharedFlow
@@ -67,22 +75,33 @@ fun HomeScreen(
 
 
     Column(
-        modifier = Modifier.padding(innerPadding)
+        modifier = Modifier
+            .padding(innerPadding)
     ) {
         CustomTopAppBar(
             title = "Dipu",
             actions = {
                 IconButton(onClick = {
-
+                    showDialog = true
                 }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.filter_icon),
+                        painter = painterResource(id = R.drawable.calendar_icon),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
         )
+        if (showDialog){
+            MonthYearPickerDialog(
+                currentMonth = selectedMonth,
+                currentYear = selectedYear,
+                onDismiss = {showDialog = false},
+                onConfirm = { month, year ->
+                    homeViewModel.setMonthAndYear(month = month, year = year)
+                }
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing),

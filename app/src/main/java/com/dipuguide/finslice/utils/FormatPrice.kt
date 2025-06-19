@@ -23,3 +23,8 @@ fun formatTimestampToDateTime(timestamp: Long): String {
     sdf.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
     return sdf.format(Date(timestamp))
 }
+
+
+fun Double.toPercentageString(decimals: Int = 1): String {
+    return "%.${decimals}f%%".format(this)
+}

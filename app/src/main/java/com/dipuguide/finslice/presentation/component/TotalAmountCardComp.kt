@@ -41,12 +41,20 @@ fun TotalAmountCardComp(
     totalAmount: String,
     modifier: Modifier = Modifier
 ) {
-    val total = totalAmount.replace(",", "").toIntOrNull() ?: 1
+    val total = remember(totalAmount) {
+        totalAmount
+            .replace("[^\\d]".toRegex(), "")
+            .toIntOrNull()
+            ?.takeIf { it >= 0 }
+            ?: 0
+    }
+
     val animatedTotal by animateIntAsState(
         targetValue = total,
         animationSpec = tween(durationMillis = 1200),
         label = "AnimatedTotal"
     )
+
     val formattedTotal = "₹ %,d".format(animatedTotal)
 
     Surface(
@@ -55,11 +63,7 @@ fun TotalAmountCardComp(
         tonalElevation = 2.dp,
         shape = MaterialTheme.shapes.small
     ) {
-
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
+        Box(modifier = Modifier.padding(16.dp)) {
             Icon(
                 painter = if (amountType == "EXPENSE") painterResource(R.drawable.dollar_down_icon)
                 else painterResource(R.drawable.dollar_up_icon),
@@ -80,7 +84,7 @@ fun TotalAmountCardComp(
                 Text(
                     text = amountType,
                     style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(.8f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(.8f)
                     ),
                     modifier = Modifier.padding(end = 24.dp)
                 )
@@ -89,7 +93,7 @@ fun TotalAmountCardComp(
                     text = formattedTotal,
                     style = MaterialTheme.typography.titleLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier.padding(end = 24.dp)
                 )

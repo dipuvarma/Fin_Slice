@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 fun AnimatedNetBalance(
     balance: String,
 ) {
-    // Convert balance to float for animation
     val targetValue = remember(balance) {
         balance.replace("[^\\d.]".toRegex(), "").toFloatOrNull() ?: 0f
     }

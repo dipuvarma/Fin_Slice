@@ -1,14 +1,11 @@
 package com.dipuguide.finslice.presentation.screens.main.report
 
 
-import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -43,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dipuguide.finslice.presentation.component.MonthYearPicker
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.utils.toPercentageString
 import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlin.math.absoluteValue
@@ -332,6 +330,3 @@ fun AddCustomPieChart(
 }
 
 
-fun Double.toPercentageString(decimals: Int = 1): String {
-    return "%.${decimals}f%%".format(this)
-}

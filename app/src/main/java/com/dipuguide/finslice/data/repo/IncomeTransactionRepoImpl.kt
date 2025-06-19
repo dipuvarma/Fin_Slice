@@ -9,6 +9,7 @@ import com.dipuguide.finslice.presentation.mapper.toIncomeTransactionUi
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.getDateRangeMillis
+import com.dipuguide.finslice.utils.getMillisRangeForMonth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -149,13 +150,17 @@ class IncomeTransactionRepoImpl @Inject constructor(
                             }
 
                             else -> {
-                                Log.d("IncomeRepo", "Fetched ${snapshot.size()} income transactions.")
+                                Log.d(
+                                    "IncomeRepo",
+                                    "Fetched ${snapshot.size()} income transactions."
+                                )
                                 val transactions = snapshot.documents.mapNotNull { doc ->
                                     val id = doc.getString("id") ?: doc.id
                                     val amount = doc.getDouble("amount") ?: 0.0
                                     val note = doc.getString("note") ?: ""
                                     val category = doc.getString("category") ?: ""
-                                    val createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis()
+                                    val createdAt =
+                                        doc.getLong("createdAt") ?: System.currentTimeMillis()
 
                                     try {
                                         if (category.isNotBlank()) {
@@ -185,7 +190,6 @@ class IncomeTransactionRepoImpl @Inject constructor(
                 close(e)
             }
         }.flowOn(Dispatchers.IO)
-
 
 
     override suspend fun editIncomeTransaction(incomeTransactionUi: IncomeTransactionUi): Result<Unit> =
@@ -221,6 +225,61 @@ class IncomeTransactionRepoImpl @Inject constructor(
                 Result.failure(e)
             }
         }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun getAllIncomeByMonth(
+        month: Int,
+        year: Int,
+    ): Flow<Result<List<IncomeTransactionUi>>> = callbackFlow {
+        try {
+            val userId = auth.currentUser?.uid
+            if (userId == null) {
+                trySend(Result.failure(Exception("User not logged in")))
+                close()
+                return@callbackFlow
+            }
+
+            val (startDate, endDate) = getMillisRangeForMonth(month, year)
+
+            val listener = firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .collection(TRANSACTIONS_COLLECTION)
+                .whereGreaterThanOrEqualTo("createdAt", startDate)
+                .whereLessThanOrEqualTo("createdAt", endDate)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(Result.failure(error))
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        val transactions = snapshot.documents.mapNotNull { doc ->
+                            val id = doc.getString("id") ?: doc.id
+                            val amount = doc.getDouble("amount") ?: 0.0
+                            val note = doc.getString("note") ?: ""
+                            val category = doc.getString("category") ?: ""
+                            val date = doc.getLong("createdAt") ?: System.currentTimeMillis()
+
+                            IncomeTransaction(
+                                id = id,
+                                amount = amount,
+                                note = note,
+                                category = category,
+                                createdAt = date
+                            ).toIncomeTransactionUi()
+                        }
+                        trySend(Result.success(transactions))
+                    } else {
+                        trySend(Result.success(emptyList()))
+                    }
+                }
+
+            awaitClose { listener.remove() }
+
+        } catch (e: Exception) {
+            trySend(Result.failure(e))
+        }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun deleteIncomeTransaction(id: String): Result<Unit> =
         withContext(

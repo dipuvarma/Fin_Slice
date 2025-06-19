@@ -160,12 +160,17 @@ fun SpendingProgressCard(
     color: Color,
 ) {
     val spent = spentAmount.replace(",", "").toIntOrNull() ?: 0
-    val total = totalAmount.replace(",", "").toIntOrNull() ?: 1 // prevent divide by 0
+    val total = totalAmount.replace(",", "").toIntOrNull() ?: 0 // Keep total as 0 if it's 0
 
-    val targetProgress = spent.toFloat() / total.toFloat()
+    // Calculate targetProgress safely
+    val targetProgress = if (total == 0) {
+        0f // If total is 0, progress is 0. Avoids NaN if spent is also 0.
+    } else {
+        spent.toFloat() / total.toFloat()
+    }.coerceIn(0f, 1f) // Ensure progress is between 0 and 1
 
     val animatedProgress by animateFloatAsState(
-        targetValue = targetProgress.coerceIn(0f, 1f),
+        targetValue = targetProgress,
         animationSpec = tween(durationMillis = 600),
         label = "AnimatedProgress"
     )

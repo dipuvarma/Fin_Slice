@@ -1,6 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -36,6 +39,13 @@ class HomeViewModel @Inject constructor(
 
     private val _homeUiEvent = MutableSharedFlow<HomeUiEvent>()
     val homeUiEvent = _homeUiEvent.asSharedFlow()
+
+    private val _selectedMonth = MutableStateFlow(LocalDate.now().monthValue)
+    val selectedMonth: StateFlow<Int> = _selectedMonth.asStateFlow()
+
+    private val _selectedYear = MutableStateFlow(LocalDate.now().year)
+    val selectedYear: StateFlow<Int> = _selectedYear.asStateFlow()
+
 
     private val _allExpensesByCategory = MutableStateFlow<List<ExpenseTransactionUi>>(emptyList())
     val allExpensesByCategory = _allExpensesByCategory.asStateFlow()
@@ -56,18 +66,30 @@ class HomeViewModel @Inject constructor(
         fetchAllHomeData()
     }
 
+    fun setMonthAndYear(month: Int, year: Int) {
+        _selectedMonth.value = month
+        _selectedYear.value = year
+        fetchAllHomeData() // Fetch new data when selection changes
+    }
+
+
     fun refresh() {
         Log.d(TAG, "Pull-to-refresh triggered")
         fetchAllHomeData(isManualRefresh = true)
     }
 
     private fun fetchAllHomeData(isManualRefresh: Boolean = false) {
-        getAllExpenseTransaction(isManualRefresh)
-        getAllIncomeTransaction(isManualRefresh)
+        val month = selectedMonth.value
+        val year = selectedYear.value
+
+        getAllExpenseTransaction(month, year, isManualRefresh)
+        getAllIncomeTransaction(month, year, isManualRefresh)
+
         listOf("Need", "Want", "Invest").forEach { category ->
-            getAllExpensesByCategory(category, isManualRefresh)
+            getAllExpensesByCategory(category, month, year, isManualRefresh)
         }
     }
+
 
     private fun tryCalculateNetAmount() {
         if (isIncomeLoaded && isExpenseLoaded) {
@@ -134,88 +156,86 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getAllExpensesByCategory(category: String, isManualRefresh: Boolean = false) {
+    fun getAllIncomeTransaction(month: Int, year: Int, isManualRefresh: Boolean = false) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
-            expenseTransactionRepo.getAllExpensesByCategory(category).distinctUntilChanged().collectLatest { result ->
-                result.onSuccess { data ->
-                    val total = data.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-                    _allExpensesByCategory.value = data
-
-                    Log.d(TAG, "Expenses by $category - Count: ${data.size}, Total: $total")
-
-                    _homeUiState.update {
-                        when (category) {
-                            "Need" -> it.copy(needExpenseTotal = formatNumberToIndianStyle(total))
-                            "Want" -> it.copy(wantExpenseTotal = formatNumberToIndianStyle(total))
-                            "Invest" -> it.copy(investExpenseTotal = formatNumberToIndianStyle(total))
-                            else -> it
-                        }
+            incomeTransactionRepo.getAllIncomeByMonth(month, year)
+                .distinctUntilChanged()
+                .collectLatest { result ->
+                    result.onSuccess { data ->
+                        _allIncomeList.value = data
+                        calculateTotalIncome()
+                        calculateIncomeAverage()
+                        calculatePercentageAmount("Need", 0.5)
+                        calculatePercentageAmount("Want", 0.3)
+                        calculatePercentageAmount("Invest", 0.2)
+                        isIncomeLoaded = true
+                        tryCalculateNetAmount()
+                        _homeUiEvent.emit(HomeUiEvent.Success("Monthly income loaded"))
+                    }.onFailure {
+                        Log.e(TAG, "getAllIncomeTransaction Failed", it)
+                        _homeUiEvent.emit(HomeUiEvent.Error("Failed to load income"))
                     }
-
-                    _homeUiEvent.emit(HomeUiEvent.Success("Expenses loaded by category: $category"))
-                }.onFailure {
-                    Log.e(TAG, "getAllExpensesByCategory Failed ($category)", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load $category expenses"))
+                    if (isManualRefresh) _isRefreshing.value = false
                 }
-                if (isManualRefresh) _isRefreshing.value = false
-            }
         }
     }
 
-    fun getAllIncomeTransaction(isManualRefresh: Boolean = false) {
+    fun getAllExpenseTransaction(month: Int, year: Int, isManualRefresh: Boolean = false) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
-            incomeTransactionRepo.getIncomeTransaction().distinctUntilChanged().collectLatest { result ->
-                result.onSuccess { data ->
-                    _allIncomeList.value = data
-
-                    Log.d(TAG, "getAllIncomeTransaction - Loaded: ${data.size}")
-
-                    calculateTotalIncome()
-                    calculateIncomeAverage()
-                    calculatePercentageAmount("Need", 0.5)
-                    calculatePercentageAmount("Want", 0.3)
-                    calculatePercentageAmount("Invest", 0.2)
-                    isIncomeLoaded = true
-                    tryCalculateNetAmount()
-
-                    _homeUiEvent.emit(HomeUiEvent.Success("All income loaded"))
-                }.onFailure {
-                    Log.e(TAG, "getAllIncomeTransaction Failed", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load income"))
+            expenseTransactionRepo.getAllExpensesByMonth(month, year)
+                .distinctUntilChanged()
+                .collectLatest { result ->
+                    result.onSuccess { data ->
+                        _allExpenseList.value = data
+                        calculateTotalExpense()
+                        isExpenseLoaded = true
+                        tryCalculateNetAmount()
+                        _homeUiEvent.emit(HomeUiEvent.Success("Monthly expenses loaded"))
+                    }.onFailure {
+                        Log.e(TAG, "getAllExpenseTransaction Failed", it)
+                        _homeUiEvent.emit(HomeUiEvent.Error("Failed to load expenses"))
+                    }
+                    if (isManualRefresh) _isRefreshing.value = false
                 }
-                if (isManualRefresh) _isRefreshing.value = false
-            }
         }
     }
 
-    fun getAllExpenseTransaction(isManualRefresh: Boolean = false) {
+    fun getAllExpensesByCategory(category: String, month: Int, year: Int, isManualRefresh: Boolean = false) {
         viewModelScope.launch {
             if (isManualRefresh) _isRefreshing.value = true
             _homeUiEvent.emit(HomeUiEvent.Loading)
 
-            expenseTransactionRepo.getExpenseTransaction().distinctUntilChanged().collectLatest { result ->
-                result.onSuccess { data ->
-                    _allExpenseList.value = data
+            expenseTransactionRepo.getAllExpensesByMonth(month, year)
+                .distinctUntilChanged()
+                .collectLatest { result ->
+                    result.onSuccess { data ->
+                        val filtered = data.filter { it.category == category }
+                        val total = filtered.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+                        _allExpensesByCategory.value = filtered
 
-                    Log.d(TAG, "getAllExpenseTransaction - Loaded: ${data.size}")
+                        _homeUiState.update {
+                            when (category) {
+                                "Need" -> it.copy(needExpenseTotal = formatNumberToIndianStyle(total))
+                                "Want" -> it.copy(wantExpenseTotal = formatNumberToIndianStyle(total))
+                                "Invest" -> it.copy(investExpenseTotal = formatNumberToIndianStyle(total))
+                                else -> it
+                            }
+                        }
 
-                    calculateTotalExpense()
-                    isExpenseLoaded = true
-                    tryCalculateNetAmount()
-
-                    _homeUiEvent.emit(HomeUiEvent.Success("All expenses loaded"))
-                }.onFailure {
-                    Log.e(TAG, "getAllExpenseTransaction Failed", it)
-                    _homeUiEvent.emit(HomeUiEvent.Error("Failed to load expenses"))
+                        _homeUiEvent.emit(HomeUiEvent.Success("Expenses loaded by category: $category"))
+                    }.onFailure {
+                        Log.e(TAG, "getAllExpensesByCategory Failed ($category)", it)
+                        _homeUiEvent.emit(HomeUiEvent.Error("Failed to load $category expenses"))
+                    }
+                    if (isManualRefresh) _isRefreshing.value = false
                 }
-                if (isManualRefresh) _isRefreshing.value = false
-            }
         }
     }
+
 }

@@ -100,7 +100,6 @@ fun SignInScreen(
                 Destination.GettingStart -> {
                     navController.navigate(GettingStart)
                 }
-
                 else -> {}
             }
         }

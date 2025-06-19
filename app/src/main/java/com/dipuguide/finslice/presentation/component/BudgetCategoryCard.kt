@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,21 +34,26 @@ fun BudgetCategoryCard(
     spentAmount: String,
     totalAmount: String,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
 
     // Safe conversion
     val spent = spentAmount.replace(",", "").toIntOrNull() ?: 0
-    val total = totalAmount.replace(",", "").toIntOrNull() ?: 1 // prevent divide by 0
+    val total = totalAmount.replace(",", "").toIntOrNull() ?: 0
 
-    val targetProgress = spent.toFloat() / total.toFloat()
+    val targetProgress = if (total == 0) {
+        0f
+    } else {
+        spent.toFloat() / total.toFloat()
+    }.coerceIn(0f, 1f)
+
+
     val animatedProgress by animateFloatAsState(
-        targetValue = targetProgress.coerceIn(0f, 1f),
+        targetValue = targetProgress,
         animationSpec = tween(durationMillis = 600),
         label = "AnimatedProgress"
     )
 
-    // Amount animation (count-up effect)
     val animatedSpent by animateIntAsState(
         targetValue = spent,
         animationSpec = tween(durationMillis = 1200),
@@ -73,7 +79,6 @@ fun BudgetCategoryCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Title Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -104,7 +109,6 @@ fun BudgetCategoryCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Animated Amounts
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -125,7 +129,6 @@ fun BudgetCategoryCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Animated Progress Bar
             LinearProgressIndicator(
                 progress = animatedProgress,
                 modifier = Modifier
