@@ -39,6 +39,7 @@ import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExp
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 
@@ -47,6 +48,7 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransa
 fun AddTransactionScreen(
     addIncomeViewModel: AddIncomeViewModel,
     addExpenseViewModel: AddExpenseViewModel,
+    homeViewModel: HomeViewModel,
     navController: NavController,
 ) {
     val tabTitles = listOf("Expense", "Income")
@@ -109,6 +111,7 @@ fun AddTransactionScreen(
             when (selectedTab) {
                 0 -> AddExpenseScreen(
                     addExpenseViewModel = addExpenseViewModel,
+                    homeViewModel = homeViewModel,
                     navController = navController
                 )
 

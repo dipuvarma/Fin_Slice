@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.presentation.screens.main.home.HomeUiState
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -159,6 +160,45 @@ class AddExpenseViewModel @Inject constructor(
                 _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Add Expense Failed"))
             }
         }
+    }
+
+    fun validateAmount(homeUiState: HomeUiState): String? {
+        val inputAmount = addExpenseUiState.value.amount.toDoubleOrNull() ?: return "Invalid amount"
+
+        val totalIncome = homeUiState.totalIncome.replace(",", "").toDoubleOrNull() ?: 0.0
+        if (inputAmount > totalIncome) {
+            return "Your Income Amount Is ₹${homeUiState.totalIncome}, You can't add more."
+        }
+
+        val category = addExpenseUiState.value.category
+        when (category) {
+            "Need" -> {
+                val needPercentageAmount = homeUiState.needPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+                val needTotal = homeUiState.needExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                if ((inputAmount + needTotal) >= needPercentageAmount) {
+                    return "Your Need Budget Is ₹${needPercentageAmount - needTotal}, You can't add more."
+                }
+            }
+
+            "Want" -> {
+                val wantTotal = homeUiState.wantExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                val wantPercentageAmount = homeUiState.wantPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+
+                if ((inputAmount + wantTotal) >= wantPercentageAmount) {
+                    return "Your Want Budget Is ₹${wantPercentageAmount -wantTotal }, You can't add more."
+                }
+            }
+
+            "Invest" -> {
+                val investTotal = homeUiState.investExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                val investPercentageAmount = homeUiState.investPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+                if ((inputAmount + investTotal ) >= investPercentageAmount) {
+                    return "Your Invest Budget Is ₹${investPercentageAmount - investTotal }, You can't add more."
+                }
+            }
+        }
+
+        return null // No error
     }
 
 }

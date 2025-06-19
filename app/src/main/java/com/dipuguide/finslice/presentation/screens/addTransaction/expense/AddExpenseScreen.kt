@@ -58,6 +58,7 @@ import com.dipuguide.finslice.presentation.component.CustomDatePicker
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
@@ -65,9 +66,11 @@ import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEven
 @Composable
 fun AddExpenseScreen(
     addExpenseViewModel: AddExpenseViewModel,
+    homeViewModel: HomeViewModel,
     navController: NavController,
 ) {
     val focusManager = LocalFocusManager.current
+    val homeUiState by homeViewModel.homeUiState.collectAsState()
 
     // States - you should lift them to a ViewModel in a real app
     val uiState by addExpenseViewModel.addExpenseUiState.collectAsState()
@@ -158,6 +161,7 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(16.dp))
             // Amount Field
             FormLabel(text = "Amount")
+
             OutlinedTextField(
                 value = uiState.amount,
                 onValueChange = { addExpenseViewModel.updatedAmount(it) },
@@ -294,7 +298,12 @@ fun AddExpenseScreen(
             // Save Button
             Button(
                 onClick = {
-                    addExpenseViewModel.addExpenseTransaction()
+                    val errorMessage = addExpenseViewModel.validateAmount(homeUiState)
+                    if (errorMessage != null) {
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        addExpenseViewModel.addExpenseTransaction()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

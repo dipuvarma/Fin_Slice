@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
 import com.dipuguide.finslice.presentation.component.CustomTopAppBar
 import com.dipuguide.finslice.presentation.component.FormLabel
@@ -36,7 +34,6 @@ import com.dipuguide.finslice.presentation.component.TransactionDashboard
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
 
 
 @RequiresApi(Build.VERSION_CODES.O)

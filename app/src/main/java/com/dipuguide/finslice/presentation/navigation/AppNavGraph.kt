@@ -92,6 +92,7 @@ fun AppNavGraph() {
             AddTransactionScreen(
                 addIncomeViewModel = addIncomeViewModel,
                 addExpenseViewModel = addExpenseViewModel,
+                homeViewModel = hiltViewModel(),
                 navController = rootNavController
             )
         }
