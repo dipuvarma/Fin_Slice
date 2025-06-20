@@ -42,23 +42,10 @@ fun CategoriesScreen(
     innerPadding: PaddingValues,
 ) {
 
-   // val uiState by categoryViewModel.categoryUiState.collectAsStateWithLifecycle()
-    // val selectedCategory by expenseViewModel.selectedCategory.collectAsStateWithLifecycle()
-    // val selectedFilter by expenseViewModel.selectedFilter.collectAsStateWithLifecycle()
-    // val context = LocalContext.current
-
     val selectedTab by categoryViewModel.selectedTab.collectAsState(0)
 
     val categoryListItem = listOf(
         "Need", "Want", "Invest"
-    )
-
-    val filters = mapOf(
-        "Today" to DateFilterType.Today,
-        "Yesterday" to DateFilterType.Yesterday,
-        "Last 7 Days" to DateFilterType.Last7Days,
-        "This Month" to DateFilterType.ThisMonth,
-        "This Year" to DateFilterType.ThisYear
     )
 
     Column(

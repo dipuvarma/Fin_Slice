@@ -55,32 +55,26 @@ fun HomeScreen(
 
     val getUserDetail by authViewModel.getUserDetails.collectAsState()
 
-    // ✅ Removed unnecessary collectAsState of sharedFlow
-    LaunchedEffect(Unit) {
-        Log.d("userDetail", "userDetail: $getUserDetail")
-        homeViewModel.homeUiEvent.collect { event ->
-            when (event) {
-                is HomeUiEvent.Loading -> {
-                    Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
+    // 🧠 Safe one-time collection
+//    LaunchedEffect(Unit) {
+//        homeViewModel.homeUiEvent.collect { event ->
+//            val message = when (event) {
+//                is HomeUiEvent.Loading -> "Fetching data, please wait..."
+//                is HomeUiEvent.Success -> event.message
+//                is HomeUiEvent.Error -> event.message
+//                else -> null
+//            }
+//            message?.let {
+//                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
 
-                }
-
-                is HomeUiEvent.Success -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                is HomeUiEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                else -> Unit
-            }
-        }
+    val userName = remember(userDetail, getUserDetail) {
+        userDetail.name.takeUnless { it.isNullOrEmpty() }
+            ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() }
+            ?: "Fin Slice"
     }
-
-    val userName = userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
-        ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
-        ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
 
     Column(
         modifier = Modifier

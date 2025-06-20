@@ -21,7 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TransactionCardComp
+import com.dipuguide.finslice.presentation.navigation.AddTransaction
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -40,25 +42,6 @@ fun ExpenseHistoryScreen(
     val context = LocalContext.current
     val isRefreshing by historyViewModel.isRefreshing.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) {
-        historyViewModel.expenseHistoryUiEvent.collectLatest { event ->
-            when (event) {
-                is ExpenseHistoryUiEvent.Loading -> {
-                    Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
-                }
-
-                is ExpenseHistoryUiEvent.Success -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                is ExpenseHistoryUiEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                else -> {}
-            }
-        }
-    }
 
     val filters = mapOf(
         "Today" to DateFilterType.Today,

@@ -1,6 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main.history
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +24,6 @@ import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun IncomeHistoryScreen(
@@ -39,25 +36,25 @@ fun IncomeHistoryScreen(
     val context = LocalContext.current
 
     // 🎯 Toast messages from UI events
-    LaunchedEffect(true) {
-        historyViewModel.incomeHistoryUiEvent.collectLatest { event ->
-            when (event) {
-                is IncomeHistoryUiEvent.Loading -> {
-                    Toast.makeText(context, "Loading income data...", Toast.LENGTH_SHORT).show()
-                }
-
-                is IncomeHistoryUiEvent.Success -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                is IncomeHistoryUiEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-
-                else -> Unit
-            }
-        }
-    }
+//    LaunchedEffect(true) {
+//        historyViewModel.incomeHistoryUiEvent.collectLatest { event ->
+//            when (event) {
+//                is IncomeHistoryUiEvent.Loading -> {
+//                    Toast.makeText(context, "Loading income data...", Toast.LENGTH_SHORT).show()
+//                }
+//
+//                is IncomeHistoryUiEvent.Success -> {
+//                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+//                }
+//
+//                is IncomeHistoryUiEvent.Error -> {
+//                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+//                }
+//
+//                else -> Unit
+//            }
+//        }
+//    }
 
     val filters = mapOf(
         "Today" to DateFilterType.Today,

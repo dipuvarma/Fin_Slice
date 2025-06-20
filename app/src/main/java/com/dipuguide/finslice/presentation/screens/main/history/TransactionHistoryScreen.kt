@@ -1,7 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main.history
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,9 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
-
 
 @Composable
 fun TransactionHistoryScreen(

@@ -189,11 +189,11 @@ class TransactionHistoryViewModel @Inject constructor(
             val result = incomeTransactionRepo.deleteIncomeTransaction(id = id)
 
             result.onSuccess {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Updated SuccessFully"))
+                _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Success("Income deleted successfully"))
             }
 
             result.onFailure {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Update Failed"))
+                _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Success("Failed to delete income"))
             }
         }
     }

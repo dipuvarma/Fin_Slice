@@ -193,7 +193,10 @@ fun ExpenseTransactionCardComp(
                             Text("Cancel")
                         }
                         Button(
-                            onClick = onDeleteClick,
+                            onClick = {
+                                onDeleteClick()
+                                isDelete = false
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError

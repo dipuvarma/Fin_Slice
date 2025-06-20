@@ -85,7 +85,9 @@ fun TransactionCardComp(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = if (categoryMatch == "Income") painterResource(R.drawable.dollar_up_icon) else painterResource(R.drawable.dollar_down_icon),
+                            painter = if (categoryMatch == "Income") painterResource(R.drawable.dollar_up_icon) else painterResource(
+                                R.drawable.dollar_down_icon
+                            ),
                             contentDescription = category,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(24.dp)
@@ -190,7 +192,10 @@ fun TransactionCardComp(
                             Text("Cancel")
                         }
                         Button(
-                            onClick = onDeleteClick,
+                            onClick = {
+                                onDeleteClick()
+                                isDelete = false
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError
