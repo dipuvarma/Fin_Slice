@@ -1,5 +1,6 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.income
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
@@ -28,21 +29,19 @@ class AddIncomeViewModel @Inject constructor(
     private val _selectedTab = MutableStateFlow<Int>(0)
     val selectedTab = _selectedTab.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow<Long?>(null)
-    val selectedDate: StateFlow<Long?> = _selectedDate.asStateFlow()
 
     val incomeCategories = listOf(
         "Salary",
-        "Freelance",
-        "Investments",
+        "Part-Time",
         "Rental Income",
-        "Gifts",
-        "Business",
-        "Interest",
-        "Dividends",
-        "Selling Assets",
-        "Refunds",
-        "Others"
+        "Business Profit",
+        "Stock Market Profit",
+        "Mutual Funds",
+        "Pension",
+        "Government Subsidy",
+        "Scholarship",
+        "Cashback",
+        "Other Income"
     )
 
 
@@ -114,7 +113,20 @@ class AddIncomeViewModel @Inject constructor(
         viewModelScope.launch {
             _addIncomeUiEvent.emit(AddIncomeUiEvent.Loading)
             val incomeTransactionUi = addIncomeUiState.value
+            // ✅ Check input amount before saving (prevents crash or saving zero)
+            val amount = incomeTransactionUi.amount.toDoubleOrNull()
+            if (amount == null || amount <= 0) {
+                _addIncomeUiEvent.emit(AddIncomeUiEvent.Error("Please enter a valid income amount greater than 0"))
+                Log.w(
+                    "AddIncomeViewModel",
+                    "⚠️ Invalid amount input: ${incomeTransactionUi.amount}"
+                )
+                return@launch
+            }
+
+            // 🔄 Save transaction
             val result = incomeTransactionRepo.addIncomeTransaction(incomeTransactionUi)
+
             result.onSuccess {
                 _addIncomeUiState.update { data ->
                     data.copy(
@@ -125,9 +137,10 @@ class AddIncomeViewModel @Inject constructor(
                         date = addIncomeUiState.value.date
                     )
                 }
-                _addIncomeUiEvent.emit(AddIncomeUiEvent.Success("Add Income Transaction Successfully"))
+                _addIncomeUiEvent.emit(AddIncomeUiEvent.Success("Income added successfully"))
             }.onFailure {
-                _addIncomeUiEvent.emit(AddIncomeUiEvent.Error("Add Income Transaction Failed"))
+                Log.e("AddIncomeViewModel", "❌ Failed to save income", it)
+                _addIncomeUiEvent.emit(AddIncomeUiEvent.Error("Failed to save income. Please try again."))
             }
         }
     }

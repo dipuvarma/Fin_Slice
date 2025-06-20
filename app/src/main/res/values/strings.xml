@@ -32,4 +32,30 @@
     <string name="desc_5">Take control of your financial future. One slice at a time.</string>
 
 
+    <string name="tab_expense">Expense</string>
+    <string name="tab_income">Income</string>
+    <string name="add_transaction_title">Add Transaction</string>
+
+    <!--Add Expense-->
+    <string name="label_amount">Amount</string>
+    <string name="label_note_optional">Note (Optional)</string>
+    <string name="label_category">Category</string>
+    <string name="label_tags">Tags</string>
+    <string name="hint_enter_amount">Enter amount</string>
+    <string name="hint_add_note">Add a note</string>
+    <string name="save_button">Save</string>
+    <string name="cd_clear">Clear field</string>
+    <string name="cd_wallet_icon">Wallet icon</string>
+    <string name="cd_select_date">Select date</string>
+    <string name="expense_success">Expense Added successfully 🎉</string>
+    <string name="expense_error">An error occurred</string>
+
+    <!--Add Income-->
+    <string name="cd_income_icon">Income icon</string>
+    <string name="hint_add_amount">Enter amount</string>
+    <string name="income_added_successfully">Income added successfully 🎉</string>
+    <string name="error_occurred">Something went wrong</string>
+    <string name="save">Save</string>
+
+
 </resources>

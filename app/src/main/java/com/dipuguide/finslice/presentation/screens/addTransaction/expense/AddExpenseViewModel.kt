@@ -30,42 +30,49 @@ class AddExpenseViewModel @Inject constructor(
 
     val expenseTagsByCategory = mapOf(
         "Need" to listOf(
-            "Food",
-            "Rent",
-            "Utilities",
-            "Transport",
-            "Medical",
             "Groceries",
+            "House Rent",
+            "Electricity Bill",
+            "Water Bill",
+            "Gas Cylinder",
+            "Mobile Recharge",
+            "Medical",
+            "Public Transport",
+            "School/College Fees",
+            "Loan EMI",
             "Insurance",
-            "Phone Bill",
-            "Education",
-            "Childcare"
+            "Maid Salary",
+            "Others"
         ),
+
         "Want" to listOf(
-            "Shopping",
-            "Entertainment",
+            "Online Shopping",
+            "Clothing & Fashion",
             "Dining Out",
-            "Streaming",
-            "Travel",
+            "Movies/OTT",
+            "Travel & Holidays",
             "Gadgets",
-            "Subscriptions",
-            "Gaming",
+            "Gym/Fitness",
+            "Beauty & Salon",
+            "Pet Care",
             "Hobbies",
-            "Fitness Classes"
+            "Gaming & Apps",
+            "Others"
         ),
+
         "Invest" to listOf(
-            "Stocks",
+            "Fixed Deposit",
             "Mutual Funds",
-            "Crypto",
-            "Real Estate",
+            "Stocks",
             "Gold",
-            "Bonds",
-            "Pension Fund",
-            "REITs",
+            "Crypto",
+            "PPF",
+            "Real Estate",
             "Startup Investment",
-            "SIP (Systematic Investment Plan)"
+            "Others"
         )
     )
+
 
     fun setDate(millis: Long) {
         _addExpenseUiState.update {
@@ -138,6 +145,17 @@ class AddExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             _addExpenseUiEvent.emit(AddExpenseUiEvent.Loading)
             val expenseTransactionUi = addExpenseUiState.value
+            // 🚫 If amount is empty or invalid, don't call repo
+            val amountDouble = expenseTransactionUi.amount.toDoubleOrNull()
+            if (amountDouble == null || amountDouble < 0) {
+                _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Please enter a valid amount greater than 0"))
+                Log.w(
+                    "addExpenseTransaction",
+                    "⚠️ Invalid amount input: ${expenseTransactionUi.amount}"
+                )
+                return@launch
+            }
+
             val result = expenseTransactionRepo.addExpenseTransaction(expenseTransactionUi)
             result.onSuccess {
                 _addExpenseUiState.update { data ->
@@ -151,51 +169,56 @@ class AddExpenseViewModel @Inject constructor(
                     )
                 }
                 Log.d("addExpenseTransaction ", "Add Expense Successfully")
-                _addExpenseUiEvent.emit(AddExpenseUiEvent.Success("Add Expense Successfully"))
+                _addExpenseUiEvent.emit(AddExpenseUiEvent.Success("Expense added successfully"))
             }
             result.onFailure {
-                Log.e("addExpenseTransaction ", "Add Expense Failed", it)
-                _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Add Expense Failed"))
+                Log.e("addExpenseTransaction", "❌ Failed to add expense", it)
+                _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Something went wrong while saving expense"))
             }
         }
     }
 
     fun validateAmount(homeUiState: HomeUiState): String? {
-        val inputAmount = addExpenseUiState.value.amount.toDoubleOrNull() ?: return "Invalid amount"
+        val inputAmount = addExpenseUiState.value.amount.toDoubleOrNull()
+            ?: return "Please enter a valid amount"
 
         val totalIncome = homeUiState.totalIncome.replace(",", "").toDoubleOrNull() ?: 0.0
         if (inputAmount > totalIncome) {
-            return "Your Income Amount Is ₹${homeUiState.totalIncome}, You can't add more."
+            return "Your income is ₹${homeUiState.totalIncome}. You can't exceed this limit."
         }
 
         val category = addExpenseUiState.value.category
         when (category) {
             "Need" -> {
-                val needPercentageAmount = homeUiState.needPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
-                val needTotal = homeUiState.needExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
-                if ((inputAmount + needTotal) >= needPercentageAmount) {
-                    return "Your Need Budget Is Left ₹${needPercentageAmount - needTotal}, You can't add more."
+                val needLimit =
+                    homeUiState.needPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+                val needSpent =
+                    homeUiState.needExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                if ((inputAmount + needSpent) >= needLimit) {
+                    return "Need budget remaining: ₹${needLimit - needSpent}"
                 }
             }
 
             "Want" -> {
-                val wantTotal = homeUiState.wantExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
-                val wantPercentageAmount = homeUiState.wantPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
-
-                if ((inputAmount + wantTotal) >= wantPercentageAmount) {
-                    return "Your Want Budget Is Left ₹${wantPercentageAmount - wantTotal }, You can't add more."
+                val wantSpent =
+                    homeUiState.wantExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                val wantLimit =
+                    homeUiState.wantPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+                if ((inputAmount + wantSpent) >= wantLimit) {
+                    return "Want budget remaining: ₹${wantLimit - wantSpent}"
                 }
             }
 
             "Invest" -> {
-                val investTotal = homeUiState.investExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
-                val investPercentageAmount = homeUiState.investPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
-                if ((inputAmount + investTotal ) >= investPercentageAmount) {
-                    return "Your Invest Budget Is Left ₹${investPercentageAmount - investTotal }, You can't add more."
+                val investSpent =
+                    homeUiState.investExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
+                val investLimit =
+                    homeUiState.investPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+                if ((inputAmount + investSpent) >= investLimit) {
+                    return "Invest budget remaining: ₹${investLimit - investSpent}"
                 }
             }
         }
-
         return null // No error
     }
 
