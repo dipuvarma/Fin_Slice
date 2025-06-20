@@ -72,7 +72,7 @@ class AuthViewModel @Inject constructor(
     fun getUserDetails() {
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
-            val name = user?.email?.take(5) ?: "User"
+            val name = user?.email?.take(5) ?: ""
             _getUserDetail.update {
                 it.copy(
                     name = name,
