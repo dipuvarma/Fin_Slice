@@ -82,8 +82,9 @@ fun SignUpScreen(
                     viewModel.resetPasswordStrengthMessage()
                     // navigate
                     navController.navigate(OnBoard) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
+                        restoreState = false
                     }
                     //reset Inputs
                     viewModel.resetForm()

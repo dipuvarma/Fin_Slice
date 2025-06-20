@@ -42,10 +42,10 @@ fun MonthYearPickerDialog(
         "July", "August", "September", "October", "November", "December"
     )
 
-    val years = (2024..LocalDate.now().year + 5).toList()
+    val years = (2023..LocalDate.now().year).toList()
 
-    var selectedMonthIndex by remember { mutableIntStateOf(currentMonth - 1) }
-    var selectedYear by remember { mutableIntStateOf(currentYear) }
+    var selectedMonthIndex by remember(currentMonth) { mutableIntStateOf(currentMonth - 1) }
+    var selectedYear by remember(currentYear) { mutableIntStateOf(currentYear) }
 
     AlertDialog(
         onDismissRequest = onDismiss,

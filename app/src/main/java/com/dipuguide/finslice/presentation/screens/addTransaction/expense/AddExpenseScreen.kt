@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -59,7 +58,6 @@ import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
 import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -312,7 +310,6 @@ fun AddExpenseScreen(
                 shape = MaterialTheme.shapes.medium,
                 enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty()
             ) {
-
                 AnimatedContent(
                     targetState = event is AddExpenseUiEvent.Loading
                 ) { loading ->

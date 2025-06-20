@@ -13,6 +13,7 @@ import com.dipuguide.finslice.utils.PasswordStrength
 import com.dipuguide.finslice.utils.getPasswordStrength
 import com.dipuguide.finslice.utils.getValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +28,7 @@ import javax.inject.Inject
 
 data class GetUserDetail(
     val name: String? = null,
-    val email: String? = null
+    val email: String? = null,
 )
 
 @HiltViewModel
@@ -160,6 +161,13 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.signOut()
             dataStoreRepo.signOut()
+            _navigation.emit(Destination.GettingStart)
+        }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            authRepository.deleteAccount()
             _navigation.emit(Destination.GettingStart)
         }
     }

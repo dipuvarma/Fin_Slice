@@ -78,6 +78,7 @@ fun OnBoardingScreen(
                     navController.navigate(Main) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
+                        restoreState = false
                     }
                 }
             ) {
@@ -171,6 +172,7 @@ fun OnBoardingScreen(
                             navController.navigate(Main) {
                                 popUpTo(0) { inclusive = true }
                                 launchSingleTop = true
+                                restoreState = false
                             }
                         },
                         modifier = Modifier

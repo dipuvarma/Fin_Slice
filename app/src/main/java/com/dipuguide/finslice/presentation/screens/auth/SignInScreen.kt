@@ -98,15 +98,17 @@ fun SignInScreen(
             when (destination) {
                 Destination.Main -> {
                     navController.navigate(Main) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
+                        restoreState = false
                     }
                 }
 
                 Destination.GettingStart -> {
                     navController.navigate(GettingStart) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
+                        restoreState = false
                     }
                 }
 

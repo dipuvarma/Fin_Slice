@@ -6,9 +6,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-interface GetDateRangeForMonth{
-    fun getDateRangeForMonth(month: Int, year: Int): Pair<Long, Long>
-}
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)

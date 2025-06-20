@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
@@ -23,6 +24,8 @@ fun SettingCardComp(
     icon: Int,
     title: String,
     onClick: () -> Unit,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    iconColor : Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
         modifier = Modifier
@@ -39,12 +42,12 @@ fun SettingCardComp(
                 painter = painterResource(id = icon),
                 contentDescription = title,
                 modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = iconColor
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor
             )
         }
         IconButton(onClick) {

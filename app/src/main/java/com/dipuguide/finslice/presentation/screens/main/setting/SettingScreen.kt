@@ -1,6 +1,7 @@
 package com.dipuguide.finslice.presentation.screens.main.setting
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,22 +29,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
+import com.dipuguide.finslice.presentation.component.AlertDialogBox
 import com.dipuguide.finslice.presentation.component.SettingCardComp
 import com.dipuguide.finslice.presentation.component.SettingProfileComp
 import com.dipuguide.finslice.presentation.component.SettingSwitchCard
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.navigation.GettingStart
 import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.dipuguide.finslice.presentation.screens.auth.onBoard.GettingStartScreen
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.utils.Destination
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingScreen(
@@ -50,19 +57,20 @@ fun SettingScreen(
     settingViewModel: SettingViewModel,
     authViewModel: AuthViewModel,
     homeViewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val darkTheme = isSystemInDarkTheme()
     val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
     val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
 
     val userDetail by homeViewModel.userDetails.collectAsState()
-
+    val scope = rememberCoroutineScope()
     val getUserDetail by authViewModel.getUserDetails.collectAsState()
-
-    val userName = userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
-        ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
-        ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
+    val context = LocalContext.current
+    val userName =
+        userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
+            ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
+            ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
 
     val userEmail = userDetail.email.takeUnless { it.isNullOrEmpty() }
         ?: getUserDetail.email.takeUnless { it.isNullOrEmpty() }
@@ -72,14 +80,16 @@ fun SettingScreen(
 
     LaunchedEffect(Unit) {
         authViewModel.navigation.collect {
-            when(it){
+            when (it) {
                 Destination.GettingStart -> {
-                    navController.navigate(GettingStart){
-                        popUpTo(0) { inclusive = true }
+                    navController.navigate(GettingStart) {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
+                        restoreState = false
                     }
                 }
-              else -> {}
+
+                else -> {}
             }
         }
     }
@@ -151,11 +161,14 @@ fun SettingScreen(
             tonalElevation = 2.dp,
             contentColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
+
             Column {
                 SettingCardComp(
                     icon = R.drawable.update_check_icon,
                     title = "Check for update",
-                    onClick = {}
+                    onClick = {
+                        Toast.makeText(context, "App Is Updated", Toast.LENGTH_SHORT).show()
+                    }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
@@ -173,30 +186,90 @@ fun SettingScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
+                var userGuide by remember { mutableStateOf(false) }
                 SettingCardComp(
                     icon = R.drawable.guide_user_icon,
                     title = "User Guide",
-                    onClick = {}
+                    onClick = {
+                        userGuide = true
+                    }
                 )
+                if (userGuide) {
+                    AlertDialogBox(
+                        onDismissRequest = {
+                            userGuide = false
+                        },
+                        onConfirmation = {
+                            userGuide = false
+                        },
+                        dialogTitle = "User Guide",
+                        dialogText = "We keep your last 3 years of expense, including this year. Older records are automatically removed.",
+                        icon = R.drawable.guide_user_icon
+                    )
+                }
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
+                var isFeedback by remember { mutableStateOf(false) }
                 SettingCardComp(
-                    icon = R.drawable.info_icon,
+                    icon = R.drawable.email_icon,
                     title = "Help & Feedback",
-                    onClick = {}
+                    onClick = {
+                        isFeedback = true
+                    }
                 )
+                if (isFeedback) {
+                    AlertDialogBox(
+                        onDismissRequest = {
+                            isFeedback = false
+                        },
+                        onConfirmation = {
+                            isFeedback = false
+                        },
+                        dialogTitle = "Help & Feedback",
+                        dialogText = "For feature requests, or feedback, please email us below. We're here to help!",
+                        icon = R.drawable.email_icon,
+                        email = "dipuguide@gmail.com"
+                    )
+                }
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
+                var signOut by remember { mutableStateOf(false) }
                 SettingCardComp(
                     icon = R.drawable.sign_out_icon,
                     title = "Sign Out",
                     onClick = {
-                        authViewModel.signOut()
-                    }
+                        signOut = true
+                    },
+                    textColor = MaterialTheme.colorScheme.error,
+                    iconColor = MaterialTheme.colorScheme.error
                 )
+                if (signOut) {
+                    AlertDialogBox(
+                        onDismissRequest = {
+                            signOut = false
+                        },
+                        onConfirmation = {
+                            scope.launch {
+                                authViewModel.signOut()
+                                signOut = false
+                            }
+                        },
+                        dialogTitle = "Sign Out?",
+                        dialogText = "You can safely sign out. Your data is securely saved in the cloud, ensuring it's available whenever you sign in.",
+                        email = userEmail,
+                        icon = R.drawable.sign_out_icon,
+                        confirmButtonColor = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                        )
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
+
+        var isDeleteAccount by remember { mutableStateOf(false) }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,7 +277,9 @@ fun SettingScreen(
                     color = MaterialTheme.colorScheme.error,
                     shape = MaterialTheme.shapes.small,
                 )
-                .clickable { },
+                .clickable {
+                    isDeleteAccount = true
+                },
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -227,6 +302,27 @@ fun SettingScreen(
                     tint = MaterialTheme.colorScheme.onError
                 )
             }
+        }
+        if (isDeleteAccount) {
+            AlertDialogBox(
+                onDismissRequest = {
+                    isDeleteAccount = false
+                },
+                onConfirmation = {
+                    scope.launch {
+                        authViewModel.deleteAccount()
+                        isDeleteAccount = false
+                    }
+                },
+                dialogTitle = "Deleted Account?",
+                dialogText = "Your account and data will be permanently deleted. You can create a new account anytime with the same email.",
+                email = userEmail,
+                icon = R.drawable.delete_icon,
+                confirmButtonColor = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                )
+            )
         }
         Spacer(modifier = Modifier.height(12.dp))
         Box(

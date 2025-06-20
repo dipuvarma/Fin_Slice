@@ -1,8 +1,5 @@
 package com.dipuguide.finslice.data.model
 
-import com.dipuguide.finslice.utils.Category
-import com.dipuguide.finslice.utils.Type
-
 data class ExpenseTransaction(
     val id: String? = null,
     val amount: Double = 0.0,

@@ -37,11 +37,19 @@ fun SplashScreen(
         authViewModel.navigation.collect { destination ->
             when (destination) {
                 Destination.Main -> {
-                    navController.navigate(Main)
+                    navController.navigate(Main){
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
                 }
 
                 Destination.GettingStart -> {
-                    navController.navigate(GettingStart)
+                    navController.navigate(GettingStart){
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true } // or use startDestinationId as above
+                        launchSingleTop = true
+                        restoreState = false
+                    }
                 }
                 else -> {}
             }

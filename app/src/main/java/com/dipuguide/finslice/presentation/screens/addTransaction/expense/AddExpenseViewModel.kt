@@ -4,13 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
-import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
 import com.dipuguide.finslice.presentation.screens.main.home.HomeUiState
 import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -176,7 +174,7 @@ class AddExpenseViewModel @Inject constructor(
                 val needPercentageAmount = homeUiState.needPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
                 val needTotal = homeUiState.needExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
                 if ((inputAmount + needTotal) >= needPercentageAmount) {
-                    return "Your Need Budget Is ₹${needPercentageAmount - needTotal}, You can't add more."
+                    return "Your Need Budget Is Left ₹${needPercentageAmount - needTotal}, You can't add more."
                 }
             }
 
@@ -185,7 +183,7 @@ class AddExpenseViewModel @Inject constructor(
                 val wantPercentageAmount = homeUiState.wantPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
 
                 if ((inputAmount + wantTotal) >= wantPercentageAmount) {
-                    return "Your Want Budget Is ₹${wantPercentageAmount -wantTotal }, You can't add more."
+                    return "Your Want Budget Is Left ₹${wantPercentageAmount - wantTotal }, You can't add more."
                 }
             }
 
@@ -193,7 +191,7 @@ class AddExpenseViewModel @Inject constructor(
                 val investTotal = homeUiState.investExpenseTotal.replace(",", "").toDoubleOrNull() ?: 0.0
                 val investPercentageAmount = homeUiState.investPercentageAmount.replace(",", "").toDoubleOrNull() ?: 0.0
                 if ((inputAmount + investTotal ) >= investPercentageAmount) {
-                    return "Your Invest Budget Is ₹${investPercentageAmount - investTotal }, You can't add more."
+                    return "Your Invest Budget Is Left ₹${investPercentageAmount - investTotal }, You can't add more."
                 }
             }
         }

@@ -98,9 +98,26 @@ class FirebaseAuthRepository @Inject constructor(
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
 
-    fun signOut() {
+    suspend fun signOut() {
         auth.signOut()
         Log.d(TAG, "User signed out")
     }
+
+    suspend fun deleteAccount() {
+        val user = auth.currentUser
+        if (user != null) {
+            user.delete()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "User account deleted.")
+                    } else {
+                        Log.e(TAG, "Account deletion failed", task.exception)
+                    }
+                }
+        } else {
+            Log.w(TAG, "No user is currently signed in.")
+        }
+    }
+
 
 }
