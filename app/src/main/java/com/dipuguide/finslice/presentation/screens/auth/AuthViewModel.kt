@@ -5,7 +5,6 @@ import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.FirebaseAuthRepository
 import com.dipuguide.finslice.utils.Destination
@@ -13,7 +12,6 @@ import com.dipuguide.finslice.utils.PasswordStrength
 import com.dipuguide.finslice.utils.getPasswordStrength
 import com.dipuguide.finslice.utils.getValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -74,7 +72,7 @@ class AuthViewModel @Inject constructor(
     fun getUserDetails() {
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
-            val name = user?.email?.take(5) ?: ""
+            val name = user?.email?.take(5) ?: "User"
             _getUserDetail.update {
                 it.copy(
                     name = name,
@@ -88,6 +86,8 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             val loggedIn = dataStoreRepo.isLoggedIn()
             _isLoggedIn.value = loggedIn
+            // ✅ More contextual log
+            Log.d("AuthViewModel", "🔐 User login status = $loggedIn")
             _navigation.emit(
                 if (loggedIn) Destination.Main else Destination.GettingStart
             )
@@ -99,6 +99,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreRepo.onLoggedIn()
             _isLoggedIn.value = true
+            Log.d("AuthViewModel", "🔓 Marked user as logged in (DataStore + StateFlow)")
         }
     }
 
@@ -113,11 +114,13 @@ class AuthViewModel @Inject constructor(
                 onSuccess = {
                     dataStoreRepo.onLoggedIn()
                     _isLoggedIn.value = true
-                    _uiEvent.emit(AuthUiEvent.Success("Sign-up successful ✅"))
+                    _uiEvent.emit(AuthUiEvent.Success("Sign-up successful 🎉"))
                     _navigation.emit(Destination.Main)
+                    Log.d("AuthViewModel", "✅ Sign-up success → $email")
                 },
                 onFailure = {
-                    _uiEvent.emit(AuthUiEvent.Error("Sign-up failed ❌"))
+                    _uiEvent.emit(AuthUiEvent.Error("Sign-up failed: ${it.localizedMessage ?: "Unknown error"}"))
+                    Log.e("AuthViewModel", "❌ Sign-up failed", it)
                 }
             )
         }
@@ -133,11 +136,15 @@ class AuthViewModel @Inject constructor(
                 onSuccess = {
                     dataStoreRepo.onLoggedIn()
                     _isLoggedIn.value = true
-                    _uiEvent.emit(AuthUiEvent.Success("Sign-in successful ✅"))
+                    _uiEvent.emit(AuthUiEvent.Success("Welcome back! 👋"))
                     _navigation.emit(Destination.Main)
+                    Log.d("AuthViewModel", "✅ Sign-in success → $email")
                 },
                 onFailure = {
-                    _uiEvent.emit(AuthUiEvent.Error("Sign-in failed ❌"))
+                    _uiEvent.emit(
+                        AuthUiEvent.Error("Sign-In Failed : ${it.localizedMessage ?: "Invalid credentials or user not found ❌"}")
+                    )
+                    Log.e("AuthViewModel", "❌ Sign-in failed", it)
                 }
             )
         }
@@ -148,10 +155,15 @@ class AuthViewModel @Inject constructor(
             val result = authRepository.forgetPassword(email)
             result.fold(
                 onSuccess = {
-                    _uiEvent.emit(AuthUiEvent.Success("Email sent to reset password 📧"))
+                    _uiEvent.emit(AuthUiEvent.Success("Password reset link sent to $email 📧"))
+                    Log.d("AuthViewModel", "📤 Sent reset link to $email")
                 },
                 onFailure = {
-                    _uiEvent.emit(AuthUiEvent.Error("Failed to send reset link ❌"))
+                    _uiEvent.emit(
+                        AuthUiEvent.Error(it.localizedMessage ?: "Unable to send reset link. Please check the email."
+                        )
+                    )
+                    Log.e("AuthViewModel", "❌ Failed to send password reset link", it)
                 }
             )
         }
@@ -162,6 +174,7 @@ class AuthViewModel @Inject constructor(
             authRepository.signOut()
             dataStoreRepo.signOut()
             _navigation.emit(Destination.GettingStart)
+            Log.d("AuthViewModel", "👋 User signed out")
         }
     }
 
@@ -169,6 +182,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.deleteAccount()
             _navigation.emit(Destination.GettingStart)
+            Log.d("AuthViewModel", "🗑️ Account deleted")
         }
     }
 
@@ -221,6 +235,7 @@ class AuthViewModel @Inject constructor(
                 showPasswordStrength = false
             )
         }
+        Log.d("AuthViewModel", "🔁 Form reset to default")
     }
 
     fun togglePasswordVisibility() {

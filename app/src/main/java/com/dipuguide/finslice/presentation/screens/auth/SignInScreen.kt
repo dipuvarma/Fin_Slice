@@ -72,19 +72,18 @@ fun SignInScreen(
     val userDetail = state.user
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val scope = rememberCoroutineScope()
 
     // Handle UI Events
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is AuthUiEvent.Success -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, event.message.ifBlank { "Sign-in successful 🎉" }, Toast.LENGTH_SHORT).show()
                     viewModel.resetForm()
                 }
 
                 is AuthUiEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, event.message.ifBlank { "Sign-in failed ❌" }, Toast.LENGTH_SHORT).show()
                 }
 
                 else -> Unit
@@ -93,7 +92,7 @@ fun SignInScreen(
     }
 
     // Handle Navigation Events
-    LaunchedEffect(Unit) {
+    LaunchedEffect(true) {
         viewModel.navigation.collect { destination ->
             when (destination) {
                 Destination.Main -> {
@@ -112,7 +111,7 @@ fun SignInScreen(
                     }
                 }
 
-                else -> {}
+                else -> Unit
             }
         }
     }
@@ -243,7 +242,7 @@ fun SignInScreen(
                     contentColor = MaterialTheme.colorScheme.background
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                enabled = !(userDetail.email.isEmpty() && userDetail.password.isEmpty())
+                enabled = userDetail.email.isNotBlank() && userDetail.password.isNotBlank()
             ) {
                 AnimatedContent(
                     targetState = event is AuthUiEvent.Loading
@@ -276,7 +275,7 @@ fun SignInScreen(
                 )
 
                 Text(
-                    text = "  Or Sign In with  ", // Intentional spacing padding inside text
+                    text = "  Or Sign In with  ",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onBackground
                     ),

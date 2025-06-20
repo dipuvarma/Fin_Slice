@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -54,11 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.component.PasswordStrengthMeter
-import com.dipuguide.finslice.presentation.navigation.Home
-import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.navigation.OnBoard
 import com.dipuguide.finslice.presentation.navigation.SignIn
-import com.dipuguide.finslice.presentation.navigation.SignUp
 
 @Composable
 fun SignUpScreen(
@@ -73,7 +69,7 @@ fun SignUpScreen(
     val userDetail = state.user
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is AuthUiEvent.Success -> {
