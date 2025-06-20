@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.presentation.screens.main.home.HomeUiState
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
+import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

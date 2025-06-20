@@ -19,8 +19,6 @@ import com.dipuguide.finslice.presentation.screens.main.MainScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.AddTransactionScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingScreen
 import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingViewModel
 

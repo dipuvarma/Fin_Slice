@@ -63,19 +63,19 @@ class DataStoreRepository @Inject constructor(
 
 
     suspend fun getName(): String? {
-        return dataStore.getData("name") ?: null
+        return dataStore.getData("name")
     }
 
     suspend fun getEmail(): String? {
-        return dataStore.getData("email") ?: null
+        return dataStore.getData("email")
     }
 
     suspend fun getPhoto(): String? {
-        return dataStore.getData("photo") ?: null
+        return dataStore.getData("photo")
     }
 
     suspend fun getPhoneNumber(): String? {
-        return dataStore.getData("phoneNumber") ?: null
+        return dataStore.getData("phoneNumber")
     }
 
 }

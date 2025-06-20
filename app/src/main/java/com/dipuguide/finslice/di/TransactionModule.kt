@@ -12,8 +12,6 @@ import com.dipuguide.finslice.presentation.screens.main.history.TransactionHisto
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -36,12 +34,6 @@ object TransactionModule {
         ExpenseTransactionRepoImpl(firebaseFireStore, firebaseAuth)
 
 
-    @Provides
-    @Singleton
-    fun provideIncomeTransactionRepo(
-        incomeTransactionRepo: IncomeTransactionRepo,
-    ) =
-        IncomeTransactionViewModel(incomeTransactionRepo)
 
 
     @Provides
@@ -66,11 +58,7 @@ object TransactionModule {
         )
     }
 
-    @Provides
-    @Singleton
-    fun provideExpenseTransactionRepo(expenseTransactionRepo: ExpenseTransactionRepo) =
-        ExpenseTransactionViewModel(expenseTransactionRepo)
-
+    
 
     @Provides
     @Singleton

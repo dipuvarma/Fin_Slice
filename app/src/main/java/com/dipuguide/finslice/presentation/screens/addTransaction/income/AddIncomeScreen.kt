@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,8 +33,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -53,9 +54,6 @@ import com.dipuguide.finslice.presentation.component.CustomDatePicker
 import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +67,7 @@ fun AddIncomeScreen(
 
     // States - you should lift them to a ViewModel in a real app
     val uiState by addIncomeViewModel.addIncomeUiState.collectAsState()
-    val event by addIncomeViewModel.addIncomeUiEvent.collectAsState(IncomeUiEvent.Idle)
+    val event by addIncomeViewModel.addIncomeUiEvent.collectAsState(AddIncomeUiEvent.Idle)
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
 

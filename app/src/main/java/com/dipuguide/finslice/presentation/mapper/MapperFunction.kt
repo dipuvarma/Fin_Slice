@@ -2,11 +2,9 @@ package com.dipuguide.finslice.presentation.mapper
 
 import com.dipuguide.finslice.data.model.ExpenseTransaction
 import com.dipuguide.finslice.data.model.IncomeTransaction
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
+import com.dipuguide.finslice.presentation.model.IncomeTransactionUi
 import com.dipuguide.finslice.utils.formatPrice
-import com.dipuguide.finslice.utils.formatTimestampToDateTime
-
 
 fun IncomeTransaction.toIncomeTransactionUi(): IncomeTransactionUi {
     return IncomeTransactionUi(

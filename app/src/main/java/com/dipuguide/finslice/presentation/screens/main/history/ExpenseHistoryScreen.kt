@@ -21,10 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TransactionCardComp
-import com.dipuguide.finslice.presentation.navigation.AddTransaction
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import com.google.accompanist.swiperefresh.SwipeRefresh

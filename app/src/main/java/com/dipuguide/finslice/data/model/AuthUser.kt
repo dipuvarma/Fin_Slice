@@ -1,7 +1,6 @@
 package com.dipuguide.finslice.data.model
 
 import com.google.firebase.firestore.DocumentId
-import java.util.UUID
 
 data class AuthUser(
     @DocumentId

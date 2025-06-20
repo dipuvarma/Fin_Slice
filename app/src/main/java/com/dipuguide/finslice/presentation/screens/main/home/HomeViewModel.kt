@@ -1,15 +1,13 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.data.repo.DataStoreRepository
 import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
-import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
+import com.dipuguide.finslice.presentation.model.IncomeTransactionUi
 import com.dipuguide.finslice.utils.formatNumberToIndianStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

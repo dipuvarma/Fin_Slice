@@ -1,14 +1,12 @@
 package com.dipuguide.finslice.data.repo
 
-import android.nfc.Tag
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.dipuguide.finslice.data.model.ExpenseTransaction
 import com.dipuguide.finslice.presentation.mapper.toExpenseTransaction
 import com.dipuguide.finslice.presentation.mapper.toExpenseTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.getDateRangeMillis
 import com.dipuguide.finslice.utils.getMillisRangeForMonth

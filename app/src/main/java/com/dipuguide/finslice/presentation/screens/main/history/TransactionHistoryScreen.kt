@@ -24,8 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.presentation.component.TopAppBarComp
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 
 @Composable

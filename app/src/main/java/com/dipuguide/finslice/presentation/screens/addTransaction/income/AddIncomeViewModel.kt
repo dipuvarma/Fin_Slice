@@ -1,12 +1,9 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.income
 
-import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
 import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
+import com.dipuguide.finslice.presentation.model.IncomeTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,9 +125,9 @@ class AddIncomeViewModel @Inject constructor(
                         date = addIncomeUiState.value.date
                     )
                 }
-                _addIncomeUiEvent.emit(AddIncomeUiEvent.Success("Add Transaction Successfully"))
+                _addIncomeUiEvent.emit(AddIncomeUiEvent.Success("Add Income Transaction Successfully"))
             }.onFailure {
-                _addIncomeUiEvent.emit(AddIncomeUiEvent.Error("Add Transaction Failed"))
+                _addIncomeUiEvent.emit(AddIncomeUiEvent.Error("Add Income Transaction Failed"))
             }
         }
     }

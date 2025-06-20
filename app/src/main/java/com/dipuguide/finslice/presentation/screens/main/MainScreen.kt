@@ -33,8 +33,6 @@ import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
 import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingScreen
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable

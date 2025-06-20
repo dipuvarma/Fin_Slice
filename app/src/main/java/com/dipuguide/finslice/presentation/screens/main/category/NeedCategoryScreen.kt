@@ -1,23 +1,17 @@
 package com.dipuguide.finslice.presentation.screens.main.category
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.presentation.component.ExpenseTransactionCardComp
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionViewModel
 import com.dipuguide.finslice.utils.formatTimestampToDateTime
 import kotlinx.coroutines.flow.collectLatest
-import kotlin.math.exp
 
 @Composable
 fun NeedCategoryScreen(

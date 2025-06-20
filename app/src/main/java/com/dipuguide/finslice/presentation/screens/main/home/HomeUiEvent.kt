@@ -1,7 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
-
 sealed class HomeUiEvent {
     object Idle : HomeUiEvent()
     object Loading : HomeUiEvent()

@@ -1,7 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main.history
 
-import com.dipuguide.finslice.presentation.screens.main.transaction.ExpenseTransactionUiEvent
-
 sealed class IncomeHistoryUiEvent {
     object Idle : IncomeHistoryUiEvent()
     object Loading : IncomeHistoryUiEvent()

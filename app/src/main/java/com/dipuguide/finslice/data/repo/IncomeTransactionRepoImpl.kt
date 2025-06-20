@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import com.dipuguide.finslice.data.model.IncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransaction
 import com.dipuguide.finslice.presentation.mapper.toIncomeTransactionUi
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionUi
+import com.dipuguide.finslice.presentation.model.IncomeTransactionUi
 import com.dipuguide.finslice.utils.DateFilterType
 import com.dipuguide.finslice.utils.getDateRangeMillis
 import com.dipuguide.finslice.utils.getMillisRangeForMonth

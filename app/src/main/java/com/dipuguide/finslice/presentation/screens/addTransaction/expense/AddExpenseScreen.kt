@@ -58,7 +58,6 @@ import com.dipuguide.finslice.presentation.component.DropDownComp
 import com.dipuguide.finslice.presentation.component.FormLabel
 import com.dipuguide.finslice.presentation.navigation.Main
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeUiEvent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -73,7 +72,7 @@ fun AddExpenseScreen(
     // States - you should lift them to a ViewModel in a real app
     val uiState by addExpenseViewModel.addExpenseUiState.collectAsState()
 
-    val event by addExpenseViewModel.addExpenseUiEvent.collectAsState(IncomeUiEvent.Idle)
+    val event by addExpenseViewModel.addExpenseUiEvent.collectAsState(AddExpenseUiEvent.Idle)
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
 

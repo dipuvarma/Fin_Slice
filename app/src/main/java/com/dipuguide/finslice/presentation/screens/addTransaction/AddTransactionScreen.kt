@@ -40,7 +40,6 @@ import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExp
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
-import com.dipuguide.finslice.presentation.screens.main.transaction.IncomeTransactionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
