@@ -160,7 +160,9 @@ class AuthViewModel @Inject constructor(
                 },
                 onFailure = {
                     _uiEvent.emit(
-                        AuthUiEvent.Error(it.localizedMessage ?: "Unable to send reset link. Please check the email."
+                        AuthUiEvent.Error(
+                            it.localizedMessage
+                                ?: "Unable to send reset link. Please check the email."
                         )
                     )
                     Log.e("AuthViewModel", "❌ Failed to send password reset link", it)
@@ -258,9 +260,7 @@ class AuthViewModel @Inject constructor(
             it.copy(showPasswordStrength = false)
         }
     }
-
 }
-
 
 
 
