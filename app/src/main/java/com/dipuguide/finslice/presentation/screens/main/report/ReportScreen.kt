@@ -48,7 +48,6 @@ import kotlin.math.absoluteValue
 fun ReportScreen(
     reportViewModel: ReportViewModel
 ) {
-
     var selectedLabel by rememberSaveable { mutableStateOf("No tag selected") }
     var selectedAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
 
