@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,7 +81,6 @@ dependencies {
     //for Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-auth")
-    // Also add the dependencies for the Credential Manager libraries and specify their versions
     implementation("com.firebaseui:firebase-ui-auth:9.0.0")
     implementation("com.google.firebase:firebase-firestore")
 
@@ -88,21 +89,18 @@ dependencies {
 
     implementation ("com.google.code.gson:gson:2.13.1")
 
-    implementation("androidx.compose.material3:material3:1.4.0-alpha15")
+    implementation("androidx.compose.material3:material3")
 
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.30.1")
-
-    implementation("androidx.biometric:biometric:1.4.0-alpha02")
 
     //for pie chart
     implementation ("io.github.ehsannarmani:compose-charts:0.1.7")
 
     implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
 
-
-
+    implementation("com.jakewharton.timber:timber:5.0.1")
 
 
 }

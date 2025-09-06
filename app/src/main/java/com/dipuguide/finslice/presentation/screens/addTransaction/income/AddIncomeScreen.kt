@@ -1,9 +1,6 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.income
 
-import android.os.Build
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,60 +47,69 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.CustomDatePicker
-import com.dipuguide.finslice.presentation.component.DropDownComp
-import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.component.WalletIconHeader
-import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.common.component.CustomDatePicker
+import com.dipuguide.finslice.presentation.common.component.DropDownComp
+import com.dipuguide.finslice.presentation.common.component.FormLabel
+import com.dipuguide.finslice.presentation.common.component.WalletIconHeader
+import com.dipuguide.finslice.presentation.common.state.UiState
+
+import com.dipuguide.finslice.presentation.navigation.MainRoute
 import kotlinx.coroutines.flow.collectLatest
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIncomeScreen(
-    addIncomeViewModel: AddIncomeViewModel,
+    viewModel: AddIncomeViewModel,
     navController: NavController,
 ) {
+
     val focusManager = LocalFocusManager.current
-    val uiState by addIncomeViewModel.addIncomeUiState.collectAsState()
-    val event by addIncomeViewModel.addIncomeUiEvent.collectAsState(AddIncomeUiEvent.Idle)
+    val uiState by viewModel.uiState.collectAsState()
+    val addIncomeUiState by viewModel.addIncomeUiState.collectAsState()
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
 
-    // 🐛 FIX: Collect events safely once without leaking collection
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-
-        addIncomeViewModel.addIncomeUiEvent.collectLatest { event ->
-            when (event) {
-                is AddIncomeUiEvent.Success -> {
-                    Log.d(
-                        "AddIncomeScreen",
-                        "✅ Income Added Successfully: ₹${uiState.amount}, Note: ${uiState.note}"
-                    )
-                    Toast.makeText(
-                        context,
-                        event.message.ifBlank { context.getString(R.string.income_added_successfully) }, // 💬 Fallback message
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.navigate(Main) {
+        viewModel.navigationEvent.collectLatest { destination ->
+            when (destination) {
+                AddIncomeNavigation.HOME -> {
+                    navController.navigate(MainRoute) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
-                    addIncomeViewModel.clearForm()
+                    viewModel.clearForm()
                 }
-
-                is AddIncomeUiEvent.Error -> {
-                    Log.e("AddIncomeScreen", "❌ Error adding income: ${event.message}")
-                    Toast.makeText(
-                        context,
-                        event.message.ifBlank { context.getString(R.string.error_occurred) }, // 💬 Fallback message
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> Unit
             }
+        }
+    }
+
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> {
+                val successMessage = (uiState as UiState.Success).message
+                Toast.makeText(
+                    context,
+                    successMessage.ifBlank { context.getString(R.string.income_added_successfully) },
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.resetUiState()
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (uiState as UiState.Error).error
+                Toast.makeText(
+                    context,
+                    errorMessage.ifBlank { context.getString(R.string.error_occurred) },
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.resetUiState()
+            }
+
+            else -> Unit
         }
     }
 
@@ -120,10 +126,12 @@ fun AddIncomeScreen(
             iconDesc = R.string.cd_income_icon
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large))) // ❗ Suggest: dimensionResource
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
 
         CustomDatePicker(
-            onDateSelected = addIncomeViewModel::setDate,
+            onDateSelected = { date ->
+                viewModel.onEvent(AddIncomeEvent.DatePickerChange(date))
+            },
             modifier = Modifier.fillMaxWidth(),
             icon = {
                 Icon(
@@ -134,19 +142,21 @@ fun AddIncomeScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium))) // ❗ Suggest: dimensionResource
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
 
-        FormLabel(text = stringResource(id = R.string.label_amount)) // ✅ Localized
+        FormLabel(text = stringResource(id = R.string.label_amount))
         OutlinedTextField(
-            value = uiState.amount,
-            onValueChange = addIncomeViewModel::updatedAmount,
+            value = addIncomeUiState.amount,
+            onValueChange = { newAmount ->
+                viewModel.onEvent(AddIncomeEvent.AmountChange(newAmount))
+            },
             placeholder = { Text(text = stringResource(id = R.string.hint_add_amount)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.CurrencyRupee, contentDescription = null)
             },
             trailingIcon = {
-                if (uiState.amount.isNotEmpty()) {
-                    IconButton(onClick = addIncomeViewModel::clearAmount) {
+                if (addIncomeUiState.amount.isNotEmpty()) {
+                    IconButton(onClick = viewModel::clearAmount) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
                             contentDescription = stringResource(id = R.string.cd_clear)
@@ -174,15 +184,17 @@ fun AddIncomeScreen(
 
         FormLabel(text = stringResource(id = R.string.label_note_optional))
         OutlinedTextField(
-            value = uiState.note.orEmpty(),
-            onValueChange = addIncomeViewModel::updatedNote,
+            value = addIncomeUiState.note.orEmpty(),
+            onValueChange = { newNote ->
+                viewModel.onEvent(AddIncomeEvent.NoteChange(newNote))
+            },
             placeholder = { Text(text = stringResource(id = R.string.hint_add_note)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.NoteAlt, contentDescription = null)
             },
             trailingIcon = {
-                if (!uiState.note.isNullOrEmpty()) {
-                    IconButton(onClick = addIncomeViewModel::clearNote) {
+                if (!addIncomeUiState.note.isNullOrEmpty()) {
+                    IconButton(onClick = viewModel::clearNote) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
                             contentDescription = stringResource(id = R.string.cd_clear)
@@ -206,33 +218,31 @@ fun AddIncomeScreen(
 
         DropDownComp(
             menuName = stringResource(id = R.string.label_category),
-            menuItemList = addIncomeViewModel.incomeCategories,
-            onDropDownClick = addIncomeViewModel::setCategory,
-            selectedText = uiState.category,
+            menuItemList = viewModel.incomeCategories,
+            onDropDownClick = { newCategory ->
+                viewModel.onEvent(AddIncomeEvent.CategoryChange(newCategory))
+            },
+            selectedText = addIncomeUiState.category,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                Log.d(
-                    "AddIncomeScreen",
-                    "🟩 Save Clicked: ₹${uiState.amount} in ${uiState.category}"
-                )
-                addIncomeViewModel.addIncomeTransaction()
+                viewModel.onEvent(AddIncomeEvent.SaveClick)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(45.dp)
                 .padding(horizontal = dimensionResource(id = R.dimen.padding_medium)),
             shape = MaterialTheme.shapes.medium,
-            enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty(),
+            enabled = addIncomeUiState.amount.isNotEmpty() && addIncomeUiState.category.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.background,
                 containerColor = MaterialTheme.colorScheme.onBackground
             )
         ) {
-            AnimatedContent(targetState = event is AddIncomeUiEvent.Loading) { loading ->
+            AnimatedContent(targetState = (uiState is UiState.Loading)) { loading ->
                 if (loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),

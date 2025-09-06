@@ -1,8 +1,6 @@
 package com.dipuguide.finslice.presentation.screens.main.report
 
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -23,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -37,37 +36,53 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dipuguide.finslice.presentation.component.MonthYearPicker
-import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.common.component.MonthYearPicker
+import com.dipuguide.finslice.presentation.common.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.common.state.UiState
 import com.dipuguide.finslice.utils.toPercentageString
 import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlin.math.absoluteValue
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ReportScreen(
-    innerPadding: PaddingValues,
-    reportViewModel: ReportViewModel = viewModel(),
+    reportViewModel: ReportViewModel
 ) {
+
     var selectedLabel by rememberSaveable { mutableStateOf("No tag selected") }
     var selectedAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
 
-    val allExpense by reportViewModel.allExpenseByMonth.collectAsState()
-    val uiState by reportViewModel.reportUiState.collectAsState()
+    val allExpense by reportViewModel.expenseList.collectAsState()
+    val reportUiState by reportViewModel.reportUiState.collectAsState()
+    val uiState by reportViewModel.uiState.collectAsState()
+
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> {
+                val successMessage = (uiState as UiState.Success).message
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (uiState as UiState.Error).error
+
+            }
+
+            else -> Unit
+
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)
             .verticalScroll(rememberScrollState())
     ) {
         TopAppBarComp(title = "Transaction Report")
         ResponsiveBox(alignment = Alignment.CenterEnd) {
             MonthYearPicker(
-                selectedMonth = uiState.selectedMonth,
-                selectedYear = uiState.selectedYear,
+                selectedMonth = reportUiState.selectedMonth,
+                selectedYear = reportUiState.selectedYear,
                 onDateSelected = { month, year ->
                     reportViewModel.onMonthYearSelected(month, year)
                 }
@@ -81,7 +96,7 @@ fun ReportScreen(
                 val pieEntries = allExpense
                     .groupBy { it.tag ?: "Untagged" }
                     .map { (tag, expenses) ->
-                        val totalAmount = expenses.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+                        val totalAmount = expenses.sumOf { it.amount }
                         Pie(
                             label = tag,
                             data = totalAmount,
@@ -101,7 +116,7 @@ fun ReportScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (allExpense.isNotEmpty()){
+        if (allExpense.isNotEmpty()) {
             LabelAndValue(label = "Tag", value = selectedLabel)
             LabelAndValue(label = "Amount", value = "₹%.2f".format(selectedAmount))
             Spacer(modifier = Modifier.height(24.dp))
@@ -146,28 +161,28 @@ fun ReportScreen(
 
             allExpense.groupBy { it.tag ?: "Untagged" }
                 .forEach { (tag, expenses) ->
-                    val amount = expenses.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
+                    val amount = expenses.sumOf { it.amount }
                     val percentage =
-                        if (uiState.totalExpense > 0) (amount / uiState.totalExpense) * 100.0 else 0.0
+                        if (reportUiState.totalExpense > 0) (amount / reportUiState.totalExpense) * 100.0 else 0.0
                     ExpenseRow(tag = tag, amount = amount, percentage = percentage)
                 }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (allExpense.isNotEmpty()){
-            // 📌 Total Summary
+        if (allExpense.isNotEmpty()) {
             ResponsiveBox(
                 alignment = Alignment.CenterEnd
             ) {
                 LabelAndValue(
                     label = "Total Expense",
-                    value = "₹%.2f".format(uiState.totalExpense),
+                    value = "₹%.2f".format(reportUiState.totalExpense),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         brush = Brush.linearGradient(
                             listOf(
-                                MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onBackground
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.onBackground
                             )
                         )
                     )
@@ -182,7 +197,8 @@ fun ReportScreen(
 fun SectionTitle(title: String) {
     Text(
         text = title.uppercase(),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = 16.dp),
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
@@ -267,7 +283,6 @@ fun ResponsiveBox(
 
 @Composable
 fun getColorForIndex(index: Int): Color {
-    // 🎨 Handpicked bright, high-contrast, vibrant colors
     val colors = listOf(
         Color(0xFFEF5350), // Red
         Color(0xFFAB47BC), // Purple
@@ -293,8 +308,6 @@ fun getColorForIndex(index: Int): Color {
 
     return colors[index.absoluteValue % colors.size]
 }
-
-
 
 
 @Composable

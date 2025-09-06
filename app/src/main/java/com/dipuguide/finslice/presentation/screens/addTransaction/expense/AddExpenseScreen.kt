@@ -1,9 +1,6 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.expense
 
-import android.os.Build
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -57,19 +54,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.CustomDatePicker
-import com.dipuguide.finslice.presentation.component.DropDownComp
-import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.component.WalletIconHeader
-import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.common.component.CustomDatePicker
+import com.dipuguide.finslice.presentation.common.component.DropDownComp
+import com.dipuguide.finslice.presentation.common.component.FormLabel
+import com.dipuguide.finslice.presentation.common.component.WalletIconHeader
+import com.dipuguide.finslice.presentation.common.state.UiState
+import com.dipuguide.finslice.presentation.navigation.MainRoute
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalAnimationApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddExpenseScreen(
-    addExpenseViewModel: AddExpenseViewModel,
+    viewModel: AddExpenseViewModel,
     homeViewModel: HomeViewModel,
     navController: NavController,
 ) {
@@ -78,46 +75,56 @@ fun AddExpenseScreen(
     val focusRequester = remember { FocusRequester() }
 
     val homeUiState by homeViewModel.homeUiState.collectAsState()
-    val uiState by addExpenseViewModel.addExpenseUiState.collectAsState()
-    val event by addExpenseViewModel.addExpenseUiEvent.collectAsState(AddExpenseUiEvent.Idle)
 
-    val selectedCategory = uiState.category
-    val tags = addExpenseViewModel.expenseTagsByCategory[selectedCategory] ?: emptyList()
+    val uiState by viewModel.uiState.collectAsState()
+    val addExpenseUiState by viewModel.addExpenseUiState.collectAsState()
 
-    // 🔁 Only collect once on first composition
+    val selectedCategory = addExpenseUiState.category
+    val tags = viewModel.expenseTagsByCategory[selectedCategory] ?: emptyList()
+
+
     LaunchedEffect(Unit) {
-
         focusRequester.requestFocus()
 
-        addExpenseViewModel.addExpenseUiEvent.collectLatest { event ->
+        viewModel.navigationEvent.collectLatest { event ->
             when (event) {
-                is AddExpenseUiEvent.Success -> {
-                    Log.d("AddExpenseScreen", "Expense added: ₹${uiState.amount}, ${uiState.note}")
-                    Toast.makeText(
-                        context,
-                        event.message.ifBlank { context.getString(R.string.expense_success) },
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.navigate(Main) {
+                AddExpenseNavigationEvent.MAIN -> {
+                    navController.navigate(MainRoute) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
-                    addExpenseViewModel.clearForm()
+                    viewModel.clearForm()
                 }
-
-                is AddExpenseUiEvent.Error -> {
-                    Log.e("AddExpenseScreen", "Error: ${event.message}")
-                    Toast.makeText(
-                        context,
-                        event.message.ifBlank { context.getString(R.string.expense_error) },
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> Unit
             }
         }
 
+    }
+
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> {
+                val successMessage = (uiState as UiState.Success).message
+                Toast.makeText(
+                    context,
+                    successMessage.ifBlank { context.getString(R.string.expense_success) },
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.resetUiState()
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (uiState as UiState.Error).error
+                Toast.makeText(
+                    context,
+                    errorMessage.ifBlank { context.getString(R.string.expense_error) },
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.resetUiState()
+            }
+
+            else -> Unit
+        }
     }
 
     Column(
@@ -134,7 +141,9 @@ fun AddExpenseScreen(
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
 
         CustomDatePicker(
-            onDateSelected = addExpenseViewModel::setDate,
+            onDateSelected = { millis ->
+                viewModel.onEvent(AddExpenseEvent.DatePickerClick(millis))
+            },
             modifier = Modifier.fillMaxWidth(),
             icon = {
                 Icon(
@@ -150,13 +159,15 @@ fun AddExpenseScreen(
         FormLabel(text = stringResource(id = R.string.label_amount))
 
         OutlinedTextField(
-            value = uiState.amount,
-            onValueChange = addExpenseViewModel::updatedAmount,
+            value = addExpenseUiState.amount,
+            onValueChange = { newAmount ->
+                viewModel.onEvent(AddExpenseEvent.AmountChange(newAmount))
+            },
             placeholder = { Text(text = stringResource(id = R.string.hint_enter_amount)) },
             leadingIcon = { Icon(Icons.Default.CurrencyRupee, contentDescription = null) },
             trailingIcon = {
-                if (uiState.amount.isNotEmpty()) {
-                    IconButton(onClick = addExpenseViewModel::clearAmount) {
+                if (addExpenseUiState.amount.isNotEmpty()) {
+                    IconButton(onClick = viewModel::clearAmount) {
                         Icon(
                             Icons.Default.Cancel,
                             contentDescription = stringResource(id = R.string.cd_clear)
@@ -185,13 +196,15 @@ fun AddExpenseScreen(
         FormLabel(text = stringResource(id = R.string.label_note_optional))
 
         OutlinedTextField(
-            value = uiState.note.orEmpty(),
-            onValueChange = addExpenseViewModel::updatedNote,
+            value = addExpenseUiState.note,
+            onValueChange = { newNote ->
+                viewModel.onEvent(AddExpenseEvent.NoteChange(newNote))
+            },
             placeholder = { Text(text = stringResource(id = R.string.hint_add_note)) },
             leadingIcon = { Icon(Icons.Default.NoteAlt, contentDescription = null) },
             trailingIcon = {
-                if (!uiState.note.isNullOrEmpty()) {
-                    IconButton(onClick = addExpenseViewModel::clearNote) {
+                if (addExpenseUiState.note.isNotEmpty()) {
+                    IconButton(onClick = viewModel::clearNote) {
                         Icon(
                             Icons.Default.Cancel,
                             contentDescription = stringResource(id = R.string.cd_clear)
@@ -215,9 +228,11 @@ fun AddExpenseScreen(
 
         DropDownComp(
             menuName = stringResource(id = R.string.label_category),
-            menuItemList = addExpenseViewModel.expenseCategories,
-            onDropDownClick = addExpenseViewModel::setCategory,
-            selectedText = uiState.category
+            menuItemList = viewModel.expenseCategories,
+            onDropDownClick = { newCategory ->
+                viewModel.onEvent(AddExpenseEvent.CategoryChange(newCategory))
+            },
+            selectedText = addExpenseUiState.category
         )
 
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
@@ -232,8 +247,10 @@ fun AddExpenseScreen(
                 tags.forEach { tag ->
                     ExpenseTagChip(
                         tag = tag,
-                        isSelected = uiState.tag == tag,
-                        onClick = { addExpenseViewModel.setTag(tag) }
+                        isSelected = addExpenseUiState.tag == tag,
+                        onClick = {
+                            viewModel.onEvent(AddExpenseEvent.TagChange(tag))
+                        }
                     )
                 }
             }
@@ -243,11 +260,11 @@ fun AddExpenseScreen(
 
         Button(
             onClick = {
-                val error = addExpenseViewModel.validateAmount(homeUiState)
+                val error = viewModel.validateAmount(homeUiState)
                 if (error != null) {
                     Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 } else {
-                    addExpenseViewModel.addExpenseTransaction()
+                    viewModel.onEvent(AddExpenseEvent.SaveExpenseClick)
                 }
             },
             modifier = Modifier
@@ -255,14 +272,14 @@ fun AddExpenseScreen(
                 .height(45.dp)
                 .padding(horizontal = dimensionResource(id = R.dimen.padding_medium)),
             shape = MaterialTheme.shapes.medium,
-            enabled = uiState.amount.isNotEmpty() && uiState.category.isNotEmpty(),
+            enabled = addExpenseUiState.amount.isNotEmpty() && addExpenseUiState.category.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.background,
                 containerColor = MaterialTheme.colorScheme.onBackground
             )
         ) {
             AnimatedContent(
-                targetState = event is AddExpenseUiEvent.Loading,
+                targetState = (uiState is UiState.Loading),
                 transitionSpec = { fadeIn() with fadeOut() }
             ) { isLoading ->
                 if (isLoading) {
@@ -283,9 +300,6 @@ fun AddExpenseScreen(
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
     }
 }
-
-
-
 
 
 @Composable

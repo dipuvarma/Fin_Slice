@@ -1,89 +1,164 @@
 package com.dipuguide.finslice.presentation.screens.main.setting
 
-import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Row
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.R
-import com.dipuguide.finslice.data.repo.DataStoreRepository
+import com.dipuguide.finslice.domain.model.User
+import com.dipuguide.finslice.domain.repo.ThemePreferencesRepo
+import com.dipuguide.finslice.domain.repo.UserAuthRepository
+import com.dipuguide.finslice.presentation.common.state.UiState
+import com.dipuguide.finslice.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val dataStoreRepo: DataStoreRepository,
+    private val authRepository: UserAuthRepository,
+    private val preferences: ThemePreferencesRepo,
 ) : ViewModel() {
 
     // Internal mutable state
-    private val _isDarkMode = MutableStateFlow(false)
-    private val _isDynamicMode = MutableStateFlow(false)
+    private val _isDarkModeEnabled = MutableStateFlow(false)
+    val isDarkModeEnabled: StateFlow<Boolean> = _isDarkModeEnabled.asStateFlow()
 
-    // Public immutable state
-    val isDarkModeState: StateFlow<Boolean> = _isDarkMode.asStateFlow()
-    val isDynamicModeState: StateFlow<Boolean> = _isDynamicMode.asStateFlow()
+    private val _isDynamicModeEnabled = MutableStateFlow(false)
+    val isDynamicModeEnabled: StateFlow<Boolean> = _isDynamicModeEnabled.asStateFlow()
+
+    private val _navigation = MutableSharedFlow<SettingNavigation>()
+    val navigation = _navigation.asSharedFlow()
+
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private val _settingUiState = MutableStateFlow(SettingUiState())
+    val settingUiState = _settingUiState.asStateFlow()
+
+    private val _userDetail = MutableStateFlow(User())
+    val userDetail = _userDetail.asStateFlow()
 
     init {
-        observeSettings()
+        getUserDetail()
     }
 
-    /**
-     * 💬 Observes the current dark mode and dynamic mode settings from DataStore.
-     * 🔥 FIX: Use separate coroutines to avoid collect() blocking each other.
-     */
-    private fun observeSettings() {
+    fun loadInitialTheme() {
         viewModelScope.launch {
-            dataStoreRepo.isDarkMode()
-                .catch { ex -> Log.e("SettingsVM", "Failed to load dark mode", ex) }
-                .collect { isDark ->
-                    Log.d("SettingsVM", "Dark mode state updated: $isDark")
-                    _isDarkMode.value = isDark
-                }
-        }
-
-        viewModelScope.launch {
-            dataStoreRepo.isDynamicMode()
-                .catch { ex -> Log.e("SettingsVM", "Failed to load dynamic mode", ex) }
-                .collect { isDynamic ->
-                    Log.d("SettingsVM", "Dynamic mode state updated: $isDynamic")
-                    _isDynamicMode.value = isDynamic
-                }
+            val isDarkMode = async {
+                preferences.getBoolean(Constants.DARK_MODE, false)
+                    .collectLatest {
+                        _isDarkModeEnabled.value = it
+                    }
+            }
+            val isDynamicMode = async {
+                preferences.getBoolean(Constants.DYNAMIC_MODE, false)
+                    .collectLatest {
+                        Timber.d("DYNAMIC_MODE $it")
+                        _isDynamicModeEnabled.value = it
+                    }
+            }
+            isDarkMode.await()
+            isDynamicMode.await()
         }
     }
 
-    /**
-     * 💡 Toggle dark mode preference
-     */
-    fun toggleDarkMode(enabled: Boolean) {
-        Log.d("SettingsVM", "Toggling dark mode to: $enabled")
+    private fun onDarkModeChange(isDarkMode: Boolean) {
         viewModelScope.launch {
-            runCatching {
-                if (enabled) dataStoreRepo.darkModeOff() else dataStoreRepo.darkModeOn()
-            }.onFailure {
-                Log.e("SettingsVM", "Failed to toggle dark mode", it)
+            _isDarkModeEnabled.value = isDarkMode
+            preferences.saveBoolean(Constants.DARK_MODE, isDarkMode)
+        }
+    }
+
+    private fun onDynamicModeChange(isDynamicMode: Boolean) {
+        viewModelScope.launch {
+            _isDynamicModeEnabled.value = isDynamicMode
+            preferences.saveBoolean(Constants.DYNAMIC_MODE, isDynamicMode)
+        }
+    }
+
+    fun onEvent(event: SettingEvent) {
+        when (event) {
+            is SettingEvent.DarkModeChange -> {
+                onDarkModeChange(event.isDarkMode)
+            }
+
+            is SettingEvent.DynamicColorChange -> {
+                onDynamicModeChange(event.isDynamic)
+            }
+
+            is SettingEvent.AppLockChange -> TODO()
+            SettingEvent.CheckUpdateClick -> TODO()
+            SettingEvent.FeedbackClick -> TODO()
+            SettingEvent.PrivacyClick -> TODO()
+            SettingEvent.UserGuideClick -> TODO()
+            SettingEvent.RateClick -> TODO()
+            SettingEvent.SignOutClick -> signOut()
+
+            SettingEvent.DeleteAccountClick -> deleteAccount()
+        }
+    }
+
+    private fun signOut() {
+        viewModelScope.launch {
+            val result = authRepository.signOut()
+            result.onSuccess {
+                _uiState.value = UiState.Success("👋 Signed out")
+                _navigation.emit(SettingNavigation.SIGN_OUT)
+                Timber.d("👋 User signed out")
+            }
+            result.onFailure {
+                _uiState.value = UiState.Error("👋 Signed out failed!")
+                Timber.e(it, "👋 User signed out failed!")
             }
         }
     }
 
-    /**
-     * 💡 Toggle dynamic color mode preference
-     */
-    fun toggleDynamicMode(enabled: Boolean) {
-        Log.d("SettingsVM", "Toggling dynamic mode to: $enabled")
+    private fun deleteAccount() {
         viewModelScope.launch {
-            runCatching {
-                if (enabled) dataStoreRepo.dynamicModeOn() else dataStoreRepo.dynamicModeOff()
-            }.onFailure {
-                Log.e("SettingsVM", "Failed to toggle dynamic mode", it)
+            _uiState.value = UiState.Loading
+            val result = authRepository.deleteAccount()
+            result.onSuccess {
+                _uiState.value = UiState.Success("🗑️ Account deleted")
+                _navigation.emit(SettingNavigation.DELETE_ACCOUNT)
+                Timber.d("🗑️ Account deleted")
+            }
+            result.onFailure {
+                _uiState.value = UiState.Error("🗑️ Account deleted failed!")
+                Timber.d("🗑️ Account deleted failed!")
             }
         }
+    }
+
+    private fun getUserDetail() {
+        viewModelScope.launch {
+            authRepository.getUserDetails().collectLatest { result ->
+                result.onSuccess { user ->
+                    _userDetail.update {
+                        it.copy(
+                            name = user.name,
+                            email = user.email,
+                            photoUri = user.photoUri,
+                        )
+                    }
+                }
+
+                result.onFailure { exception ->
+
+                }
+            }
+        }
+    }
+
+    fun resetUiState() {
+        _uiState.value = UiState.Idle
     }
 }
 

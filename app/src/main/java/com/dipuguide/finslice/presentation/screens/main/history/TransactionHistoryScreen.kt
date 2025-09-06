@@ -15,19 +15,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.dipuguide.finslice.presentation.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.common.component.TopAppBarComp
 
 @Composable
 fun TransactionHistoryScreen(
     historyViewModel: TransactionHistoryViewModel,
     innerPadding: PaddingValues,
 ) {
-    val selectedTab = historyViewModel.selectedTab
+
+
+    val selectedTab by historyViewModel.selectedTab.collectAsState()
     val tabTitles = listOf("Expense", "Income")
 
     Surface(
@@ -35,7 +39,6 @@ fun TransactionHistoryScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
     ) {
-        // 🔥 Use Column + Modifier.weight(1f) to allow scrolling
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +82,6 @@ fun TransactionHistoryScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 🚨 THIS IS CRUCIAL: Use Modifier.weight(1f) to give LazyColumn scroll space!
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -87,9 +89,8 @@ fun TransactionHistoryScreen(
             ) {
                 when (selectedTab) {
                     0 -> ExpenseHistoryScreen(
-                        historyViewModel = historyViewModel,
+                        viewModel = historyViewModel,
                     )
-
                     1 -> IncomeHistoryScreen(historyViewModel)
                 }
             }

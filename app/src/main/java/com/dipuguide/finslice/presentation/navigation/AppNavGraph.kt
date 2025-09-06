@@ -1,26 +1,28 @@
 package com.dipuguide.finslice.presentation.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.dipuguide.finslice.presentation.screens.auth.ForgetPasswordScreen
-import com.dipuguide.finslice.presentation.screens.auth.onBoard.GettingStartScreen
-import com.dipuguide.finslice.presentation.screens.auth.SignInScreen
-import com.dipuguide.finslice.presentation.screens.auth.SignUpScreen
-import com.dipuguide.finslice.presentation.screens.auth.onBoard.SplashScreen
-import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryViewModel
-import com.dipuguide.finslice.presentation.screens.main.MainScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.AddTransactionScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
-import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingScreen
-import com.dipuguide.finslice.presentation.screens.auth.onBoard.OnBoardingViewModel
+import com.dipuguide.finslice.presentation.screens.main.MainScreen
+import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
+import com.dipuguide.finslice.presentation.screens.main.report.ReportScreen
+import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
+import com.dipuguide.finslice.presentation.screens.starter.forgetPassword.ForgetPasswordScreen
+import com.dipuguide.finslice.presentation.screens.starter.forgetPassword.ForgetViewModel
+import com.dipuguide.finslice.presentation.screens.starter.onBoard.GettingStartScreen
+import com.dipuguide.finslice.presentation.screens.starter.onBoard.OnBoardingScreen
+import com.dipuguide.finslice.presentation.screens.starter.onBoard.OnBoardingViewModel
+import com.dipuguide.finslice.presentation.screens.starter.signIn.SignInScreen
+import com.dipuguide.finslice.presentation.screens.starter.signIn.SignInViewModel
+import com.dipuguide.finslice.presentation.screens.starter.signUp.SignUpScreen
+import com.dipuguide.finslice.presentation.screens.starter.signUp.SignUpViewModel
+import com.dipuguide.finslice.presentation.screens.starter.splash.SplashScreen
+import com.dipuguide.finslice.presentation.screens.starter.splash.SplashViewModel
 
 
 @Composable
@@ -29,68 +31,71 @@ fun AppNavGraph() {
     //Root NavController
     val rootNavController = rememberNavController()
 
-    //Auth Viewmodel
-    val authViewModel = hiltViewModel<AuthViewModel>()
+    //Viewmodel
+    val signUpViewModel = hiltViewModel<SignUpViewModel>()
+    val signInViewModel = hiltViewModel<SignInViewModel>()
+    val forgetViewModel = hiltViewModel<ForgetViewModel>()
+    val splashViewModel = hiltViewModel<SplashViewModel>()
 
     val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
     val addExpenseViewModel = hiltViewModel<AddExpenseViewModel>()
     val addIncomeViewModel = hiltViewModel<AddIncomeViewModel>()
+    val homeViewModel = hiltViewModel<HomeViewModel>()
 
-    val scope = rememberCoroutineScope()
 
     NavHost(
         navController = rootNavController,
-        startDestination = Splash
+        startDestination = SplashRoute
     ) {
 
-        composable<Splash> {
+        composable<SplashRoute> {
             SplashScreen(
-                authViewModel = authViewModel,
+                viewModel = splashViewModel,
                 navController = rootNavController
             )
         }
 
-        composable<GettingStart> {
+        composable<GettingStartRoute> {
             GettingStartScreen(
                 navController = rootNavController
             )
         }
-        composable<OnBoard> {
+        composable<OnBoardRoute> {
             OnBoardingScreen(
                 viewModel = onBoardingViewModel,
                 navController = rootNavController
             )
         }
-        composable<SignIn> {
+        composable<SignInRoute> {
             SignInScreen(
-                viewModel = authViewModel,
+                viewModel = signInViewModel,
                 navController = rootNavController
             )
         }
-        composable<SignUp> {
+        composable<SignUpRoute> {
             SignUpScreen(
-                viewModel = authViewModel,
+                viewModel = signUpViewModel,
                 navController = rootNavController
             )
         }
-        composable<ForgetPassword> {
+        composable<ForgetPasswordRoute> {
             ForgetPasswordScreen(
-                viewModel = authViewModel,
+                viewModel = forgetViewModel,
                 navController = rootNavController
             )
         }
         //MainScreen
-        composable<Main> {
+        composable<MainRoute> {
             MainScreen(
                 rootNavController = rootNavController,
             )
         }
 
-        composable<AddTransaction> {
+        composable<AddTransactionRoute> {
             AddTransactionScreen(
                 addIncomeViewModel = addIncomeViewModel,
                 addExpenseViewModel = addExpenseViewModel,
-                homeViewModel = hiltViewModel(),
+                homeViewModel = homeViewModel,
                 navController = rootNavController
             )
         }

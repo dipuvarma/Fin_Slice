@@ -1,9 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.main.home
 
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -24,65 +20,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.BudgetCategoryCard
-import com.dipuguide.finslice.presentation.component.CustomTopAppBar
-import com.dipuguide.finslice.presentation.component.FormLabel
-import com.dipuguide.finslice.presentation.component.MonthYearPickerDialog
-import com.dipuguide.finslice.presentation.component.TransactionDashboard
-import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.dipuguide.finslice.presentation.common.component.BudgetCategoryCard
+import com.dipuguide.finslice.presentation.common.component.CustomTopAppBar
+import com.dipuguide.finslice.presentation.common.component.FormLabel
+import com.dipuguide.finslice.presentation.common.component.MonthYearPickerDialog
+import com.dipuguide.finslice.presentation.common.component.TransactionDashboard
 
-
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    authViewModel: AuthViewModel,
-    onOverViewClick: () -> Unit,
+    onOverViewClick:() -> Unit,
     innerPadding: PaddingValues,
 ) {
-    val uiState by homeViewModel.homeUiState.collectAsState()
-    val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val uiState by homeViewModel.uiState.collectAsState()
+    val homeUiState by homeViewModel.homeUiState.collectAsState()
     val context = LocalContext.current
-    val selectedMonth by homeViewModel.selectedMonth.collectAsStateWithLifecycle()
-    val selectedYear by homeViewModel.selectedYear.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
+    val userDetail by homeViewModel.userDetail.collectAsState()
 
-    val userDetail by homeViewModel.userDetails.collectAsState()
 
-    val getUserDetail by authViewModel.getUserDetails.collectAsState()
-
-    // 🧠 Safe one-time collection
-//    LaunchedEffect(Unit) {
-//        homeViewModel.homeUiEvent.collect { event ->
-//            val message = when (event) {
-//                is HomeUiEvent.Loading -> "Fetching data, please wait..."
-//                is HomeUiEvent.Success -> event.message
-//                is HomeUiEvent.Error -> event.message
-//                else -> null
-//            }
-//            message?.let {
-//                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-
-    val userName = remember(userDetail, getUserDetail) {
-        userDetail.name.takeUnless { it.isNullOrEmpty() }
-            ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() }
-            ?: "Fin Slice"
+    LaunchedEffect(Unit) {
+        homeViewModel.homeNavigation.collect { navigation ->
+            when (navigation) {
+                HomeNavigation.REPORT -> {
+                    onOverViewClick()
+                }
+            }
+        }
     }
+
 
     Column(
         modifier = Modifier
             .padding(innerPadding)
     ) {
         CustomTopAppBar(
-            title = userName,
-            image = userDetail.photo,
+            title = userDetail.name,
+            image = userDetail.photoUri,
             actions = {
                 IconButton(onClick = {
                     showDialog = true
@@ -97,52 +72,49 @@ fun HomeScreen(
         )
         if (showDialog) {
             MonthYearPickerDialog(
-                currentMonth = selectedMonth,
-                currentYear = selectedYear,
+                currentMonth = homeUiState.selectedMonth,
+                currentYear = homeUiState.selectedYear,
                 onDismiss = { showDialog = false },
                 onConfirm = { month, year ->
-                    homeViewModel.setMonthAndYear(month = month, year = year)
+                    homeViewModel.onEvent(HomeUiEvent.MonthPickerClick(month = month, year = year))
                 }
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = { homeViewModel.refresh() }
-        ) {
-            LazyColumn {
-                item {
-                    TransactionDashboard(
-                        onOverViewClick = onOverViewClick,
-                        netBalanceAmount = uiState.netBalance,
-                        expenseAmount = uiState.totalExpense,
-                        incomeAmount = uiState.totalIncome
+
+        LazyColumn {
+            item {
+                TransactionDashboard(
+                    onOverViewClick = onOverViewClick,
+                    netBalanceAmount = homeUiState.netAmount,
+                    expenseAmount = homeUiState.totalExpense,
+                    incomeAmount = homeUiState.totalIncome
+                )
+                Column(modifier = Modifier.padding(16.dp)) {
+                    FormLabel(text = "CATEGORY")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    BudgetCategoryCard(
+                        title = "Need",
+                        spentAmount = homeUiState.needExpenseTotal,
+                        totalAmount = homeUiState.needPercentageAmount,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        FormLabel(text = "CATEGORY")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        BudgetCategoryCard(
-                            title = "Need",
-                            spentAmount = uiState.needExpenseTotal,
-                            totalAmount = uiState.needPercentageAmount,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        BudgetCategoryCard(
-                            title = "Want",
-                            spentAmount = uiState.wantExpenseTotal,
-                            totalAmount = uiState.wantPercentageAmount,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                        BudgetCategoryCard(
-                            title = "Invest",
-                            spentAmount = uiState.investExpenseTotal,
-                            totalAmount = uiState.investPercentageAmount,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
+                    BudgetCategoryCard(
+                        title = "Want",
+                        spentAmount = homeUiState.wantExpenseTotal,
+                        totalAmount = homeUiState.wantPercentageAmount,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    BudgetCategoryCard(
+                        title = "Invest",
+                        spentAmount = homeUiState.investExpenseTotal,
+                        totalAmount = homeUiState.investPercentageAmount,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                 }
             }
         }
+
     }
 }
 

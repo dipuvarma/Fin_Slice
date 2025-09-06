@@ -3,7 +3,8 @@ package com.dipuguide.finslice.presentation.screens.main.category
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.domain.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,58 +24,48 @@ class CategoryViewModel @Inject constructor(
     private val expenseTransactionRepo: ExpenseTransactionRepo,
 ) : ViewModel() {
 
-    companion object {
-        private const val TAG = "CategoryViewModel"
-    }
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val _categoryUiState = MutableStateFlow(CategoryUiState())
     val categoryUiState: StateFlow<CategoryUiState> = _categoryUiState.asStateFlow()
 
-    private val _categoryUiEvent = MutableSharedFlow<CategoryUiEvent>()
-    val categoryUiEvent: SharedFlow<CategoryUiEvent> = _categoryUiEvent.asSharedFlow()
 
     private val _selectedTab = MutableStateFlow(0)
     val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
 
-    init {
-        loadCategoryExpenses()
-    }
 
-    /**
-     * Update selected tab index
-     */
     fun onSelectedTab(index: Int) {
-        Log.d(TAG, "Tab selected: $index")
         _selectedTab.value = index
     }
 
-    /**
-     * Load all expenses for fixed categories
-     */
-    private fun loadCategoryExpenses() {
+
+    fun loadCategoryExpenses() {
         listOf("Need", "Want", "Invest").forEach { category ->
             getAllExpensesByCategory(category)
         }
     }
 
-    /**
-     * Fetch expenses by category and update UI state
-     */
-    fun getAllExpensesByCategory(category: String) {
-        viewModelScope.launch {
-            Log.d(TAG, "Fetching expenses for category: $category")
-            _categoryUiEvent.emit(CategoryUiEvent.Loading)
 
+    fun onEvent(event: CategoryEvent) {
+        when (event) {
+            is CategoryEvent.DeleteClick -> {
+                deleteExpenseTransaction(event.expenseId)
+            }
+
+            is CategoryEvent.EditClick -> {
+
+            }
+        }
+    }
+
+    private fun getAllExpensesByCategory(category: String) {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
             expenseTransactionRepo.getAllExpensesByCategory(category)
                 .distinctUntilChanged()
                 .collectLatest { result ->
-
                     result.onSuccess { expenses ->
-                        Log.d(
-                            TAG,
-                            "Fetched ${expenses.size} expenses for category: $category"
-                        )
-
                         _categoryUiState.update { currentState ->
                             when (category) {
                                 "Need" -> currentState.copy(expenseNeedList = expenses)
@@ -83,38 +74,33 @@ class CategoryViewModel @Inject constructor(
                                 else -> currentState
                             }
                         }
-
-//                        _categoryUiEvent.emit(
-//                            CategoryUiEvent.Success("Expenses loaded successfully for category: $category")
-//                        )
+                        _uiState.value = UiState.Success("Fetch")
+                        _uiState.value = UiState.Idle
                     }
 
                     result.onFailure { exception ->
-                        Log.e(
-                            TAG,
-                            "Failed to fetch expenses for category: $category",
-                            exception
-                        )
-                        _categoryUiEvent.emit(
-                            CategoryUiEvent.Error("Failed to load $category expenses")
-                        )
+                        _uiState.value = UiState.Error("Failed to load $category expenses")
+                        _uiState.value = UiState.Idle
                     }
                 }
         }
     }
 
 
-    fun deleteExpenseTransaction(id: String) {
+    fun deleteExpenseTransaction(expenseId: String) {
         viewModelScope.launch {
-            val result = expenseTransactionRepo.deleteExpenseTransaction(id = id)
-
+            val result = expenseTransactionRepo.deleteExpenseTransaction(expenseId = expenseId)
             result.onSuccess {
-                _categoryUiEvent.emit(CategoryUiEvent.Success("Delete Successfully"))
+                _uiState.value = UiState.Success("Delete Successfully")
             }
-
             result.onFailure {
-                _categoryUiEvent.emit(CategoryUiEvent.Error("Delete Failed"))
+                _uiState.value = UiState.Error("Delete Failed")
             }
         }
     }
+
+    fun resetUiState() {
+        _uiState.value = UiState.Idle
+    }
+
 }

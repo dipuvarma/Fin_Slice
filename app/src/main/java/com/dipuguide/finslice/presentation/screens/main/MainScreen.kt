@@ -2,27 +2,25 @@ package com.dipuguide.finslice.presentation.screens.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.dipuguide.finslice.presentation.component.bottom.BottomBarNavigation
-import com.dipuguide.finslice.presentation.component.bottom.bottomNavItemList
-import com.dipuguide.finslice.presentation.navigation.AddTransaction
+import com.dipuguide.finslice.presentation.common.component.bottom.BottomBarNavigation
+import com.dipuguide.finslice.presentation.navigation.AddTransactionRoute
 import com.dipuguide.finslice.presentation.navigation.Categories
 import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Report
 import com.dipuguide.finslice.presentation.navigation.Setting
 import com.dipuguide.finslice.presentation.navigation.TransactionHistory
-import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
 import com.dipuguide.finslice.presentation.screens.main.category.CategoriesScreen
 import com.dipuguide.finslice.presentation.screens.main.category.CategoryViewModel
 import com.dipuguide.finslice.presentation.screens.main.history.TransactionHistoryScreen
@@ -34,36 +32,31 @@ import com.dipuguide.finslice.presentation.screens.main.report.ReportViewModel
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingScreen
 import com.dipuguide.finslice.presentation.screens.main.setting.SettingViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun MainScreen(
     rootNavController: NavController,
 ) {
 
     val tabNavController = rememberNavController()
+    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination?.route
 
-    val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
-    val authViewModel = hiltViewModel<AuthViewModel>()
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
+    val historyViewModel = hiltViewModel<TransactionHistoryViewModel>()
     val settingViewModel = hiltViewModel<SettingViewModel>()
     val reportViewModel = hiltViewModel<ReportViewModel>()
 
-    val currentBackStackEntry = tabNavController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry.value?.destination
 
     Scaffold(
         bottomBar = {
-            BottomBarNavigation(
-                navController = tabNavController,
-                items = bottomNavItemList
-            )
+            BottomBarNavigation(tabNavController = tabNavController)
         },
         floatingActionButton = {
-            if (currentDestination?.route?.contains("Home") == true) {
+            if (currentDestination == "home") {
                 FloatingActionButton(
                     onClick = {
-                        rootNavController.navigate(AddTransaction)
+                        rootNavController.navigate(AddTransactionRoute)
                     },
                     contentColor = MaterialTheme.colorScheme.background,
                     containerColor = MaterialTheme.colorScheme.onBackground
@@ -75,16 +68,15 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = tabNavController,
-            startDestination = Home,
+            startDestination = Home.route,
         ) {
 
-            composable<Home> {
+            composable(Home.route) {
                 HomeScreen(
                     innerPadding = innerPadding,
                     homeViewModel = homeViewModel,
-                    authViewModel = authViewModel,
                     onOverViewClick = {
-                        tabNavController.navigate(Report) {
+                        tabNavController.navigate(Report.route) {
                             popUpTo(tabNavController.graph.startDestinationId) {
                                 inclusive = false
                             }
@@ -95,33 +87,30 @@ fun MainScreen(
                 )
             }
 
-            composable<Categories> {
+            composable(Categories.route) {
                 CategoriesScreen(
                     innerPadding = innerPadding,
                     categoryViewModel = categoryViewModel
                 )
             }
 
-            composable<Report> {
+            composable(Report.route) {
                 ReportScreen(
-                    innerPadding = innerPadding,
-                    reportViewModel = reportViewModel
+                    reportViewModel = reportViewModel,
                 )
             }
 
-            composable<TransactionHistory> {
+            composable(TransactionHistory.route) {
                 TransactionHistoryScreen(
                     innerPadding = innerPadding,
                     historyViewModel = historyViewModel,
                 )
             }
 
-            composable<Setting> {
+            composable(Setting.route) {
                 SettingScreen(
                     innerPadding = innerPadding,
                     settingViewModel = settingViewModel,
-                    authViewModel = authViewModel,
-                    homeViewModel = homeViewModel,
                     navController = rootNavController
                 )
             }

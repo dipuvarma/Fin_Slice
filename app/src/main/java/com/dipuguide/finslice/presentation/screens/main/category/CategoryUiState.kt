@@ -1,9 +1,9 @@
 package com.dipuguide.finslice.presentation.screens.main.category
 
-import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
+import com.dipuguide.finslice.domain.model.ExpenseTransaction
 
 data class CategoryUiState(
-   val expenseNeedList : List<ExpenseTransactionUi> = emptyList(),
-   val expenseWantList : List<ExpenseTransactionUi> = emptyList(),
-   val expenseInvestList : List<ExpenseTransactionUi> = emptyList()
+    val expenseNeedList : List<ExpenseTransaction> = emptyList(),
+    val expenseWantList : List<ExpenseTransaction> = emptyList(),
+    val expenseInvestList : List<ExpenseTransaction> = emptyList()
 )

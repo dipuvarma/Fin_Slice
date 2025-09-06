@@ -1,18 +1,20 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction.expense
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.domain.model.ExpenseTransaction
+import com.dipuguide.finslice.domain.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.presentation.common.state.UiState
 import com.dipuguide.finslice.presentation.screens.main.home.HomeUiState
-import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,11 +22,14 @@ class AddExpenseViewModel @Inject constructor(
     private val expenseTransactionRepo: ExpenseTransactionRepo,
 ) : ViewModel() {
 
-    private val _addExpenseUiState = MutableStateFlow(ExpenseTransactionUi())
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private val _addExpenseUiState = MutableStateFlow(AddExpenseUiState())
     val addExpenseUiState = _addExpenseUiState.asStateFlow()
 
-    private val _addExpenseUiEvent = MutableSharedFlow<AddExpenseUiEvent>()
-    val addExpenseUiEvent = _addExpenseUiEvent.asSharedFlow()
+    private val _navigationEvent = MutableSharedFlow<AddExpenseNavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     val expenseCategories = listOf("Need", "Want", "Invest")
 
@@ -74,13 +79,62 @@ class AddExpenseViewModel @Inject constructor(
     )
 
 
-    fun setDate(millis: Long) {
-        _addExpenseUiState.update {
-            it.copy(
-                date = millis
-            )
+    fun onEvent(event: AddExpenseEvent) {
+        when (event) {
+            is AddExpenseEvent.AmountChange -> {
+                _addExpenseUiState.update {
+                    it.copy(
+                        amount = event.amount
+                    )
+                }
+            }
+
+            is AddExpenseEvent.NoteChange -> {
+                _addExpenseUiState.update {
+                    it.copy(
+                        note = event.note
+                    )
+                }
+            }
+
+            is AddExpenseEvent.CategoryChange -> {
+                _addExpenseUiState.update {
+                    it.copy(
+                        category = event.category
+                    )
+                }
+            }
+
+            is AddExpenseEvent.TagChange -> {
+                _addExpenseUiState.update {
+                    it.copy(
+                        tag = event.tag
+                    )
+                }
+            }
+
+            is AddExpenseEvent.DatePickerClick -> {
+                _addExpenseUiState.update {
+                    it.copy(
+                        createdAt = event.millis
+                    )
+                }
+            }
+
+            AddExpenseEvent.SaveExpenseClick -> {
+                addExpenseTransaction(
+                    ExpenseTransaction(
+                        amount = addExpenseUiState.value.amount.toDouble(),
+                        note = addExpenseUiState.value.note,
+                        category = addExpenseUiState.value.category,
+                        tag = addExpenseUiState.value.tag,
+                        createdAt = addExpenseUiState.value.createdAt
+                    )
+                )
+            }
         }
     }
+
 
     fun clearAmount() {
         _addExpenseUiState.update {
@@ -109,71 +163,21 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
 
-    fun setCategory(category: String) {
-        _addExpenseUiState.update {
-            it.copy(
-                category = category
-            )
-        }
-    }
-
-    fun setTag(tag: String) {
-        _addExpenseUiState.update {
-            it.copy(
-                tag = tag
-            )
-        }
-    }
-
-    fun updatedAmount(amount: String) {
-        _addExpenseUiState.update {
-            it.copy(
-                amount = amount
-            )
-        }
-    }
-
-    fun updatedNote(note: String) {
-        _addExpenseUiState.update {
-            it.copy(
-                note = note
-            )
-        }
-    }
-
-    fun addExpenseTransaction() {
+    fun addExpenseTransaction(expenseTransaction: ExpenseTransaction) {
         viewModelScope.launch {
-            _addExpenseUiEvent.emit(AddExpenseUiEvent.Loading)
-            val expenseTransactionUi = addExpenseUiState.value
-            // 🚫 If amount is empty or invalid, don't call repo
-            val amountDouble = expenseTransactionUi.amount.toDoubleOrNull()
-            if (amountDouble == null || amountDouble < 0) {
-                _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Please enter a valid amount greater than 0"))
-                Log.w(
-                    "addExpenseTransaction",
-                    "⚠️ Invalid amount input: ${expenseTransactionUi.amount}"
-                )
-                return@launch
-            }
+            _uiState.value = UiState.Loading
 
-            val result = expenseTransactionRepo.addExpenseTransaction(expenseTransactionUi)
+            val result = expenseTransactionRepo.addExpenseTransaction(expenseTransaction)
+
             result.onSuccess {
-                _addExpenseUiState.update { data ->
-                    ExpenseTransactionUi(
-                        id = data.id,
-                        amount = data.amount,
-                        note = data.note,
-                        category = data.category,
-                        tag = data.tag,
-                        date = addExpenseUiState.value.date
-                    )
-                }
-                Log.d("addExpenseTransaction ", "Add Expense Successfully")
-                _addExpenseUiEvent.emit(AddExpenseUiEvent.Success("Expense added successfully"))
+                _uiState.value = UiState.Success("Expense added successfully")
+                _navigationEvent.emit(AddExpenseNavigationEvent.MAIN)
+                Timber.d("Add Expense Successfully")
+
             }
             result.onFailure {
-                Log.e("addExpenseTransaction", "❌ Failed to add expense", it)
-                _addExpenseUiEvent.emit(AddExpenseUiEvent.Error("Something went wrong while saving expense"))
+                Timber.e(it, "Failed to add expense")
+                _uiState.value = UiState.Error("Something went wrong while saving expense")
             }
         }
     }
@@ -183,6 +187,7 @@ class AddExpenseViewModel @Inject constructor(
             ?: return "Please enter a valid amount"
 
         val totalIncome = homeUiState.totalIncome.replace(",", "").toDoubleOrNull() ?: 0.0
+
         if (inputAmount > totalIncome) {
             return "Your income is ₹${homeUiState.totalIncome}. You can't exceed this limit."
         }
@@ -220,6 +225,10 @@ class AddExpenseViewModel @Inject constructor(
             }
         }
         return null // No error
+    }
+
+    fun resetUiState() {
+        _uiState.value = UiState.Idle
     }
 
 }

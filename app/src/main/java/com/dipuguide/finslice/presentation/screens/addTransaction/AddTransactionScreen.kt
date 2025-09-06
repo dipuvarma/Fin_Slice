@@ -1,7 +1,5 @@
 package com.dipuguide.finslice.presentation.screens.addTransaction
 
-import android.util.Log
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,16 +27,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.TopAppBarComp
-import com.dipuguide.finslice.presentation.navigation.Main
+import com.dipuguide.finslice.presentation.common.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.navigation.MainRoute
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.expense.AddExpenseViewModel
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeScreen
 import com.dipuguide.finslice.presentation.screens.addTransaction.income.AddIncomeViewModel
 import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
 
+data class TabItem(val label: String, val index: Int)
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun AddTransactionScreen(
     addIncomeViewModel: AddIncomeViewModel,
@@ -54,10 +52,8 @@ fun AddTransactionScreen(
         TabItem(label = stringResource(id = R.string.tab_income), index = 1)
     )
 
-     // Prevent unnecessary recomposition using remember
     val onTabSelected = remember {
         { index: Int ->
-            Log.d("AddTransactionScreen", "Tab selected: $index") // ✅ Meaningful log
             addIncomeViewModel.onTabSelected(index)
         }
     }
@@ -70,14 +66,14 @@ fun AddTransactionScreen(
         TopAppBarComp(
             title = "Add Transaction",
             onClickNavigationIcon = {
-                navController.navigate(Main){
+                navController.navigate(MainRoute) {
                     popUpTo(0) { inclusive = true }
                     launchSingleTop = true
                 }
             },
-            navigationIcon = Icons.Default.ArrowBack
+            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
         )
-        // 🔸 Custom TabRow
+        // Custom TabRow
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -109,18 +105,17 @@ fun AddTransactionScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(16.dp)) // optional padding
+        Spacer(modifier = Modifier.height(16.dp))
         // Show the selected screen
         Box(modifier = Modifier.weight(1f)) {
             when (selectedTab) {
                 0 -> AddExpenseScreen(
-                    addExpenseViewModel = addExpenseViewModel,
+                    viewModel = addExpenseViewModel,
                     homeViewModel = homeViewModel,
                     navController = navController
                 )
-
                 1 -> AddIncomeScreen(
-                    addIncomeViewModel = addIncomeViewModel,
+                    viewModel = addIncomeViewModel,
                     navController = navController
                 )
             }
@@ -128,5 +123,4 @@ fun AddTransactionScreen(
     }
 }
 
-// ✅ Sealed tab item for type safety & clarity
-data class TabItem(val label: String, val index: Int)
+

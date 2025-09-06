@@ -1,22 +1,16 @@
 package com.dipuguide.finslice.presentation.screens.main.history
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dipuguide.finslice.data.repo.ExpenseTransactionRepo
-import com.dipuguide.finslice.data.repo.IncomeTransactionRepo
-import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
-import com.dipuguide.finslice.presentation.model.IncomeTransactionUi
+import com.dipuguide.finslice.domain.model.ExpenseTransaction
+import com.dipuguide.finslice.domain.model.IncomeTransaction
+import com.dipuguide.finslice.domain.repo.ExpenseTransactionRepo
+import com.dipuguide.finslice.domain.repo.IncomeTransactionRepo
+import com.dipuguide.finslice.presentation.common.state.UiState
 import com.dipuguide.finslice.utils.DateFilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -30,171 +24,136 @@ class TransactionHistoryViewModel @Inject constructor(
     private val incomeTransactionRepo: IncomeTransactionRepo,
 ) : ViewModel() {
 
-    companion object {
-        private const val TAG = "TransactionHistoryViewModel"
-    }
 
-    var selectedTab by mutableIntStateOf(0)
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val _expenseHistoryUiEvent = MutableSharedFlow<ExpenseHistoryUiEvent>()
-    val expenseHistoryUiEvent: SharedFlow<ExpenseHistoryUiEvent> =
-        _expenseHistoryUiEvent.asSharedFlow()
+    private val _selectedTab = MutableStateFlow(0)
+    val selectedTab = _selectedTab.asStateFlow()
 
-    private val _getAllExpenseByDate = MutableStateFlow<List<ExpenseTransactionUi>>(emptyList())
-    val getAllExpenseByDate: StateFlow<List<ExpenseTransactionUi>> =
-        _getAllExpenseByDate.asStateFlow()
+    private val _getAllExpenseByDate = MutableStateFlow<List<ExpenseTransaction>>(emptyList())
+    val getAllExpenseByDate = _getAllExpenseByDate.asStateFlow()
 
-    private val _getAllIncomeByDate = MutableStateFlow<List<IncomeTransactionUi>>(emptyList())
-    val getAllIncomeByDate: StateFlow<List<IncomeTransactionUi>> = _getAllIncomeByDate.asStateFlow()
-
-    private val _incomeHistoryUiEvent = MutableSharedFlow<IncomeHistoryUiEvent>()
-    val incomeHistoryUiEvent: SharedFlow<IncomeHistoryUiEvent> =
-        _incomeHistoryUiEvent.asSharedFlow()
+    private val _getAllIncomeByDate = MutableStateFlow<List<IncomeTransaction>>(emptyList())
+    val getAllIncomeByDate = _getAllIncomeByDate.asStateFlow()
 
     private val _selectedFilter = MutableStateFlow<DateFilterType>(DateFilterType.Today)
     val selectedFilter: StateFlow<DateFilterType> = _selectedFilter.asStateFlow()
 
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
     init {
-        Log.d(TAG, "Initializing with default filter: Today")
         fetchAllForFilter(DateFilterType.Today)
     }
 
     fun onTabSelected(index: Int) {
-        Log.d(TAG, "Tab selected: $index")
-        selectedTab = index
+        _selectedTab.value = index
     }
 
     fun onFilterSelected(filter: DateFilterType) {
-        Log.d(TAG, "Filter selected: $filter")
         _selectedFilter.value = filter
         fetchAllForFilter(filter)
     }
 
-    fun refresh() {
-        Log.d(TAG, "Refreshing data for current filter: ${selectedFilter.value}")
-        fetchAllForFilter(selectedFilter.value, isManualRefresh = true)
-    }
-
-    private fun fetchAllForFilter(
-        filter: DateFilterType,
-        isManualRefresh: Boolean = false,
-    ) {
-        getAllExpensesByDateRange(filter, isManualRefresh)
-        getIncomeTransactionByDate(filter, isManualRefresh)
+    fun fetchAllForFilter(filter: DateFilterType) {
+        getAllExpensesByDateRange(filter)
+        getIncomeTransactionByDate(filter)
     }
 
     private fun getAllExpensesByDateRange(
         filter: DateFilterType,
-        isManualRefresh: Boolean = false,
     ) {
         viewModelScope.launch {
-            if (isManualRefresh) _isRefreshing.value = true
 
-            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
-            Log.d(TAG, "Fetching expenses for $filter")
+            _uiState.value = UiState.Loading
 
             expenseTransactionRepo.getAllExpensesByDateRange(filter)
                 .distinctUntilChanged()
                 .collectLatest { result ->
                     result.onSuccess { data ->
-                        Log.d(TAG, "Fetched ${data.size} expense(s) for $filter")
                         _getAllExpenseByDate.value = data
-                        _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Expenses loaded for $filter"))
+                        _uiState.value = UiState.Success("getAllExpensesByDateRange")
+                        _uiState.value = UiState.Idle
                     }
                     result.onFailure { error ->
-                        Log.e(TAG, "Error fetching expenses for $filter", error)
-                        _expenseHistoryUiEvent.emit(
-                            ExpenseHistoryUiEvent.Error(
-                                error.message ?: "Unknown error fetching expenses for $filter"
-                            )
+                        _uiState.value = UiState.Error(
+                            error.message ?: "Unknown error fetching expenses for $filter"
                         )
+                        _uiState.value = UiState.Idle
                     }
-
-                    if (isManualRefresh) _isRefreshing.value = false
                 }
         }
     }
 
     private fun getIncomeTransactionByDate(
         filter: DateFilterType,
-        isManualRefresh: Boolean = false,
     ) {
         viewModelScope.launch {
-            if (isManualRefresh) _isRefreshing.value = true
-
-            _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Loading)
-            Log.d(TAG, "Fetching income for $filter")
-
+            _uiState.value = UiState.Loading
             incomeTransactionRepo.getIncomeTransactionByDate(filter)
                 .distinctUntilChanged()
                 .collectLatest { result ->
                     result.onSuccess { data ->
-                        Log.d(TAG, "Fetched ${data.size} income record(s) for $filter")
                         _getAllIncomeByDate.value = data
-                        _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Success("Income loaded for $filter"))
+                        _uiState.value = UiState.Success("getIncomeTransactionByDate")
+                        _uiState.value = UiState.Idle
                     }
                     result.onFailure { error ->
-                        Log.e(TAG, "Error fetching income for $filter", error)
-                        _incomeHistoryUiEvent.emit(
-                            IncomeHistoryUiEvent.Error(
-                                error.message ?: "Unknown error fetching income for $filter"
-                            )
+                        _uiState.value = UiState.Error(
+                            error.message ?: "Unknown error fetching expenses for $filter"
                         )
+                        _uiState.value = UiState.Idle
                     }
-
-                    if (isManualRefresh) _isRefreshing.value = false
                 }
         }
     }
 
-    fun editExpenseTransaction(expenseTransactionUi: ExpenseTransactionUi) {
+    fun editExpenseTransaction(expenseTransactionUi: ExpenseTransaction) {
         viewModelScope.launch {
-            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
-
-            val result = expenseTransactionRepo.editExpenseTransaction(
-                expenseTransactionUi
-            )
-
+            _uiState.value = UiState.Loading
+            val result = expenseTransactionRepo.editExpenseTransaction(expenseTransactionUi)
             result.onSuccess {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Edit Success"))
+                _uiState.value = UiState.Success("Edit Success")
             }
-
             result.onFailure {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Edit Failed"))
+                _uiState.value = UiState.Error(it.message ?: "Edit Failed")
             }
         }
     }
 
-    fun deleteExpenseTransaction(id: String) {
+    fun deleteExpenseTransaction(expenseId: String) {
         viewModelScope.launch {
-            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
-            val result = expenseTransactionRepo.deleteExpenseTransaction(id = id)
+
+            _uiState.value = UiState.Loading
+
+            val result = expenseTransactionRepo.deleteExpenseTransaction(expenseId = expenseId)
 
             result.onSuccess {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Success("Updated SuccessFully"))
+                _uiState.value = UiState.Success("Updated SuccessFully")
             }
 
             result.onFailure {
-                _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Error("Update Failed"))
+                _uiState.value = UiState.Error(it.message ?: "Update Failed")
             }
         }
     }
 
-    fun deleteIncomeTransaction(id: String){
+    fun deleteIncomeTransaction(incomeId: String) {
         viewModelScope.launch {
-            _expenseHistoryUiEvent.emit(ExpenseHistoryUiEvent.Loading)
-            val result = incomeTransactionRepo.deleteIncomeTransaction(id = id)
+
+            _uiState.value = UiState.Loading
+
+            val result = incomeTransactionRepo.deleteIncomeTransaction(transactionId = incomeId)
 
             result.onSuccess {
-                _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Success("Income deleted successfully"))
+                _uiState.value = UiState.Success("Income deleted successfully")
             }
 
             result.onFailure {
-                _incomeHistoryUiEvent.emit(IncomeHistoryUiEvent.Success("Failed to delete income"))
+                _uiState.value = UiState.Error(it.message ?: "Failed to delete income")
             }
         }
+    }
+
+    fun resetUiState(){
+        _uiState.value = UiState.Idle
     }
 }

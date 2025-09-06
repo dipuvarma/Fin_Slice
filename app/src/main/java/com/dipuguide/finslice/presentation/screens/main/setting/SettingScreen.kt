@@ -1,10 +1,8 @@
 package com.dipuguide.finslice.presentation.screens.main.setting
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,56 +37,73 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
-import com.dipuguide.finslice.presentation.component.AlertDialogBox
-import com.dipuguide.finslice.presentation.component.SettingCardComp
-import com.dipuguide.finslice.presentation.component.SettingProfileComp
-import com.dipuguide.finslice.presentation.component.SettingSwitchCard
-import com.dipuguide.finslice.presentation.component.TopAppBarComp
-import com.dipuguide.finslice.presentation.navigation.GettingStart
-import com.dipuguide.finslice.presentation.screens.auth.AuthViewModel
-import com.dipuguide.finslice.presentation.screens.main.home.HomeViewModel
-import com.dipuguide.finslice.utils.Destination
-import kotlinx.coroutines.launch
+import com.dipuguide.finslice.presentation.common.component.AlertDialogBox
+import com.dipuguide.finslice.presentation.common.component.SettingCardComp
+import com.dipuguide.finslice.presentation.common.component.SettingProfileComp
+import com.dipuguide.finslice.presentation.common.component.SettingSwitchCard
+import com.dipuguide.finslice.presentation.common.component.TopAppBarComp
+import com.dipuguide.finslice.presentation.common.state.UiState
+import com.dipuguide.finslice.presentation.navigation.GettingStartRoute
+import com.dipuguide.finslice.presentation.navigation.MainRoute
 
 @Composable
 fun SettingScreen(
     innerPadding: PaddingValues,
     settingViewModel: SettingViewModel,
-    authViewModel: AuthViewModel,
-    homeViewModel: HomeViewModel,
     navController: NavController,
 ) {
-    val darkTheme = isSystemInDarkTheme()
-    val isDarkMode = settingViewModel.isDarkModeState.collectAsState()
-    val isDynamicMode = settingViewModel.isDynamicModeState.collectAsState()
 
-    val userDetail by homeViewModel.userDetails.collectAsState()
-    val scope = rememberCoroutineScope()
-    val getUserDetail by authViewModel.getUserDetails.collectAsState()
+    val uiState by settingViewModel.uiState.collectAsState()
+    val isDynamicMode by settingViewModel.isDynamicModeEnabled.collectAsState()
+    val isDarkMode by settingViewModel.isDarkModeEnabled.collectAsState()
+    val settingUiState by settingViewModel.settingUiState.collectAsState()
+    val userDetail by settingViewModel.userDetail.collectAsState()
     val context = LocalContext.current
-    val userName =
-        userDetail.name.takeUnless { it.isNullOrEmpty() } // 1. Use userDetail.name if it's not null or empty
-            ?: getUserDetail.name.takeUnless { it.isNullOrEmpty() } // 2. Otherwise, use getUserDetail.name if it's not null or empty
-            ?: "Fin Slice" // 3. Otherwise, default to "Fin Slice"
 
-    val userEmail = userDetail.email.takeUnless { it.isNullOrEmpty() }
-        ?: getUserDetail.email.takeUnless { it.isNullOrEmpty() }
-        ?: ""
 
-    Log.d("TAG", "SettingScreen: $isDarkMode")
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> {
+                val successMessage = (uiState as UiState.Success).message
+                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (uiState as UiState.Error).error
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            }
+
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(Unit) {
-        authViewModel.navigation.collect {
-            when (it) {
-                Destination.GettingStart -> {
-                    navController.navigate(GettingStart) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        launchSingleTop = true
-                        restoreState = false
+        settingViewModel.navigation.collect { destination ->
+            when (destination) {
+                SettingNavigation.RATE -> TODO()
+                SettingNavigation.PRIVACY -> TODO()
+                SettingNavigation.FEEDBACK -> TODO()
+                SettingNavigation.SIGN_OUT -> {
+                    navController.navigate(GettingStartRoute) {
+                        navController.navigate(MainRoute) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = false
+                        }
                     }
+                    settingViewModel.resetUiState()
                 }
 
-                else -> {}
+                SettingNavigation.DELETE_ACCOUNT -> {
+                    navController.navigate(GettingStartRoute) {
+                        navController.navigate(MainRoute) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
+                    settingViewModel.resetUiState()
+                }
             }
         }
     }
@@ -107,9 +121,9 @@ fun SettingScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         SettingProfileComp(
-            name = userName,
-            email = userEmail,
-            image = userDetail.photo
+            name = userDetail.name,
+            email = userDetail.email,
+            image = userDetail.photoUri
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -126,20 +140,19 @@ fun SettingScreen(
                     iconFilled = R.drawable.dark_mode_icon,
                     iconOutline = R.drawable.light_mode_icone,
                     title = "Dark Mode",
-                    checked = isDarkMode.value,
+                    checked = isDarkMode,
                     onCheckedChange = { isChecked ->
-                        settingViewModel.toggleDarkMode(isChecked)
+                        settingViewModel.onEvent(SettingEvent.DarkModeChange(isChecked))
                     }
                 )
-
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
                 SettingSwitchCard(
                     iconFilled = R.drawable.dynamic_color_fill,
                     iconOutline = R.drawable.dynamic_color_outline,
                     title = "Dynamic Color",
-                    checked = isDynamicMode.value,
-                    onCheckedChange = {
-                        settingViewModel.toggleDynamicMode(it)
+                    checked = isDynamicMode,
+                    onCheckedChange = { isChecked ->
+                        settingViewModel.onEvent(SettingEvent.DynamicColorChange(isChecked))
                     }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
@@ -161,7 +174,6 @@ fun SettingScreen(
             tonalElevation = 2.dp,
             contentColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
-
             Column {
                 SettingCardComp(
                     icon = R.drawable.update_check_icon,
@@ -175,18 +187,23 @@ fun SettingScreen(
                 SettingCardComp(
                     icon = R.drawable.feedback_icon,
                     title = "Rate",
-                    onClick = {}
+                    onClick = {
+                        /*TODO*/
+                    }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
                 SettingCardComp(
                     icon = R.drawable.privacy_icon,
                     title = "Privacy",
-                    onClick = {}
+                    onClick = {
+                        /*TODO*/
+                    }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
                 var userGuide by remember { mutableStateOf(false) }
+
                 SettingCardComp(
                     icon = R.drawable.guide_user_icon,
                     title = "User Guide",
@@ -210,6 +227,7 @@ fun SettingScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
                 var isFeedback by remember { mutableStateOf(false) }
+
                 SettingCardComp(
                     icon = R.drawable.email_icon,
                     title = "Help & Feedback",
@@ -234,6 +252,7 @@ fun SettingScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
 
                 var signOut by remember { mutableStateOf(false) }
+
                 SettingCardComp(
                     icon = R.drawable.sign_out_icon,
                     title = "Sign Out",
@@ -249,14 +268,12 @@ fun SettingScreen(
                             signOut = false
                         },
                         onConfirmation = {
-                            scope.launch {
-                                authViewModel.signOut()
-                                signOut = false
-                            }
+                            settingViewModel.onEvent(SettingEvent.SignOutClick)
+                            signOut = false
                         },
                         dialogTitle = "Sign Out?",
                         dialogText = "You can safely sign out. Your data is securely saved in the cloud, ensuring it's available whenever you sign in.",
-                        email = userEmail,
+                        email = userDetail.email,
                         icon = R.drawable.sign_out_icon,
                         confirmButtonColor = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error,
@@ -287,7 +304,7 @@ fun SettingScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .padding(vertical = 8.dp)
-                    .wrapContentWidth() // ⬅️ Only as wide as needed
+                    .wrapContentWidth()
             ) {
                 Text(
                     text = "Delete Account & Data",
@@ -309,14 +326,12 @@ fun SettingScreen(
                     isDeleteAccount = false
                 },
                 onConfirmation = {
-                    scope.launch {
-                        authViewModel.deleteAccount()
-                        isDeleteAccount = false
-                    }
+                    settingViewModel.onEvent(SettingEvent.DeleteAccountClick)
+                    isDeleteAccount = false
                 },
                 dialogTitle = "Deleted Account?",
                 dialogText = "Your account and data will be permanently deleted. You can create a new account anytime with the same email.",
-                email = userEmail,
+                email = userDetail.email,
                 icon = R.drawable.delete_icon,
                 confirmButtonColor = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,

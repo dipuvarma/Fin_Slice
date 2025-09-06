@@ -5,43 +5,55 @@ import kotlinx.serialization.Serializable
 
 //onBoard
 @Serializable
-object Splash
+object SplashRoute
 
 @Serializable
-object GettingStart
+object GettingStartRoute
 
 @Serializable
-object OnBoard
+object OnBoardRoute
 
 //Auth
 @Serializable
-object SignUp
+object SignUpRoute
 
 @Serializable
-object SignIn
+object SignInRoute
 
 @Serializable
-object ForgetPassword
-
+object ForgetPasswordRoute
 
 //Main
 @Serializable
-object Main
+object MainRoute
 
 @Serializable
-object Home
+object Home {
+    const val route = "home"
+}
 
 @Serializable
-object Categories
+object Categories {
+    const val route = "categories"
+}
 
 @Serializable
-object Report
+object Report {
+    const val route = "report"
+}
+
 
 @Serializable
-object TransactionHistory
+object TransactionHistory{
+    const val route = "transactionHistory"
+}
 
 @Serializable
-object Setting
+object Setting{
+    const val route = "setting"
+
+}
+
 
 @Serializable
-object AddTransaction
+object AddTransactionRoute
