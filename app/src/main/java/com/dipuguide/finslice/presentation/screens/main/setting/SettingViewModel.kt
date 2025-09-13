@@ -26,7 +26,6 @@ class SettingViewModel @Inject constructor(
     private val preferences: ThemeRepository,
 ) : ViewModel() {
 
-    // Internal mutable state
     private val _isDarkModeEnabled = MutableStateFlow(false)
     val isDarkModeEnabled: StateFlow<Boolean> = _isDarkModeEnabled.asStateFlow()
 
