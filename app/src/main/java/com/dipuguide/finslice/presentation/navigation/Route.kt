@@ -1,6 +1,5 @@
 package com.dipuguide.finslice.presentation.navigation
 
-import com.dipuguide.finslice.presentation.model.ExpenseTransactionUi
 import kotlinx.serialization.Serializable
 
 //onBoard

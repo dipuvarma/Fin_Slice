@@ -55,7 +55,6 @@ fun ReportScreen(
     val reportUiState by reportViewModel.reportUiState.collectAsState()
     val uiState by reportViewModel.uiState.collectAsState()
 
-
     LaunchedEffect(uiState) {
         when (uiState) {
             is UiState.Success -> {

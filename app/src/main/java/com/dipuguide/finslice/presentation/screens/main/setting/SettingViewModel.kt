@@ -3,10 +3,9 @@ package com.dipuguide.finslice.presentation.screens.main.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.domain.model.User
-import com.dipuguide.finslice.domain.repo.ThemePreferencesRepo
+import com.dipuguide.finslice.domain.repo.ThemeRepository
 import com.dipuguide.finslice.domain.repo.UserAuthRepository
 import com.dipuguide.finslice.presentation.common.state.UiState
-import com.dipuguide.finslice.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val authRepository: UserAuthRepository,
-    private val preferences: ThemePreferencesRepo,
+    private val preferences: ThemeRepository,
 ) : ViewModel() {
 
     // Internal mutable state
@@ -48,39 +47,38 @@ class SettingViewModel @Inject constructor(
 
     init {
         getUserDetail()
+        loadInitialDarkMode()
+        loadInitialDynamicMode()
     }
 
-    fun loadInitialTheme() {
+    fun loadInitialDarkMode() {
         viewModelScope.launch {
-            val isDarkMode = async {
-                preferences.getBoolean(Constants.DARK_MODE, false)
-                    .collectLatest {
-                        _isDarkModeEnabled.value = it
-                    }
+            preferences.getDarkMode().collectLatest { isDarkMode ->
+                _isDarkModeEnabled.value = isDarkMode
             }
-            val isDynamicMode = async {
-                preferences.getBoolean(Constants.DYNAMIC_MODE, false)
-                    .collectLatest {
-                        Timber.d("DYNAMIC_MODE $it")
-                        _isDynamicModeEnabled.value = it
-                    }
+
+        }
+    }
+
+    fun loadInitialDynamicMode() {
+        viewModelScope.launch {
+            preferences.getDynamicMode().collectLatest { isDynamicMode ->
+                _isDynamicModeEnabled.value = isDynamicMode
             }
-            isDarkMode.await()
-            isDynamicMode.await()
         }
     }
 
     private fun onDarkModeChange(isDarkMode: Boolean) {
         viewModelScope.launch {
             _isDarkModeEnabled.value = isDarkMode
-            preferences.saveBoolean(Constants.DARK_MODE, isDarkMode)
+            preferences.saveDarkMode(isDarkMode)
         }
     }
 
     private fun onDynamicModeChange(isDynamicMode: Boolean) {
         viewModelScope.launch {
             _isDynamicModeEnabled.value = isDynamicMode
-            preferences.saveBoolean(Constants.DYNAMIC_MODE, isDynamicMode)
+            preferences.saveDynamicMode(isDynamicMode)
         }
     }
 

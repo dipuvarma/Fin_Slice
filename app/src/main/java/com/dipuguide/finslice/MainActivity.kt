@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
             val settingViewModel: SettingViewModel = hiltViewModel()
             val isDarkMode by settingViewModel.isDarkModeEnabled.collectAsState()
             val isDynamicMode by settingViewModel.isDynamicModeEnabled.collectAsState()
-            settingViewModel.loadInitialTheme()
+
             FinSliceTheme(darkTheme = isDarkMode, dynamicColor = isDynamicMode) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AppNavGraph()
