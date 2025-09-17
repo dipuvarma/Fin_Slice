@@ -22,7 +22,12 @@ The app integrates **Firebase Authentication**, **Firestore**, and follows the *
 
 ## 📸 Screenshots  
 
-*(Add your app screenshots here for better presentation)*  
+
+<img src="photo_2025-06-21_09-03-46.jpg" alt="Home Screen" width="300"/>  <img src="photo_2025-06-21_09-03-49.jpg" alt="SignIn Screen" width="300"/>  <img src="photo_2025-06-21_09-03-51.jpg" alt="SignUp Screen" width="300"/> <img src="photo_2025-06-21_09-03-52.jpg" alt="Forget Screen" width="300"/> 
+<img src="photo_2025-06-21_09-04-02.jpg" alt="OnBoarding Screen 1" width="300"/> <img src="photo_2025-06-21_09-04-14.jpg" alt="OnBoarding Screen 2" width="300"/> <img src="photo_2025-06-21_09-04-12.jpg" alt="OnBoarding Screen 3" width="300"/> <img src="photo_2025-06-21_09-04-11.jpg" alt="OnBoarding Screen 4" width="300"/> <img src="photo_2025-06-21_09-04-09.jpg" alt="OnBoarding Screen 5" width="300"/> 
+
+<img src="photo_2025-06-21_09-04-00.jpg" alt="Home Screen" width="300"/> <img src="photo_2025-06-21_09-04-03.jpg" alt="Add Expense Screen" width="300"/> <img src="photo_2025-06-21_09-03-58.jpg" alt="Categoey Screen" width="300"/> <img src="photo_2025-06-21_09-03-56.jpg" alt="Report Screen" width="300"/> 
+<img src="photo_2025-06-21_09-03-54.jpg" alt="All Transaction Screen" width="300"/> <img src="photo_2025-06-21_09-04-07.jpg" alt="Setting Screen" width="300"/> 
 
 ---
 
