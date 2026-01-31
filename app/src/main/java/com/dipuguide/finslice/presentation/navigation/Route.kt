@@ -27,31 +27,19 @@ object ForgetPasswordRoute
 object MainRoute
 
 @Serializable
-object Home {
-    const val route = "home"
-}
+object Home
 
 @Serializable
-object Categories {
-    const val route = "categories"
-}
+object Categories
 
 @Serializable
-object Report {
-    const val route = "report"
-}
-
+object Report
 
 @Serializable
-object TransactionHistory{
-    const val route = "transactionHistory"
-}
+object TransactionHistory
 
 @Serializable
-object Setting{
-    const val route = "setting"
-
-}
+object Setting
 
 
 @Serializable

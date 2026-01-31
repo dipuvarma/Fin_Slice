@@ -161,11 +161,11 @@ fun SpendingProgressCard(
     totalAmount: String,
     color: Color,
 ) {
-    val spent = spentAmount.replace(",", "").toIntOrNull() ?: 0
-    val total = totalAmount.replace(",", "").toIntOrNull() ?: 0 // Keep total as 0 if it's 0
+    val spent = spentAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+    val total = totalAmount.replace(",", "").toDoubleOrNull() ?: 0.0 // Keep total as 0 if it's 0
 
     // Calculate targetProgress safely
-    val targetProgress = if (total == 0) {
+    val targetProgress = if (total.toInt() == 0) {
         0f // If total is 0, progress is 0. Avoids NaN if spent is also 0.
     } else {
         spent.toFloat() / total.toFloat()

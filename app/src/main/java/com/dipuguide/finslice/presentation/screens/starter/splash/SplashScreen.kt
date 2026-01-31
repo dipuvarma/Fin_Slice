@@ -14,9 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,25 +31,31 @@ import com.dipuguide.finslice.presentation.navigation.MainRoute
 @Composable
 fun SplashScreen(
     viewModel: SplashViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.navigation.collect { destination ->
-            when (destination) {
-                SplashNavigation.Main -> {
-                    navController.navigate(MainRoute){
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        launchSingleTop = true
-                        restoreState = false
-                    }
-                }
 
-                SplashNavigation.GettingStart -> {
-                    navController.navigate(GettingStartRoute){
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true } // or use startDestinationId as above
-                        launchSingleTop = true
-                        restoreState = false
+    val context = LocalContext.current
+    val navigationState by viewModel.navigation.collectAsState()
+
+    LaunchedEffect(navigationState) {
+        val destination = navigationState ?: return@LaunchedEffect
+
+        when (destination) {
+            SplashNavigation.Main -> {
+                navController.navigate(MainRoute) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                    restoreState = false
+                }
+            }
+
+            SplashNavigation.GettingStart -> {
+                navController.navigate(GettingStartRoute) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
                     }
+                    launchSingleTop = true
+                    restoreState = false
                 }
             }
         }
@@ -94,7 +103,3 @@ fun SplashScreen(
         }
     }
 }
-
-
-
-

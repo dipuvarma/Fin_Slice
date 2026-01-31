@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
 import com.dipuguide.finslice.presentation.common.component.AlertDialogBox
@@ -44,7 +45,6 @@ import com.dipuguide.finslice.presentation.common.component.SettingSwitchCard
 import com.dipuguide.finslice.presentation.common.component.TopAppBarComp
 import com.dipuguide.finslice.presentation.common.state.UiState
 import com.dipuguide.finslice.presentation.navigation.GettingStartRoute
-import com.dipuguide.finslice.presentation.navigation.MainRoute
 
 @Composable
 fun SettingScreen(
@@ -56,9 +56,10 @@ fun SettingScreen(
     val uiState by settingViewModel.uiState.collectAsState()
     val isDynamicMode by settingViewModel.isDynamicModeEnabled.collectAsState()
     val isDarkMode by settingViewModel.isDarkModeEnabled.collectAsState()
-    val settingUiState by settingViewModel.settingUiState.collectAsState()
     val userDetail by settingViewModel.userDetail.collectAsState()
     val context = LocalContext.current
+    val activity = context as? FragmentActivity
+
 
 
     LaunchedEffect(uiState) {
@@ -85,22 +86,18 @@ fun SettingScreen(
                 SettingNavigation.FEEDBACK -> TODO()
                 SettingNavigation.SIGN_OUT -> {
                     navController.navigate(GettingStartRoute) {
-                        navController.navigate(MainRoute) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
                     }
                     settingViewModel.resetUiState()
                 }
 
                 SettingNavigation.DELETE_ACCOUNT -> {
                     navController.navigate(GettingStartRoute) {
-                        navController.navigate(MainRoute) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
                     }
                     settingViewModel.resetUiState()
                 }
@@ -156,16 +153,10 @@ fun SettingScreen(
                     }
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = .2f))
-                SettingSwitchCard(
-                    iconFilled = R.drawable.lock_icon,
-                    iconOutline = R.drawable.unlock_icon,
-                    title = "App Lock",
-                    checked = false,
-                    onCheckedChange = { /* TODO */ }
-                )
             }
 
         }
+
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             modifier = Modifier

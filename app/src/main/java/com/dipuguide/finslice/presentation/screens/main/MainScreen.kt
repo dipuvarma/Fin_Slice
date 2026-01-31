@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -39,7 +41,7 @@ fun MainScreen(
 
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
 
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
@@ -47,13 +49,12 @@ fun MainScreen(
     val settingViewModel = hiltViewModel<SettingViewModel>()
     val reportViewModel = hiltViewModel<ReportViewModel>()
 
-
     Scaffold(
         bottomBar = {
             BottomBarNavigation(tabNavController = tabNavController)
         },
         floatingActionButton = {
-            if (currentDestination == "home") {
+            if (currentDestination?.hasRoute<Home>() == true) {
                 FloatingActionButton(
                     onClick = {
                         rootNavController.navigate(AddTransactionRoute)
@@ -68,16 +69,16 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = tabNavController,
-            startDestination = Home.route,
+            startDestination = Home,
         ) {
 
-            composable(Home.route) {
+            composable<Home> {
                 HomeScreen(
                     innerPadding = innerPadding,
                     homeViewModel = homeViewModel,
                     onOverViewClick = {
-                        tabNavController.navigate(Report.route) {
-                            popUpTo(tabNavController.graph.startDestinationId) {
+                        tabNavController.navigate(Report) {
+                            popUpTo(tabNavController.graph.findStartDestination().id) {
                                 inclusive = false
                             }
                             launchSingleTop = true
@@ -87,27 +88,27 @@ fun MainScreen(
                 )
             }
 
-            composable(Categories.route) {
+            composable<Categories> {
                 CategoriesScreen(
                     innerPadding = innerPadding,
                     categoryViewModel = categoryViewModel
                 )
             }
 
-            composable(Report.route) {
+            composable<Report> {
                 ReportScreen(
                     reportViewModel = reportViewModel,
                 )
             }
 
-            composable(TransactionHistory.route) {
+            composable<TransactionHistory> {
                 TransactionHistoryScreen(
                     innerPadding = innerPadding,
                     historyViewModel = historyViewModel,
                 )
             }
 
-            composable(Setting.route) {
+            composable<Setting> {
                 SettingScreen(
                     innerPadding = innerPadding,
                     settingViewModel = settingViewModel,

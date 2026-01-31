@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -53,9 +52,7 @@ fun OnBoardingScreen(
     navController: NavController,
     viewModel: OnBoardingViewModel
 ) {
-    val context = LocalContext.current
-    val pagerData by remember { mutableStateOf(viewModel.getIntroPagerData(context)) }
-
+    val pagerData = viewModel.introPagerData
     val pagerState = rememberPagerState(pageCount = { pagerData.size })
     val coroutineScope = rememberCoroutineScope()
     val lastIndex = pagerData.lastIndex
@@ -137,7 +134,7 @@ fun OnBoardingScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = item.title,
+                                text = stringResource(item.titleResId),
                                 style = MaterialTheme.typography.headlineMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground
@@ -145,7 +142,7 @@ fun OnBoardingScreen(
                                 textAlign = TextAlign.Center
                             )
                             Text(
-                                text = item.description,
+                                text = stringResource(item.descriptionResId),
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     color = MaterialTheme.colorScheme.onBackground
                                 ),
@@ -240,14 +237,16 @@ private fun PagerIndicator(pageCount: Int, currentPageIndex: Int, modifier: Modi
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(pageCount) { iteration ->
-                val color =
-                    if (currentPageIndex == iteration) Color.DarkGray else Color.LightGray
+                val color = if (currentPageIndex == iteration) 
+                    MaterialTheme.colorScheme.onBackground 
+                else 
+                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
                 Box(
                     modifier = modifier
-                        .padding(2.dp)
+                        .padding(4.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .size(16.dp)
+                        .size(10.dp)
                 )
             }
         }

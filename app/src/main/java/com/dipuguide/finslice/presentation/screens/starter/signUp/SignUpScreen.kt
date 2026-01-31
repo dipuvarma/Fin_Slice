@@ -251,7 +251,7 @@ fun SignUpScreen(
                         }
                     }
                 },
-                visualTransformation = if (signUpUiState.isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (signUpUiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -317,10 +317,11 @@ fun SignUpScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier
                         .weight(1f)
                         .height(1.dp),
+                    thickness = DividerDefaults.Thickness,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
                 )
 

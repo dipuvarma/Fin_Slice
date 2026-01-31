@@ -89,11 +89,7 @@ dependencies {
 
     implementation ("com.google.code.gson:gson:2.13.1")
 
-    implementation("androidx.compose.material3:material3")
-
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
-
-    implementation ("com.google.accompanist:accompanist-swiperefresh:0.30.1")
 
     //for pie chart
     implementation ("io.github.ehsannarmani:compose-charts:0.1.7")
@@ -102,5 +98,6 @@ dependencies {
 
     implementation("com.jakewharton.timber:timber:5.0.1")
 
+    implementation("androidx.biometric:biometric:1.4.0-alpha02")
 
 }

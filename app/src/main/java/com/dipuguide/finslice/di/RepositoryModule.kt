@@ -39,5 +39,4 @@ abstract class RepositoryModule {
         themePreferencesImpl: ThemeRepositoryImpl,
     ): ThemeRepository
 
-
 }

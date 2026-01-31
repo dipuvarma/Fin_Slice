@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dipuguide.finslice.R
 import com.dipuguide.finslice.presentation.navigation.SignInRoute
@@ -49,20 +50,25 @@ fun GettingStartScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         text = stringResource(R.string.welcome),
-                        style = MaterialTheme.typography.displayLarge.copy(
+                        style = MaterialTheme.typography.displayMedium.copy(
                             color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Light,
+                            letterSpacing = 2.sp
                         ),
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.displayLarge.copy(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.Bold
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = (-1).sp
                         ),
                         textAlign = TextAlign.Center
                     )
@@ -72,15 +78,16 @@ fun GettingStartScreen(
                     text = buildAnnotatedString {
                         append(stringResource(R.string.split_income))
                         append(" ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.need)) }
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) { append(stringResource(R.string.need)) }
                         append(", ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.want)) }
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)) { append(stringResource(R.string.want)) }
                         append(", and ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(stringResource(R.string.invest)) }
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)) { append(stringResource(R.string.invest)) }
                         append(".")
                     },
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .8f)
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .7f),
+                        lineHeight = 32.sp
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -88,12 +95,12 @@ fun GettingStartScreen(
                 Text(
                     text = buildAnnotatedString {
                         append("*Inspired by ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Rich Dad Poor Dad.")
+                        withStyle(SpanStyle(fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground)) {
+                            append("Rich Dad Poor Dad")
                         }
                     },
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .5f)
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .4f)
                     ),
                     textAlign = TextAlign.Center
                 )

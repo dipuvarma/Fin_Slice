@@ -104,7 +104,7 @@ fun ForgetPasswordScreen(
             // Header
             Text(
                 text = "Forgot Your Password?",
-                style = MaterialTheme.typography.headlineMedium.copy(
+                style = MaterialTheme.typography.headlineLarge.copy(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
@@ -142,8 +142,18 @@ fun ForgetPasswordScreen(
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() },
                 ),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
+                isError = forgetUiState.email.isNotBlank() && forgetUiState.email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(forgetUiState.email).matches(),
+                singleLine = true
             )
+            if (forgetUiState.email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(forgetUiState.email).matches()) {
+                Text(
+                    text = "• Invalid email format",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -157,8 +167,8 @@ fun ForgetPasswordScreen(
                     .height(48.dp),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
                 enabled = forgetUiState.email.isNotEmpty()

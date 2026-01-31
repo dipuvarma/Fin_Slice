@@ -179,8 +179,20 @@ fun SignInScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
+                isError = signInUiState.email.isNotBlank() && signInUiState.emailError != null,
+                singleLine = true
             )
+            if (signInUiState.email.isNotBlank()) {
+                signInUiState.emailError?.let {
+                    Text(
+                        text = "• $it",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Password
@@ -214,7 +226,7 @@ fun SignInScreen(
                         }
                     }
                 },
-                visualTransformation = if (signInUiState.isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (signInUiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -222,8 +234,20 @@ fun SignInScreen(
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() },
                 ),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
+                isError = signInUiState.password.isNotBlank() && signInUiState.passwordErrors.isNotEmpty(),
+                singleLine = true
             )
+            if (signInUiState.password.isNotBlank() && signInUiState.passwordErrors.isNotEmpty()) {
+                signInUiState.passwordErrors.forEach {
+                    Text(
+                        text = "• $it",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier.fillMaxWidth(),

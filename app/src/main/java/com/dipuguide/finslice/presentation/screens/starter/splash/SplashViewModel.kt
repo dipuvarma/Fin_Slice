@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dipuguide.finslice.domain.repo.UserAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -17,8 +17,8 @@ class SplashViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Navigation events
-    private val _navigation = MutableSharedFlow<SplashNavigation>()
-    val navigation = _navigation.asSharedFlow()
+    private val _navigation = MutableStateFlow<SplashNavigation?>(null)
+    val navigation = _navigation.asStateFlow()
 
     init {
         checkLoginStatus()
@@ -31,7 +31,7 @@ class SplashViewModel @Inject constructor(
                     Timber.e(it)
                 }
                 .collect { isLogin ->
-                    _navigation.emit(if (isLogin) SplashNavigation.Main else SplashNavigation.GettingStart)
+                    _navigation.value = if (isLogin) SplashNavigation.Main else SplashNavigation.GettingStart
                 }
         }
     }

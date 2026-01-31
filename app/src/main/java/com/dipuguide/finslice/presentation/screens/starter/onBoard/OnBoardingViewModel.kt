@@ -8,40 +8,35 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 
-class OnBoardingViewModel: ViewModel() {
+@HiltViewModel
+class OnBoardingViewModel @Inject constructor() : ViewModel() {
 
-    fun getIntroPagerData(context: Context): List<IntroPagerModel> {
-        return listOf(
-            IntroPagerModel(
-                image = R.drawable.image_1,
-                title = context.getString(R.string.title_1),
-                description = context.getString(R.string.desc_1)
-            ),
-
-            IntroPagerModel(
-                image = R.drawable.image_2,
-                title = context.getString(R.string.title_2),
-                description = context.getString(R.string.desc_2)
-            ),
-
-            IntroPagerModel(
-                image = R.drawable.image_3,
-                title = context.getString(R.string.title_3),
-                description = context.getString(R.string.desc_3)
-            ),
-
-            IntroPagerModel(
-                image = R.drawable.image_4,
-                title = context.getString(R.string.title_4),
-                description = context.getString(R.string.desc_4)
-            ),
-            IntroPagerModel(
-                image = R.drawable.image_5,
-                title = context.getString(R.string.title_5),
-                description = context.getString(R.string.desc_5)
-            )
+    val introPagerData = listOf(
+        IntroPagerModel(
+            image = R.drawable.image_1,
+            titleResId = R.string.title_1,
+            descriptionResId = R.string.desc_1
+        ),
+        IntroPagerModel(
+            image = R.drawable.image_2,
+            titleResId = R.string.title_2,
+            descriptionResId = R.string.desc_2
+        ),
+        IntroPagerModel(
+            image = R.drawable.image_3,
+            titleResId = R.string.title_3,
+            descriptionResId = R.string.desc_3
+        ),
+        IntroPagerModel(
+            image = R.drawable.image_4,
+            titleResId = R.string.title_4,
+            descriptionResId = R.string.desc_4
+        ),
+        IntroPagerModel(
+            image = R.drawable.image_5,
+            titleResId = R.string.title_5,
+            descriptionResId = R.string.desc_5
         )
-
-    }
+    )
 
 }

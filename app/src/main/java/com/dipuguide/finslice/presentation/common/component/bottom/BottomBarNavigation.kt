@@ -1,6 +1,5 @@
 package com.dipuguide.finslice.presentation.common.component.bottom
 
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.dipuguide.finslice.R
@@ -22,52 +22,59 @@ import com.dipuguide.finslice.presentation.navigation.Home
 import com.dipuguide.finslice.presentation.navigation.Report
 import com.dipuguide.finslice.presentation.navigation.Setting
 import com.dipuguide.finslice.presentation.navigation.TransactionHistory
+import kotlin.reflect.KClass
 
-sealed class BottomBarDestination(
-    val route: String,
+sealed class BottomBarDestination<T : Any>(
+    val route: T,
     val selectedIcon: Int,
     val unselectedIcon: Int,
     val label: String,
     val contentDescription: String,
+    val routeClass: KClass<T>,
 ) {
-    data object HomeBottomBar : BottomBarDestination(
-        Home.route,
+    data object HomeBottomBar : BottomBarDestination<Home>(
+        Home,
         R.drawable.home_filled,
         R.drawable.home_outline,
         "Home",
         "Home Screen",
+        Home::class
     )
 
-    data object CategoriesBottomBar : BottomBarDestination(
-        Categories.route,
+    data object CategoriesBottomBar : BottomBarDestination<Categories>(
+        Categories,
         R.drawable.category_filled,
         R.drawable.category_outline,
         "Categories",
         "Categories Screen",
+        Categories::class
     )
 
-    data object ReportBottomBar : BottomBarDestination(
-        Report.route,
+    data object ReportBottomBar : BottomBarDestination<Report>(
+        Report,
         R.drawable.report_filled,
         R.drawable.report_outline,
         "Report",
         "Report Screen",
+        Report::class
     )
 
-    data object HistoryBottomBar : BottomBarDestination(
-        TransactionHistory.route,
+    data object HistoryBottomBar : BottomBarDestination<TransactionHistory>(
+        TransactionHistory,
         R.drawable.dollar_transaction_filled,
         R.drawable.dollar_transaction_icon,
         "History",
         "History Screen",
+        TransactionHistory::class
     )
 
-    data object SettingsBottomBar : BottomBarDestination(
-        Setting.route,
+    data object SettingsBottomBar : BottomBarDestination<Setting>(
+        Setting,
         R.drawable.settings_filled,
         R.drawable.settings_outline,
         "Settings",
         "Settings Screen",
+        Setting::class
     )
 }
 
@@ -86,13 +93,13 @@ fun BottomBarNavigation(
         )
 
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
         bottomBarDestinations.forEach { destination ->
-            val isSelected = currentDestination == destination.route
+            val isSelected = currentDestination?.hasRoute(destination.routeClass) == true
             NavigationBarItem(
                 selected = isSelected,
                 icon = {

@@ -90,17 +90,14 @@ fun ReportScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         ResponsiveBox(alignment = Alignment.Center) {
-            if (allExpense.isNotEmpty()) {
-                val pieEntries = allExpense
-                    .groupBy { it.tag ?: "Untagged" }
-                    .map { (tag, expenses) ->
-                        val totalAmount = expenses.sumOf { it.amount }
-                        Pie(
-                            label = tag,
-                            data = totalAmount,
-                            color = getColorForIndex(tag.hashCode()),
-                        )
-                    }
+            if (reportUiState.expensesByTag.isNotEmpty()) {
+                val pieEntries = reportUiState.expensesByTag.map { tagExpense ->
+                    Pie(
+                        label = tagExpense.tag,
+                        data = tagExpense.totalAmount,
+                        color = getColorForIndex(tagExpense.tag.hashCode()),
+                    )
+                }
 
                 AddCustomPieChart(
                     pie = pieEntries,
@@ -157,13 +154,13 @@ fun ReportScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            allExpense.groupBy { it.tag ?: "Untagged" }
-                .forEach { (tag, expenses) ->
-                    val amount = expenses.sumOf { it.amount }
-                    val percentage =
-                        if (reportUiState.totalExpense > 0) (amount / reportUiState.totalExpense) * 100.0 else 0.0
-                    ExpenseRow(tag = tag, amount = amount, percentage = percentage)
-                }
+            reportUiState.expensesByTag.forEach { tagExpense ->
+                ExpenseRow(
+                    tag = tagExpense.tag, 
+                    amount = tagExpense.totalAmount, 
+                    percentage = tagExpense.percentage
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

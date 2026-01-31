@@ -39,10 +39,11 @@ fun BudgetCategoryCard(
 ) {
 
     // Safe conversion
-    val spent = spentAmount.replace(",", "").toIntOrNull() ?: 0
-    val total = totalAmount.replace(",", "").toIntOrNull() ?: 0
+    // Safe conversion
+    val spent = spentAmount.replace(",", "").toDoubleOrNull() ?: 0.0
+    val total = totalAmount.replace(",", "").toDoubleOrNull() ?: 0.0
 
-    val targetProgress = if (total == 0) {
+    val targetProgress = if (total.toInt() == 0) {
         0f
     } else {
         spent.toFloat() / total.toFloat()
@@ -55,20 +56,20 @@ fun BudgetCategoryCard(
         label = "AnimatedProgress"
     )
 
-    val animatedSpent by animateIntAsState(
-        targetValue = spent,
+    val animatedSpent by animateFloatAsState(
+        targetValue = spent.toFloat(),
         animationSpec = tween(durationMillis = 1200),
         label = "AnimatedSpent"
     )
 
-    val animatedTotal by animateIntAsState(
-        targetValue = total,
+    val animatedTotal by animateFloatAsState(
+        targetValue = total.toFloat(),
         animationSpec = tween(durationMillis = 1200),
         label = "AnimatedTotal"
     )
 
-    val formattedSpent = "₹ %,d".format(animatedSpent)
-    val formattedTotal = "₹ %,d".format(animatedTotal)
+    val formattedSpent = "₹ %,.0f".format(animatedSpent)
+    val formattedTotal = "₹ %,.0f".format(animatedTotal)
 
     Surface(
         shape = MaterialTheme.shapes.small,

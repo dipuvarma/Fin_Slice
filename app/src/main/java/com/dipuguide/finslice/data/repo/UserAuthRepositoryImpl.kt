@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -59,23 +60,22 @@ class UserAuthRepositoryImpl @Inject constructor(
 
     override suspend fun saveUserDetail(user: User): Result<Unit> = withContext(ioDispatchers) {
         val userId = auth.currentUser?.uid
-            ?: throw FirebaseAuthException("USER_NULL", "User ID is null")
+            ?: return@withContext Result.failure(FirebaseAuthException("USER_NULL", "User not logged in"))
 
-        val user = User(
+        val userToSave = User(
             id = userId,
             name = user.name,
             email = user.email,
             photoUri = user.photoUri,
         )
         try {
-            firestore.collection(USERS_COLLECTION).document(userId).set(user).await()
-            Timber.d("User save details successful: $user")
+            firestore.collection(USERS_COLLECTION).document(userId)
+                .set(userToSave, SetOptions.merge())
+                .await()
+            Timber.d("User save details successful (merged): $userToSave")
             Result.success(Unit)
-        } catch (e: FirebaseAuthException) {
-            Timber.e(e, "FirebaseAuthException during save details: ${e.message}")
-            Result.failure(e)
         } catch (e: Exception) {
-            Timber.e(e, "Unknown exception during save details: ${e.message}")
+            Timber.e(e, "Error saving user details: ${e.message}")
             Result.failure(e)
         }
     }
@@ -113,23 +113,26 @@ class UserAuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun editUserDetail(user: User): Result<Unit> {
+    override suspend fun editUserDetail(user: User): Result<Unit> = withContext(ioDispatchers) {
         val userId = auth.currentUser?.uid
-            ?: throw FirebaseAuthException("USER_NULL", "User ID is null")
+            ?: return@withContext Result.failure(FirebaseAuthException("USER_NULL", "User not logged in"))
 
-        return try {
+        try {
             val firestoreColl = firestore.collection(USERS_COLLECTION)
                 .document(userId)
 
-            val updatedUser = mapOf(
+            val updatedUser = mutableMapOf<String, Any?>(
                 "name" to user.name,
-                "email" to user.photoUri,
-                "photoUri" to user.photoUri,
-                "createdAt" to user.createdAt
+                "email" to user.email,
+                "photoUri" to user.photoUri
             )
+            // Explicitly excluding 'createdAt' to prevent accidental modification
+            
             firestoreColl.update(updatedUser).await()
+            Timber.d("User details updated successfully")
             Result.success(Unit)
         } catch (e: Exception) {
+            Timber.e(e, "Error updating user details: ${e.message}")
             Result.failure(e)
         }
     }
@@ -168,18 +171,22 @@ class UserAuthRepositoryImpl @Inject constructor(
     override suspend fun deleteAccount(): Result<Unit> =
         withContext(ioDispatchers) {
             try {
-                val currentUser =
-                    auth.currentUser ?: throw FirebaseAuthException(
-                        "CURRENT_USER",
-                        "Current User is null"
-                    )
+                val currentUser = auth.currentUser 
+                    ?: return@withContext Result.failure(FirebaseAuthException("CURRENT_USER", "Current User is null"))
+                
+                val userId = currentUser.uid
+                
+                // 1. Delete data from Firestore first
+                firestore.collection(USERS_COLLECTION).document(userId).delete().await()
+                Timber.d("User document deleted from Firestore: $userId")
+                
+                // 2. Delete the Auth account
                 currentUser.delete().await()
+                Timber.d("Auth account deleted: $userId")
+                
                 Result.success(Unit)
-            } catch (e: FirebaseAuthException) {
-                Timber.e(e, "FirebaseAuthException during delete: ${e.message}")
-                Result.failure(e)
             } catch (e: Exception) {
-                Timber.e(e, "Unknown exception during delete: ${e.message}")
+                Timber.e(e, "Error during account deletion: ${e.message}")
                 Result.failure(e)
             }
         }
